@@ -94,6 +94,8 @@
 (set-foreground-color "burlywood3")
 (set-background-color "#161616")
 (set-cursor-color "#40FF40")
+(set-face-attribute 'region nil :background "#666" :foreground "#ffffff")
+(set-face-attribute 'mode-line nil :background "#161616" :foreground "burlywood3")
 
 ;; Packages
 
