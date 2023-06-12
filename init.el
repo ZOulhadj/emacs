@@ -1,45 +1,3 @@
-
-(setq gc-cons-threshold 20000000) ;; 20mb
-(setq inhibit-startup-message t)
-(setq initial-scratch-message nil)
-;;(setq default-directory "~/")
-(delete-selection-mode t)
-(global-auto-revert-mode t)
-(setq global-auto-revert-non-file-buffers t)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(blink-cursor-mode 0)
-(global-hl-line-mode 0)
-(setq show-paren-delay 0.0)
-(show-paren-mode t)
-
-
-(setq ring-bell-function 'ignore)
-(add-hook 'prog-mode-hook 'subword-mode)
-(fset 'yes-or-no-p 'y-or-n-p)
-
-(setq-default dired-listing-switches "-alh")
-
-(setq confirm-kill-emacs 'y-or-n-p)
-(setq create-lockfiles nil)
-(setq make-backup-files nil)
-(setq vc-follow-symlinks t)
-(setq column-number-mode t)
-(setq use-dialog-box nil)
-(setq-default indent-tabs-mode nil)
-(setq compilation-scroll-output nil)
-(recentf-mode 1)
-(save-place-mode 1)
-
-(setq split-height-threshold nil)
-(setq split-width-threshold 0)
-
-(setq custom-file (locate-user-emacs-file "custom.el"))
-(load custom-file 'noerror 'nomessage)
-
-(set-frame-font "Consolas 16" nil t)
-(setq default-frame-alist nil)
-
 (defun custom/open-emacs-config ()
   "Load my Emacs init.el configuration file"
   (interactive)
@@ -52,6 +10,8 @@
                          (buffer-file-name))))
 
 (global-set-key (kbd "C-c c") 'custom/open-emacs-config)
+(global-set-key (kbd "C-c w") 'custom/latex-word-count)
+
 (global-set-key (kbd "M-.") 'c-fill-paragraph)
 (global-set-key (kbd "M-o") 'ff-find-other-file)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
@@ -60,56 +20,396 @@
 (global-set-key (kbd "<f7>") 'previous-error)
 (global-set-key (kbd "<f8>") 'next-error)
 (global-set-key (kbd "<f9>") 'compile)
-(global-set-key (kbd "C-c w") 'custom/latex-word-count)
+
 (global-unset-key [mouse-2])
 
-
-(setq c-default-style "k&r")
-(setq c-basic-offset 4)
-
-(setq fixme-modes '(c++-mode c-mode emacs-lisp-mode))
-(make-face 'font-lock-fixme-face)
-(make-face 'font-lock-note-face)
-(mapc (lambda (mode)
-	(font-lock-add-keywords
-	 mode
-	 '(("\\<\\(TODO\\)" 1 'font-lock-fixme-face t)
-           ("\\<\\(NOTE\\)" 1 'font-lock-note-face t))))
-      fixme-modes)
-(modify-face 'font-lock-fixme-face "Red" nil nil t nil t nil nil)
-(modify-face 'font-lock-note-face "Dark Green" nil nil t nil t nil nil)
-
-
-
-;; Theme
-(set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
-(set-face-attribute 'font-lock-comment-face nil :foreground "gray50")
-(set-face-attribute 'font-lock-constant-face nil :foreground "olive drab")
-(set-face-attribute 'font-lock-doc-face nil :foreground "gray50")
-(set-face-attribute 'font-lock-function-name-face nil :foreground "burlywood3")
-(set-face-attribute 'font-lock-keyword-face nil :foreground "DarkGoldenrod3")
-(set-face-attribute 'font-lock-string-face nil :foreground "olive drab")
-(set-face-attribute 'font-lock-type-face nil :foreground "DarkGoldenrod3")
-(set-face-attribute 'font-lock-variable-name-face nil :foreground "burlywood3")
-(set-foreground-color "burlywood3")
-(set-background-color "#161616")
-(set-cursor-color "#40FF40")
-(set-face-attribute 'region nil :background "#666" :foreground "#ffffff")
-(set-face-attribute 'mode-line nil :background "#161616" :foreground "burlywood3")
-
-;; Packages
-
-(package-initialize)
 (require 'package)
-(add-to-list 'package-archives
-    '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
 
-(dolist (package '(use-package))
-   (unless (package-installed-p package)
-       (package-install package)))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+(require 'use-package-ensure)
+(setq use-package-always-ensure nil)
+
+
+;; built-in packages
+
+(use-package cus-edit
+  :init
+  (setq
+   custom-file (locate-user-emacs-file "custom.el")
+   )
+  :config
+  (load custom-file 'noerror 'nomessage)
+  )
+
+(use-package startup
+  :no-require t
+  :init
+  (setq
+   inhibit-startup-message t
+   initial-scratch-message nil
+   )
+  )
+
+(use-package window
+  :init
+  (setq
+   split-height-threshold nil
+   split-width-threshold 0
+   )
+  )
+
+(use-package frame
+  :config
+  (blink-cursor-mode 0)
+  )
+
+(use-package scroll-bar
+  :config
+  (scroll-bar-mode -1)
+  )
+
+(use-package hl-line
+  :config
+  (global-hl-line-mode 0)
+  )
+
+(use-package files
+  :init
+  (setq
+   make-backup-files nil
+   confirm-kill-emacs 'y-or-n-p
+   )
+  )
+
+(use-package autorevert
+  :init
+  (setq
+   global-auto-revert-non-file-buffers t
+   )
+  :config
+  (global-auto-revert-mode t)
+  )
+
+(use-package delsel
+  :config
+  (delete-selection-mode t)
+  )
+
+(use-package vc-hooks
+  :init
+  (setq
+   vc-follow-symlinks t
+   )
+  )
+
+(use-package simple
+  :init
+  (setq
+   column-number-mode t
+   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
+   )
+  )
+
+(use-package isearch
+  :init
+  (setq
+   isearch-wrap-pause 'no ; automatically wrap search
+   )
+  )
+
+(use-package paren
+  :init
+  (setq
+   show-paren-delay 0.0
+   )
+
+  :config
+  (show-paren-mode t)
+  )
+
+(use-package compile
+  :init
+  (setq
+   compilation-scroll-output nil
+   )
+  )
+
+(use-package dired
+  :init
+  (setq-default
+   dired-listing-switches "-alh"
+   )
+  )
+
+(use-package recentf
+  :config
+  (recentf-mode 1)
+  )
+
+(use-package saveplace
+  :config
+  (save-place-mode 1)
+  )
+
+(use-package cc-vars
+  :init
+  (setq
+   c-default-style "k&r"
+   c-basic-offset 4
+   )
+  )
+
+(use-package emacs
+  :init
+  (setq
+   gc-cons-threshold 20000000 ;; 20mb
+   create-lockfiles nil
+   use-dialog-box nil
+   enable-recursive-minibuffers t
+   ring-bell-function 'ignore
+   default-frame-alist nil
+   )
+  
+  (setq-default
+   indent-tabs-mode nil
+   )
+  
+  :config
+  (tool-bar-mode -1)
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+  :bind
+  
+  )
+
+(use-package savehist
+  :init
+  (savehist-mode))
+
+;; (use-package subword
+;;   :ensure nil
+;;   :diminish
+;;   :hook (prog-mode . 'subword-mode))
+  
+
+;; external packages
+
+(use-package diminish
+  :ensure t)
 
 (use-package magit
   :ensure t)
+
+(use-package which-key
+  :ensure t
+  :diminish
+  :init (setq
+         which-key-show-early-on-C-h t
+         which-key-idle-delay 10000
+         which-key-idle-secondary-delay 0.05)
+  :config (which-key-mode))
+
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :ensure t
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode)
+  (setq 
+   vertico-cycle t
+   vertico-resize nil
+   vertico-count 20))
+
+;; Enable vertico-multiform
+(vertico-multiform-mode)
+
+;; (use-package vertico-posframe
+;;   :init
+;;   (setq vertico-posframe-poshandler #'posframe-poshandler-frame-top-center)
+;;   :config
+;;   (vertico-posframe-mode 0))
+
+(use-package marginalia
+  :ensure t
+  :after vertico
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  :init
+  (marginalia-mode))
+
+(use-package consult
+  :ensure t
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 3. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  ;;;; 4. projectile.el (projectile-project-root)
+  (autoload 'projectile-project-root "projectile")
+  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;;; 5. No project support
+  ;; (setq consult-project-function nil)
+  )
+
+(use-package embark
+  :ensure t
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
+  ;; strategy, if you want to see the documentation from multiple providers.
+  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package consult-projectile
+  :ensure t)
+
+(use-package projectile
+  :ensure t
+  :diminish
+  :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("s-p" . projectile-command-map)
+              ("C-c p" . projectile-command-map)))
+
 
 ;;(setq flycheck-highlighting-mode 'lines)
 ;;(setq flycheck-highlighting-style 'level-face)
