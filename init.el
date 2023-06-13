@@ -1,3 +1,7 @@
+;; Required software
+;; rp (RipGrep) - string searching
+;; mpv - music
+
 (defun custom/open-emacs-config ()
   "Load my Emacs init.el configuration file"
   (interactive)
@@ -6,22 +10,11 @@
 (defun custom/latex-word-count ()
   (interactive)
   (shell-command (concat "texcount "
-                         ; "uncomment then options go here "
                          (buffer-file-name))))
 
 (global-set-key (kbd "C-c c") 'custom/open-emacs-config)
 (global-set-key (kbd "C-c w") 'custom/latex-word-count)
 
-(global-set-key (kbd "M-.") 'c-fill-paragraph)
-(global-set-key (kbd "M-o") 'ff-find-other-file)
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "M-/") 'dabbrev-expand)
-(global-set-key (kbd "<f6>") 'first-error)
-(global-set-key (kbd "<f7>") 'previous-error)
-(global-set-key (kbd "<f8>") 'next-error)
-(global-set-key (kbd "<f9>") 'compile)
-
-(global-unset-key [mouse-2])
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -186,8 +179,11 @@
   (fset 'yes-or-no-p 'y-or-n-p)
 
   :bind
-  
+  ("C-x c" . comment-line)
+  ("C-x k" . kill-this-buffer)
   )
+
+(global-unset-key [mouse-2])
 
 (use-package savehist
   :init
@@ -211,9 +207,9 @@
   :ensure t
   :diminish
   :init (setq
-         which-key-show-early-on-C-h t
-         which-key-idle-delay 10000
-         which-key-idle-secondary-delay 0.05)
+         which-key-show-early-on-C-h nil
+         which-key-idle-delay 1.0
+         which-key-idle-secondary-delay nil)
   :config (which-key-mode))
 
 (use-package exec-path-from-shell
@@ -408,7 +404,15 @@
   (projectile-mode +1)
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)))
+              ("C-c p" . projectile-command-map)
+              ("C-c C-f" . projectile-find-file)))
+
+(use-package emms
+  :ensure t
+  :config
+  (emms-all)
+  (emms-default-players)
+  )
 
 
 ;;(setq flycheck-highlighting-mode 'lines)
