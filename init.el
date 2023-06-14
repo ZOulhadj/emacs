@@ -1,6 +1,7 @@
 ;; Required software
 ;; rp (RipGrep) - string searching
 ;; mpv - music
+;; 
 
 (defun custom/open-emacs-config ()
   "Load my Emacs init.el configuration file"
@@ -47,6 +48,7 @@
   (setq
    inhibit-startup-message t
    initial-scratch-message nil
+   user-mail-address "" ; todo
    )
   )
 
@@ -177,7 +179,7 @@
   :config
   (tool-bar-mode -1)
   (fset 'yes-or-no-p 'y-or-n-p)
-
+  (set-frame-font "Source Code Pro 16")
   :bind
   ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
@@ -407,12 +409,37 @@
               ("C-c p" . projectile-command-map)
               ("C-c C-f" . projectile-find-file)))
 
+(use-package company
+  :ensure t
+  :diminish
+  :config (setq
+           company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+           company-selection-wrap-around t
+           company-show-numbers nil
+           company-tooltip-align-annotations t
+           company-idle-delay 0.5
+           company-require-match nil
+           company-minimum-prefix-length 2)
+  
+  :bind (:map company-active-map
+        ("C-n" . company-select-next)
+        ("C-p" . company-select-previous)
+        ("<tab>" . company-complete-selection))
+  :hook (prog-mode . company-mode)
+
+  )
+
 (use-package emms
   :ensure t
   :config
   (emms-all)
   (emms-default-players)
   )
+
+(use-package smartparens
+  :ensure t
+  :diminish
+  :hook (prog-mode . smartparens-mode))
 
 
 ;;(setq flycheck-highlighting-mode 'lines)
