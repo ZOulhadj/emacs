@@ -9,3 +9,5 @@ recentf
 history
 projectile-bookmarks.eld
 emms/
+.cache/
+.lsp-session-v1

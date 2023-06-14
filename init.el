@@ -165,6 +165,7 @@
   :init
   (setq
    gc-cons-threshold 20000000 ;; 20mb
+   read-process-output-max (* 1024 1024)
    create-lockfiles nil
    use-dialog-box nil
    enable-recursive-minibuffers t
@@ -180,6 +181,8 @@
   (tool-bar-mode -1)
   (fset 'yes-or-no-p 'y-or-n-p)
   (set-frame-font "Source Code Pro 16")
+  (load-theme 'modus-vivendi)
+  
   :bind
   ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
@@ -294,7 +297,7 @@
          ("M-s D" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
+         ("C-c g" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
          ("M-s k" . consult-keep-lines)
@@ -365,30 +368,30 @@
   ;; (setq consult-project-function nil)
   )
 
-(use-package embark
-  :ensure t
-  :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+;; (use-package embark
+;;   :ensure t
+;;   :bind
+;;   (("C-." . embark-act)         ;; pick some comfortable binding
+;;    ("C-;" . embark-dwim)        ;; good alternative: M-.
+;;    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
-  :init
+;;   :init
 
-  ;; Optionally replace the key help with a completing-read interface
-  (setq prefix-help-command #'embark-prefix-help-command)
+;;   ;; Optionally replace the key help with a completing-read interface
+;;   (setq prefix-help-command #'embark-prefix-help-command)
 
-  ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
-  ;; strategy, if you want to see the documentation from multiple providers.
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+;;   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
+;;   ;; strategy, if you want to see the documentation from multiple providers.
+;;   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+;;   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
 
-  :config
+;;   :config
 
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+;;   ;; Hide the mode line of the Embark live/completions buffers
+;;   (add-to-list 'display-buffer-alist
+;;                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+;;                  nil
+;;                  (window-parameters (mode-line-format . none)))))
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
@@ -408,6 +411,18 @@
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map)
               ("C-c C-f" . projectile-find-file)))
+
+(use-package lsp-mode
+  :ensure t
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-c l")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         (prog-mode . lsp)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp)
+
 
 (use-package company
   :ensure t
@@ -442,11 +457,10 @@
   :hook (prog-mode . smartparens-mode))
 
 
-;;(setq flycheck-highlighting-mode 'lines)
-;;(setq flycheck-highlighting-style 'level-face)
+(setq flycheck-highlighting-mode 'lines)
+(setq flycheck-highlighting-style 'level-face)
 
-;;(use-package flycheck
-;;  :ensure t
-;;  :init (global-flycheck-mode))
-;;(set-face-attribute 'flycheck-error nil :background "red" :foreground "white")
-;;(set-face-attribute 'flycheck-warning nil :background "orange" :foreground "white")
+(use-package flycheck
+ :ensure t
+ :init (global-flycheck-mode))
+
