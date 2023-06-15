@@ -212,7 +212,7 @@
   (load-theme 'modus-operandi)
   
   :bind
-  ("C-x c" . comment-line)
+  ("C-c c" . comment-line)
   ("C-x k" . kill-this-buffer)
   )
 
@@ -431,19 +431,24 @@
               ("C-c p" . projectile-command-map)
               ("C-c C-f" . projectile-find-file)))
 
-(use-package consult-lsp
-  :ensure t)
+;; (use-package consult-lsp
+;;   :ensure t)
 
 (use-package lsp-mode
   :ensure t
   :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         (prog-mode . lsp)
-         ;; if you want which-key integration
+  (setq
+   lsp-keymap-prefix "C-c l"
+   lsp-headerline-breadcrumb-enable nil
+   lsp-enable-symbol-highlighting nil
+   lsp-enable-links nil
+   lsp-idle-delay 0.1
+   )
+  :hook (
+         (prog-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp)
+  :commands (lsp lsp-deferred)
+  )
 
 
 (use-package company
@@ -454,7 +459,7 @@
            company-selection-wrap-around t
            company-show-numbers nil
            company-tooltip-align-annotations t
-           company-idle-delay 0.5
+           company-idle-delay 0.0
            company-require-match nil
            company-minimum-prefix-length 2)
   
