@@ -524,4 +524,14 @@
   :config
   (mu4e-alert-enable-mode-line-display))
 
-
+(use-package elfeed
+  :ensure t
+  :bind
+  ("C-c e" . elfeed)
+  :config
+  (setq
+   elfeed-feeds '(
+                  ("https://feeds.bbci.co.uk/news/rss.xml?edition=int" news)
+                  ("https://www.reddit.com/r/Fedora.rss" reddit))
+   )
+  )
