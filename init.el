@@ -1,7 +1,7 @@
 ;; Required software
 ;; rp (RipGrep) - string searching
 ;; mpv - music
-;; 
+;; mu, offlineimap (MailDir Utils) - Mail
 
 (defun custom/open-emacs-config ()
   "Load my Emacs init.el configuration file"
@@ -48,7 +48,7 @@
   (setq
    inhibit-startup-message t
    initial-scratch-message nil
-   user-mail-address "" ; todo
+   user-mail-address "zakariyaoulhadj01@gmail.com" ; todo
    )
   )
 
@@ -82,6 +82,17 @@
    confirm-kill-emacs 'y-or-n-p
    )
   )
+
+
+(use-package savehist
+  :init
+  (savehist-mode))
+
+;; (use-package subword
+;;   :ensure nil
+;;   :diminish
+;;   :hook (prog-mode . 'subword-mode))
+  
 
 (use-package autorevert
   :init
@@ -161,6 +172,22 @@
    )
   )
 
+(use-package display-fill-column-indicator
+  :hook
+  (prog-mode . display-fill-column-indicator-mode)
+  )
+
+(use-package org
+  :init
+  (setq-default
+   org-display-custom-times t
+   )
+
+  (setq
+   org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   )
+  )
+
 (use-package emacs
   :init
   (setq
@@ -171,6 +198,7 @@
    enable-recursive-minibuffers t
    ring-bell-function 'ignore
    default-frame-alist nil
+   fill-column 80
    )
   
   (setq-default
@@ -180,8 +208,8 @@
   :config
   (tool-bar-mode -1)
   (fset 'yes-or-no-p 'y-or-n-p)
-  (set-frame-font "Source Code Pro 16")
-  (load-theme 'modus-vivendi)
+  (set-frame-font "Source Code Pro 14")
+  (load-theme 'modus-operandi)
   
   :bind
   ("C-x c" . comment-line)
@@ -190,15 +218,6 @@
 
 (global-unset-key [mouse-2])
 
-(use-package savehist
-  :init
-  (savehist-mode))
-
-;; (use-package subword
-;;   :ensure nil
-;;   :diminish
-;;   :hook (prog-mode . 'subword-mode))
-  
 
 ;; external packages
 
@@ -240,7 +259,7 @@
   (setq 
    vertico-cycle t
    vertico-resize nil
-   vertico-count 20))
+   vertico-count 10))
 
 ;; Enable vertico-multiform
 (vertico-multiform-mode)
@@ -412,6 +431,9 @@
               ("C-c p" . projectile-command-map)
               ("C-c C-f" . projectile-find-file)))
 
+(use-package consult-lsp
+  :ensure t)
+
 (use-package lsp-mode
   :ensure t
   :init
@@ -454,13 +476,47 @@
 (use-package smartparens
   :ensure t
   :diminish
-  :hook (prog-mode . smartparens-mode))
-
-
-(setq flycheck-highlighting-mode 'lines)
-(setq flycheck-highlighting-style 'level-face)
+  :hook (prog-mode . smartparens-mode)
+  )
 
 (use-package flycheck
- :ensure t
- :init (global-flycheck-mode))
+  :ensure t
+  :diminish
+  :init (global-flycheck-mode)
+  )
+
+(use-package mu4e
+  :config
+  (setq
+   mu4e-maildir-shortcuts '(
+                            ("gmail/INBOX" . ?i))
+   mu4e-contexts `(
+	           ,(make-mu4e-context
+	             :name "Gmail Account"
+	             :match-func (lambda (msg)
+			           (when msg
+			             (mu4e-message-contact-field-matches
+			              msg '(:from :to :cc :bcc) user-mail-address)))
+	             :vars '(
+		             (mu4e-trash-folder . "/gmail/[Gmail].Trash")
+		             (mu4e-refile-folder . "/gmail/[Gmail].Archive")
+		             (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
+		             (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail")
+		             (smtpmail-smtp-user . "mu4e.example")
+		             (smtpmail-local-domain . "gmail.com")
+		             (smtpmail-default-smtp-server . "smtp.gmail.com")
+		             (smtpmail-smtp-server . "smtp.gmail.com")
+		             (smtpmail-smtp-service . 587)
+		             ))
+                   )
+
+   )
+  )
+
+(use-package mu4e-alert
+  :ensure t
+  :requires mu4e
+  :config
+  (mu4e-alert-enable-mode-line-display))
+
 
