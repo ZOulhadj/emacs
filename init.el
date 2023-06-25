@@ -1,20 +1,26 @@
 ;; Required software
 ;; rp (RipGrep) - string searching
-;; mpv - music
-;; mu, offlineimap (MailDir Utils) - Mail
 
-(defun custom/open-emacs-config ()
+;; mpv - music
+
+;; mu, mbsync (MailDir Utils) - mail
+;; msync -c ~/.config/mu4e/mbsyncrc -a
+;; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
+;; mu index
+
+(defun custom/load-config ()
   "Load my Emacs init.el configuration file"
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
+;;(global-set-key (kbd "C-c c") 'custom/load-config)
 
 (defun custom/latex-word-count ()
   (interactive)
   (shell-command (concat "texcount "
                          (buffer-file-name))))
-
-(global-set-key (kbd "C-c c") 'custom/open-emacs-config)
 (global-set-key (kbd "C-c w") 'custom/latex-word-count)
+
+
 
 
 (require 'package)
@@ -48,7 +54,7 @@
   (setq
    inhibit-startup-message t
    initial-scratch-message nil
-   user-mail-address "zakariyaoulhadj01@gmail.com" ; todo
+   user-mail-address "zakariyaoulhadj01@gmail.com"
    )
   )
 
@@ -184,7 +190,22 @@
    )
 
   (setq
-   org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   org-time-stamp-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   )
+  )
+
+(use-package calendar
+  :init
+  (setq
+   calendar-date-style "european"
+   )
+  )
+
+(use-package time
+  :init
+  (setq
+   display-time-default-load-average nil
+   display-time-mode t
    )
   )
 
@@ -212,7 +233,7 @@
   (load-theme 'modus-operandi)
   
   :bind
-  ("C-c c" . comment-line)
+  ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
   )
 
@@ -285,7 +306,7 @@
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
-         ("C-c m" . consult-man)
+         ;;("C-c m" . consult-man)
          ("C-c i" . consult-info)
          ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
@@ -443,6 +464,7 @@
    lsp-enable-symbol-highlighting nil
    lsp-enable-links nil
    lsp-idle-delay 0.1
+   lsp-warn-no-matched-clients nil
    )
   :hook (
          (prog-mode . lsp-deferred)
@@ -487,35 +509,38 @@
 (use-package flycheck
   :ensure t
   :diminish
-  :init (global-flycheck-mode)
+  ;; :init (global-flycheck-mode)
   )
+
+(use-package neotree
+  :ensure t
+  :bind
+  ("C-c n" . neotree-projectile-action))
 
 (use-package mu4e
   :config
   (setq
-   mu4e-maildir-shortcuts '(
-                            ("gmail/INBOX" . ?i))
-   mu4e-contexts `(
-	           ,(make-mu4e-context
-	             :name "Gmail Account"
-	             :match-func (lambda (msg)
-			           (when msg
-			             (mu4e-message-contact-field-matches
-			              msg '(:from :to :cc :bcc) user-mail-address)))
-	             :vars '(
-		             (mu4e-trash-folder . "/gmail/[Gmail].Trash")
-		             (mu4e-refile-folder . "/gmail/[Gmail].Archive")
-		             (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
-		             (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail")
-		             (smtpmail-smtp-user . "mu4e.example")
-		             (smtpmail-local-domain . "gmail.com")
-		             (smtpmail-default-smtp-server . "smtp.gmail.com")
-		             (smtpmail-smtp-server . "smtp.gmail.com")
-		             (smtpmail-smtp-service . 587)
-		             ))
-                   )
-
+   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+   mu4e-update-interval 300
+   message-send-mail-function 'smtpmail-send-it
+   starttls-use-gnutls t
+   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+   smtpmail-default-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-service 587
+   mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
+                            ("/gmail/Sent" . ?s)
+                            ("/gmail/All Mail" . ?a)
+                            ("/gmail/Trash" . ?t)
+                            ("/gmail/Drafts" . ?d))
+   mu4e-sent-folder "/gmail/Sent"
+   mu4e-drafts-folder "/gmail/Drafts"
+   mu4e-trash-folder "/gmail/Trash"
+   mu4e-refile-folder "/gmail/All Mail"
    )
+  :bind
+  ("C-c m" . mu4e)
   )
 
 (use-package mu4e-alert
@@ -530,8 +555,11 @@
   ("C-c e" . elfeed)
   :config
   (setq
-   elfeed-feeds '(
-                  ("https://feeds.bbci.co.uk/news/rss.xml?edition=int" news)
-                  ("https://www.reddit.com/r/Fedora.rss" reddit))
+   elfeed-feeds '()
    )
   )
+
+(use-package ace-window
+  :ensure t
+  :bind
+  ("M-o" . ace-window))

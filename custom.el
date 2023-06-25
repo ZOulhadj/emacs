@@ -4,7 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(elfeed mu4e-alert mu4e-alerts mu4e consult-lsp lsp-mode flycheck smartparens-mode smartparens company emms which-key vertico-posframe use-package orderless marginalia magit exec-path-from-shell embark-consult diminish consult-projectile))
+   '(ace-window neotree highlight-indent-guides elfeed mu4e-alert mu4e-alerts mu4e consult-lsp lsp-mode flycheck smartparens-mode smartparens company emms which-key vertico-posframe use-package orderless marginalia magit exec-path-from-shell embark-consult diminish consult-projectile))
  '(send-mail-function 'mailclient-send-it))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
