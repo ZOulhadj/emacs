@@ -1,255 +1,144 @@
-;; Required software
-;; rp (RipGrep) - string searching
+; Required software
+; rp (RipGrep) - string searching
 
-;; mpv - music
+; mpv - music
 
-;; mu, mbsync (MailDir Utils) - mail
-;; msync -c ~/.config/mu4e/mbsyncrc -a
-;; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
-;; mu index
+; mu, mbsync (MailDir Utils) - mail
+; msync -c ~/.config/mu4e/mbsyncrc -a
+; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
+; mu index
 
-(defun custom/load-config ()
-  "Load my Emacs init.el configuration file"
-  (interactive)
-  (find-file (concat user-emacs-directory "init.el")))
-;;(global-set-key (kbd "C-c c") 'custom/load-config)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-(defun custom/latex-word-count ()
-  (interactive)
-  (shell-command (concat "texcount "
-                         (buffer-file-name))))
-(global-set-key (kbd "C-c w") 'custom/latex-word-count)
-
-
-
-
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
-(require 'use-package-ensure)
-(setq use-package-always-ensure nil)
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default nil)
 
 
-;; built-in packages
-
-(use-package cus-edit
+(use-package no-littering
+  :straight t
   :init
   (setq
-   custom-file (locate-user-emacs-file "custom.el")
-   )
-  :config
-  (load custom-file 'noerror 'nomessage)
-  )
-
-(use-package startup
-  :no-require t
-  :init
-  (setq
-   inhibit-startup-message t
-   initial-scratch-message nil
-   user-mail-address "zakariyaoulhadj01@gmail.com"
-   )
-  )
-
-(use-package window
-  :init
-  (setq
-   split-height-threshold nil
-   split-width-threshold 0
-   )
-  )
-
-(use-package frame
-  :config
-  (blink-cursor-mode 0)
-  )
-
-(use-package scroll-bar
-  :config
-  (scroll-bar-mode -1)
-  )
-
-(use-package hl-line
-  :config
-  (global-hl-line-mode 0)
-  )
-
-(use-package files
-  :init
-  (setq
-   make-backup-files nil
-   confirm-kill-emacs 'y-or-n-p
-   )
-  )
-
-
-(use-package savehist
-  :init
-  (savehist-mode))
-
-;; (use-package subword
-;;   :ensure nil
-;;   :diminish
-;;   :hook (prog-mode . 'subword-mode))
-  
-
-(use-package autorevert
-  :init
-  (setq
-   global-auto-revert-non-file-buffers t
-   )
-  :config
-  (global-auto-revert-mode t)
-  )
-
-(use-package delsel
-  :config
-  (delete-selection-mode t)
-  )
-
-(use-package vc-hooks
-  :init
-  (setq
-   vc-follow-symlinks t
-   )
-  )
-
-(use-package simple
-  :init
-  (setq
-   column-number-mode t
-   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
-   )
-  )
-
-(use-package isearch
-  :init
-  (setq
-   isearch-wrap-pause 'no ; automatically wrap search
-   )
-  )
-
-(use-package paren
-  :init
-  (setq
-   show-paren-delay 0.0
-   )
-
-  :config
-  (show-paren-mode t)
-  )
-
-(use-package compile
-  :init
-  (setq
-   compilation-scroll-output nil
-   )
-  )
-
-(use-package dired
-  :init
-  (setq-default
-   dired-listing-switches "-alh"
-   )
-  )
-
-(use-package recentf
-  :config
-  (recentf-mode 1)
-  )
-
-(use-package saveplace
-  :config
-  (save-place-mode 1)
-  )
-
-(use-package cc-vars
-  :init
-  (setq
-   c-default-style "k&r"
-   c-basic-offset 4
-   )
-  )
-
-(use-package display-fill-column-indicator
-  :hook
-  (prog-mode . display-fill-column-indicator-mode)
-  )
-
-(use-package org
-  :init
-  (setq-default
-   org-display-custom-times t
-   )
-
-  (setq
-   org-time-stamp-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
-   )
-  )
-
-(use-package calendar
-  :init
-  (setq
-   calendar-date-style "european"
-   )
-  )
-
-(use-package time
-  :init
-  (setq
-   display-time-default-load-average nil
-   display-time-mode t
-   )
-  )
+   no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
+   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 (use-package emacs
   :init
   (setq
+   ;; startup
    gc-cons-threshold 20000000 ;; 20mb
    read-process-output-max (* 1024 1024)
+   native-comp-async-report-warnings-errors nil
+   inhibit-startup-message t
+   initial-scratch-message nil
+   user-mail-address "zakariyaoulhadj01@gmail.com"
+   
+   
+   ;; files
+   custom-file (locate-user-emacs-file "custom.el")
    create-lockfiles nil
+   make-backup-files t
+   global-auto-revert-non-file-buffers t
+   
+   ;; ui
    use-dialog-box nil
-   enable-recursive-minibuffers t
+   column-number-mode t
+   show-paren-delay 0.0
    ring-bell-function 'ignore
-   default-frame-alist nil
+   display-time-default-load-average nil
+   
+   ;; exiting
+   confirm-kill-emacs nil ; 'y-or-n-p
+
+   ;; other
    fill-column 80
+   
+   enable-recursive-minibuffers t
+   
+   default-frame-alist nil
+   
+   tab-always-indent 'complete
+   calendar-date-style "european"
+   org-time-stamp-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   c-default-style "k&r"
+   c-basic-offset 4
+   compilation-scroll-output nil
+
+   isearch-wrap-pause 'no ; automatically wrap search
+
+   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
+   vc-follow-symlinks t
+
+   split-height-threshold nil
+   split-width-threshold 0
    )
   
   (setq-default
    indent-tabs-mode nil
+   org-display-custom-times t
+   dired-listing-switches "-alh"
    )
   
   :config
+  ;; startup
+  ;;(load custom-file 'noerror 'nomessage)
+
+  ;; files
+  (save-place-mode 1)
+  (recentf-mode 1)
+  (global-auto-revert-mode t)
+  (savehist-mode)
+  
+  ;; ui
   (tool-bar-mode -1)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (set-frame-font "Source Code Pro 14")
   (load-theme 'modus-operandi)
+  (display-time-mode)
+  (show-paren-mode t)
+  (scroll-bar-mode -1)
+  (global-hl-line-mode 0)
+  (blink-cursor-mode 0)
+  ;;(set-frame-font "Source Code Pro 14")
+  
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (delete-selection-mode t)
   
   :bind
   ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
+
+  :hook
+  (prog-mode . display-fill-column-indicator-mode)
   )
 
 (global-unset-key [mouse-2])
 
-
-;; external packages
+(make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+(setq
+ backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
+ 
+ auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+ auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
+ )
 
 (use-package diminish
-  :ensure t)
+  :straight t)
+
 
 (use-package magit
-  :ensure t)
+  :straight t)
 
 (use-package which-key
-  :ensure t
+  :straight t
   :diminish
   :init (setq
          which-key-show-early-on-C-h nil
@@ -258,32 +147,36 @@
   :config (which-key-mode))
 
 (use-package exec-path-from-shell
-  :ensure t
+  :straight t
   :config
   (exec-path-from-shell-initialize))
 
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
-  :ensure t
+  :straight t
   :init
   ;; Configure a custom style dispatcher (see the Consult wiki)
   ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
   ;;       orderless-component-separator #'orderless-escapable-split-on-space)
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+  (setq
+   completion-styles '(orderless basic)
+   completion-category-defaults nil
+   completion-category-overrides '((file (styles partial-completion)))
+   )
+  )
 
 (use-package vertico
-  :ensure t
+  :straight t
   :init
-  (vertico-mode)
   (setq 
    vertico-cycle t
    vertico-resize nil
-   vertico-count 10))
+   vertico-count 10)
+  (vertico-mode)
+  )
 
 ;; Enable vertico-multiform
-(vertico-multiform-mode)
+;;(vertico-multiform-mode)
 
 ;; (use-package vertico-posframe
 ;;   :init
@@ -292,7 +185,7 @@
 ;;   (vertico-posframe-mode 0))
 
 (use-package marginalia
-  :ensure t
+  :straight t
   :after vertico
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
@@ -300,7 +193,7 @@
   (marginalia-mode))
 
 (use-package consult
-  :ensure t
+  :straight t
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
@@ -435,15 +328,15 @@
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :ensure t
+  :straight t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult-projectile
-  :ensure t)
+  :straight t)
 
 (use-package projectile
-  :ensure t
+  :straight t
   :diminish
   :init
   (projectile-mode +1)
@@ -456,7 +349,7 @@
 ;;   :ensure t)
 
 (use-package lsp-mode
-  :ensure t
+  :straight t
   :init
   (setq
    lsp-keymap-prefix "C-c l"
@@ -473,84 +366,108 @@
   )
 
 
-(use-package company
-  :ensure t
-  :diminish
-  :config (setq
-           company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-           company-selection-wrap-around t
-           company-show-numbers nil
-           company-tooltip-align-annotations t
-           company-idle-delay 0.0
-           company-require-match nil
-           company-minimum-prefix-length 2)
+;; (use-package company
+;;   :ensure t
+;;   :diminish
+;;   :config (setq
+;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+;;            company-selection-wrap-around t
+;;            company-show-numbers nil
+;;            company-tooltip-align-annotations t
+;;            company-idle-delay 0.0
+;;            company-require-match nil
+;;            company-minimum-prefix-length 2)
   
-  :bind (:map company-active-map
-        ("C-n" . company-select-next)
-        ("C-p" . company-select-previous)
-        ("<tab>" . company-complete-selection))
-  :hook (prog-mode . company-mode)
+;;   :bind (:map company-active-map
+;;         ("C-n" . company-select-next)
+;;         ("C-p" . company-select-previous)
+;;         ("<tab>" . company-complete-selection))
+;;   :hook (prog-mode . company-mode)
 
+;;   )
+
+
+(use-package corfu
+  :straight t
+  :init
+  (setq
+   corfu-cycle nil
+   corfu-auto t
+   corfu-separator ?\s
+   corfu-quit-at-boundary 'separator
+   corfu-quit-no-match t
+   corfu-preview-current nil
+   corfu-preselect 'valid
+   corfu-on-exact-match 'insert
+   corfu-scroll-margin 2
+   )
+  (global-corfu-mode)
+  :bind (:map corfu-map
+              ("RET" . nil)
+              )
   )
 
 (use-package emms
-  :ensure t
+  :straight t
   :config
   (emms-all)
   (emms-default-players)
   )
 
 (use-package smartparens
-  :ensure t
+  :straight t
   :diminish
   :hook (prog-mode . smartparens-mode)
   )
 
 (use-package flycheck
-  :ensure t
+  :straight t
   :diminish
   ;; :init (global-flycheck-mode)
   )
 
 (use-package neotree
-  :ensure t
+  :straight t
   :bind
-  ("C-c n" . neotree-projectile-action))
-
-(use-package mu4e
-  :config
-  (setq
-   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-   mu4e-update-interval 300
-   message-send-mail-function 'smtpmail-send-it
-   starttls-use-gnutls t
-   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-   smtpmail-default-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-service 587
-   mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
-                            ("/gmail/Sent" . ?s)
-                            ("/gmail/All Mail" . ?a)
-                            ("/gmail/Trash" . ?t)
-                            ("/gmail/Drafts" . ?d))
-   mu4e-sent-folder "/gmail/Sent"
-   mu4e-drafts-folder "/gmail/Drafts"
-   mu4e-trash-folder "/gmail/Trash"
-   mu4e-refile-folder "/gmail/All Mail"
-   )
-  :bind
-  ("C-c m" . mu4e)
+  ("C-c n" . neotree-projectile-action)
   )
 
+;; (use-package mu4e
+;;   :straight t
+;;   :config
+;;   (setq
+;;    mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+;;    mu4e-update-interval 300
+;;    message-send-mail-function 'smtpmail-send-it
+;;    starttls-use-gnutls t
+;;    smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+;;    smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+;;    smtpmail-default-smtp-server "smtp.gmail.com"
+;;    smtpmail-smtp-server "smtp.gmail.com"
+;;    smtpmail-smtp-service 587
+;;    mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
+;;                             ("/gmail/Sent" . ?s)
+;;                             ("/gmail/All Mail" . ?a)
+;;                             ("/gmail/Trash" . ?t)
+;;                             ("/gmail/Drafts" . ?d))
+;;    mu4e-sent-folder "/gmail/Sent"
+;;    mu4e-drafts-folder "/gmail/Drafts"
+;;    mu4e-trash-folder "/gmail/Trash"
+;;    mu4e-refile-folder "/gmail/All Mail"
+;;    )
+;;   :bind
+;;   ("C-c m" . mu4e)
+;;   )
+
 (use-package mu4e-alert
-  :ensure t
+  :straight t
   :requires mu4e
   :config
-  (mu4e-alert-enable-mode-line-display))
+  (mu4e-alert-enable-mode-line-display)
+  )
 
 (use-package elfeed
-  :ensure t
+  :straight t
   :bind
   ("C-c e" . elfeed)
   :config
@@ -559,7 +476,21 @@
    )
   )
 
-(use-package ace-window
-  :ensure t
-  :bind
-  ("C-x o" . ace-window))
+;; (use-package ace-window
+;;   :ensure t
+;;   :bind
+;;   ("C-x o" . ace-window))
+
+
+
+(defun custom/load-config ()
+  "Load my Emacs init.el configuration file"
+  (interactive)
+  (find-file (concat user-emacs-directory "init.el")))
+;;(global-set-key (kbd "C-c c") 'custom/load-config)
+
+(defun custom/latex-word-count ()
+  (interactive)
+  (shell-command (concat "texcount "
+                         (buffer-file-name))))
+(global-set-key (kbd "C-c w") 'custom/latex-word-count)
