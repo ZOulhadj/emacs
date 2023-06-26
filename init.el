@@ -30,7 +30,8 @@
   :init
   (setq
    no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
-   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
+   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory))
+  )
 
 (use-package emacs
   :init
@@ -122,6 +123,11 @@
 
 (global-unset-key [mouse-2])
 
+(add-to-list 'recentf-exclude
+             (recentf-expand-file-name no-littering-var-directory))
+(add-to-list 'recentf-exclude
+             (recentf-expand-file-name no-littering-etc-directory))
+
 (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 (setq
  backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
@@ -179,6 +185,7 @@
 ;;(vertico-multiform-mode)
 
 ;; (use-package vertico-posframe
+;;   :straight t
 ;;   :init
 ;;   (setq vertico-posframe-poshandler #'posframe-poshandler-frame-top-center)
 ;;   :config
@@ -199,7 +206,7 @@
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
-         ;;("C-c m" . consult-man)
+         ("C-c m" . consult-man)
          ("C-c i" . consult-info)
          ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
