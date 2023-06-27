@@ -114,19 +114,30 @@
   (scroll-bar-mode -1)
   (global-hl-line-mode 0)
   (blink-cursor-mode 0)
-  ;;(set-frame-font "Source Code Pro 14")
-  
+
+  ;; other
   (fset 'yes-or-no-p 'y-or-n-p)
   (delete-selection-mode t)
-  
+    
+  ;; Check each font in order and use fallback fonts if current one is
+  ;; not found. If none of the specified fonts are found then Emacs
+  ;; will use a default font.
+  ;;
+  ;; Test char and monospace:
+  ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
+  ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
+  (cond
+   ((find-font (font-spec :name "Cascadia Mono"))
+    (set-frame-font "Cascadia Mono-16"))
+   ((find-font (font-spec :name "Consolas"))
+    (set-frame-font "Consolas-16")))
+
   :bind
-  ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
   ("C-c t" . shell)
 
   :hook
-  (prog-mode . display-fill-column-indicator-mode)
-  )
+  (prog-mode . display-fill-column-indicator-mode))
 
 (global-unset-key [mouse-2])
 
@@ -519,7 +530,17 @@
 ;;   :bind
 ;;   ("C-x o" . ace-window))
 
+(use-package web-mode
+  :straight t
+  :init (setq web-mode-markup-indent-offset 4
+              web-mode-css-indent-offset 4
+              web-mode-code-indent-offset 4
 
+              web-mode-enable-auto-pairing t
+              web-mode-enable-css-colorization t
+              web-mode-enable-current-element-highlight t)
+  :mode (("\\.html?\\'" . web-mode)
+         ("\\.htm?\\'" . web-mode)))
 
 (defun custom/load-config ()
   "Load my Emacs init.el configuration file"
