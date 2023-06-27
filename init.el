@@ -143,22 +143,34 @@
  auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
  )
 
+
+;; The package `diminish' introduces the `:diminish' keyword which can
+;; be used together with `use-package' to hide minor modes from the
+;; modeline. This allows the modeline to be kept minimal and show only
+;; required information.
 (use-package diminish
   :straight t)
-
 
 (use-package magit
   :straight t)
 
+;; The package `which-key' displays a popup window showing all the
+;; possible key combinations for the current action. This allows a
+;; user to not forget specific commands.
 (use-package which-key
   :straight t
   :diminish
-  :init (setq
-         which-key-show-early-on-C-h nil
-         which-key-idle-delay 1.0
-         which-key-idle-secondary-delay nil)
+  :init (setq which-key-show-early-on-C-h nil
+              which-key-idle-delay 1.0
+              which-key-idle-secondary-delay nil)
   :config (which-key-mode))
 
+
+;; The package `exec-path-from-shell' ensures all environment
+;; variables are present within Emacs. By default, Emacs only uses a
+;; small subset of variables. However, this package works by copying
+;; all enviornment variables from the system into Emacs so that all
+;; commands are accessible.
 (use-package exec-path-from-shell
   :straight t
   :config
@@ -349,6 +361,9 @@
 (use-package consult-projectile
   :straight t)
 
+;; The package `projectile' is a project management pack that provides
+;; many useful features when working with projets such as searching,
+;; navigation and editing.
 (use-package projectile
   :straight t
   :diminish
@@ -362,6 +377,10 @@
 ;; (use-package consult-lsp
 ;;   :ensure t)
 
+
+;; The package `lsp-mode' is a front-end to LSP which stands for
+;; Language Server Protocol and allows for language parsing, debugging
+;; and navigation.
 (use-package lsp-mode
   :straight t
   :init
@@ -400,7 +419,9 @@
 
 ;;   )
 
-
+;; The package `corfu' display a window for autocomplete candidates
+;; when writing text. It is a simpler alternative to the highly
+;; popular `company' package.
 (use-package corfu
   :straight t
   :init
@@ -421,6 +442,7 @@
               )
   )
 
+
 (use-package emms
   :straight t
   :config
@@ -434,16 +456,20 @@
   :hook (prog-mode . smartparens-mode)
   )
 
+;; The package `flycheck' shows syntactic highlighting in code that
+;; displays information, warning and errors.
 (use-package flycheck
   :straight t
   :diminish
   ;; :init (global-flycheck-mode)
   )
 
+;; The package `neotree' is a window that shows the filesystem for the
+;; current project or directory.
 (use-package neotree
   :straight t
   :bind
-  ("C-c n" . neotree-projectile-action)
+  ("C-c n" . neotree-toggle)
   )
 
 ;; (use-package mu4e
@@ -477,18 +503,16 @@
   :straight t
   :requires mu4e
   :config
-  (mu4e-alert-enable-mode-line-display)
-  )
+  (mu4e-alert-enable-mode-line-display))
 
+;; The package `elfeed' is an RSS client that allows a user to provide
+;; a list of RSS sources and the package will retrive the latest news.
 (use-package elfeed
   :straight t
-  :bind
-  ("C-c e" . elfeed)
   :config
-  (setq
-   elfeed-feeds '()
-   )
-  )
+  (setq elfeed-feeds '())
+  :bind
+  ("C-c e" . elfeed))
 
 ;; (use-package ace-window
 ;;   :ensure t
