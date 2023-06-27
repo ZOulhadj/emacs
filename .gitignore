@@ -1,4 +1,7 @@
 eln-cache/
 tmp/
-straight/
+straight/*
 custom.el
+!straight/versions/
+
+
