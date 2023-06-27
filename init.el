@@ -8,6 +8,10 @@
 ; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
 ; mu index
 
+;; Use straight.el instead of the built-in package.el for downloading external
+;; packages. As we are completely replacing package.el we need to download
+;; straight.el without using it. We first create a bootstrap file that will contain
+;; the install script and is installed the very first time we launch Emacs.
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -25,13 +29,15 @@
 (setq straight-use-package-by-default nil)
 
 
+;; The package `no-littering' ensures that the `user-emacs-directory' location
+;; is kept "clean" by moving various different files that get created into
+;; specific directories. It is important to note that this package must be
+;; installed and activated before other Emacs packages are initialised.
 (use-package no-littering
   :straight t
   :init
-  (setq
-   no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
-   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory))
-  )
+  (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
+        no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 (use-package emacs
   :init
@@ -116,6 +122,7 @@
   :bind
   ("C-x c" . comment-line)
   ("C-x k" . kill-this-buffer)
+  ("C-c t" . shell)
 
   :hook
   (prog-mode . display-fill-column-indicator-mode)
