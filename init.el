@@ -361,7 +361,7 @@
 (use-package consult-projectile
   :straight t)
 
-;; The package `projectile' is a project management pack that provides
+;; The package `projectile' is a project management package that provides
 ;; many useful features when working with projets such as searching,
 ;; navigation and editing.
 (use-package projectile
