@@ -1,12 +1,10 @@
-; Required software
-; rp (RipGrep) - string searching
-
-; mpv - music
-
-; mu, mbsync (MailDir Utils) - mail
-; msync -c ~/.config/mu4e/mbsyncrc -a
-; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
-; mu index
+;; Required software
+;; rp (RipGrep) - string searching
+;; mpv - music
+;; mu, mbsync (MailDir Utils) - mail
+;; msync -c ~/.config/mu4e/mbsyncrc -a
+;; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
+;; mu index
 
 ;; Use straight.el instead of the built-in package.el for downloading external
 ;; packages. As we are completely replacing package.el we need to download
@@ -39,17 +37,22 @@
   (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
         no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
+(use-package solarized-theme
+  :straight t
+  :config
+  (load-theme 'solarized-dark t))
+
 (use-package emacs
   :init
   (setq
    ;; startup
    gc-cons-threshold 20000000 ;; 20mb
-   read-process-output-max (* 1024 1024)
+   read-process-output-max (* 16 1024 1024)
    native-comp-async-report-warnings-errors nil
    inhibit-startup-message t
    initial-scratch-message nil
+   user-full-name "Zakariya Oulhadj"
    user-mail-address "zakariyaoulhadj01@gmail.com"
-   
    
    ;; files
    custom-file (locate-user-emacs-file "custom.el")
@@ -63,9 +66,12 @@
    show-paren-delay 0.0
    ring-bell-function 'ignore
    display-time-default-load-average nil
+   frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
+   echo-keystrokes 0.02
+   use-short-answers t
    
    ;; exiting
-   confirm-kill-emacs nil ; 'y-or-n-p
+   confirm-kill-emacs nil
 
    ;; other
    fill-column 80
@@ -103,20 +109,20 @@
   ;; files
   (save-place-mode 1)
   (recentf-mode 1)
-  (global-auto-revert-mode t)
   (savehist-mode)
+  (global-auto-revert-mode t)
+
   
   ;; ui
   (tool-bar-mode -1)
-  (load-theme 'modus-operandi)
   (display-time-mode)
   (show-paren-mode t)
   (scroll-bar-mode -1)
-  (global-hl-line-mode 0)
+  (global-hl-line-mode 1)
   (blink-cursor-mode 0)
+  (toggle-frame-maximized)
 
   ;; other
-  (fset 'yes-or-no-p 'y-or-n-p)
   (delete-selection-mode t)
     
   ;; Check each font in order and use fallback fonts if current one is
@@ -128,9 +134,9 @@
   ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
   (cond
    ((find-font (font-spec :name "Cascadia Mono"))
-    (set-frame-font "Cascadia Mono-16"))
+    (set-frame-font "Cascadia Mono-14"))
    ((find-font (font-spec :name "Consolas"))
-    (set-frame-font "Consolas-16")))
+    (set-frame-font "Consolas-14")))
 
   :bind
   ("C-x k" . kill-this-buffer)
@@ -147,12 +153,27 @@
              (recentf-expand-file-name no-littering-etc-directory))
 
 (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
-(setq
- backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
- 
- auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
- auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
- )
+(setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
+      auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+
+
+(setq hscroll-margin 2
+      hscroll-step 1
+      ;; Emacs spends too much effort recentering the screen if you scroll the
+      ;; cursor more than N lines past window edges (where N is the settings of
+      ;; `scroll-conservatively'). This is especially slow in larger files
+      ;; during large-scale scrolling commands. If kept over 100, the window is
+      ;; never automatically recentered.
+      scroll-conservatively 101
+      scroll-margin 0
+      scroll-preserve-screen-position t
+      ;; Reduce cursor lag by a tiny bit by not auto-adjusting `window-vscroll'
+      ;; for tall lines.
+      auto-window-vscroll nil
+      ;; mouse
+      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
+      mouse-wheel-scroll-amount-horizontal 2)
 
 
 ;; The package `diminish' introduces the `:diminish' keyword which can
@@ -382,8 +403,7 @@
   (projectile-mode +1)
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)
-              ("C-c C-f" . projectile-find-file)))
+              ("C-c p" . projectile-command-map)))
 
 ;; (use-package consult-lsp
 ;;   :ensure t)
@@ -521,7 +541,7 @@
 (use-package elfeed
   :straight t
   :config
-  (setq elfeed-feeds '())
+  (setq elfeed-feeds '("https://www.reddit.com/r/emacs.rss"))
   :bind
   ("C-c e" . elfeed))
 
@@ -535,12 +555,21 @@
   :init (setq web-mode-markup-indent-offset 4
               web-mode-css-indent-offset 4
               web-mode-code-indent-offset 4
-
+              web-mode-indent-style 4
+              
               web-mode-enable-auto-pairing t
               web-mode-enable-css-colorization t
               web-mode-enable-current-element-highlight t)
+  
   :mode (("\\.html?\\'" . web-mode)
          ("\\.htm?\\'" . web-mode)))
+
+
+(use-package emmet-mode
+  :straight t
+  :hook ((web-mode . emmet-mode)
+         (sgml-mode . emmet-mode)
+         (css-mode . emmet-mode)))
 
 (defun custom/load-config ()
   "Load my Emacs init.el configuration file"
