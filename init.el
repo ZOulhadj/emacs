@@ -69,6 +69,7 @@
    frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
    echo-keystrokes 0.02
    use-short-answers t
+   frame-title-format "%f"
    
    ;; exiting
    confirm-kill-emacs nil
@@ -82,7 +83,9 @@
    
    tab-always-indent 'complete
    calendar-date-style "european"
-   org-time-stamp-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+   org-display-custom-times t
+   
    c-default-style "k&r"
    c-basic-offset 4
    compilation-scroll-output nil
@@ -91,14 +94,12 @@
 
    read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
    vc-follow-symlinks t
-
-   split-height-threshold nil
-   split-width-threshold 0
+   org-agenda-files '("~/Documents/agenda.org")
+   
    )
   
   (setq-default
    indent-tabs-mode nil
-   org-display-custom-times t
    dired-listing-switches "-alh"
    )
   
@@ -112,7 +113,6 @@
   (savehist-mode)
   (global-auto-revert-mode t)
 
-  
   ;; ui
   (tool-bar-mode -1)
   (display-time-mode)
@@ -207,6 +207,23 @@
   :straight t
   :config
   (exec-path-from-shell-initialize))
+
+(use-package dashboard
+  :straight t
+  :init (setq dashboard-banner-logo-title "Welcome to Emacs!"
+              dashboard-set-footer nil
+              dashboard-startup-banner 2
+              dashboard-center-content nil
+              dashboard-show-shortcuts t
+              dashboard-set-navigator t
+              dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5))
+              dashboard-week-agenda t)
+              ;dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
+  :config (dashboard-setup-startup-hook))
 
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
@@ -429,6 +446,10 @@
   :commands (lsp lsp-deferred)
   )
 
+;; (use-package lsp-tailwindcss
+;;   :straight t
+;;   :init
+;;   (setq lsp-tailwindcss-add-on-mode t))
 
 ;; (use-package company
 ;;   :ensure t
@@ -541,7 +562,7 @@
 (use-package elfeed
   :straight t
   :config
-  (setq elfeed-feeds '("https://www.reddit.com/r/emacs.rss"))
+  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
   :bind
   ("C-c e" . elfeed))
 
