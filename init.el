@@ -184,7 +184,8 @@
   :straight t)
 
 (use-package magit
-  :straight t)
+  :straight t
+  :bind ("C-c g" . magit-status))
 
 ;; The package `which-key' displays a popup window showing all the
 ;; possible key combinations for the current action. This allows a
@@ -305,7 +306,7 @@
          ("M-s D" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("C-c g" . consult-ripgrep)
+         ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
          ("M-s k" . consult-keep-lines)
