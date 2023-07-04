@@ -157,25 +157,6 @@
       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
 
-
-(setq hscroll-margin 2
-      hscroll-step 1
-      ;; Emacs spends too much effort recentering the screen if you scroll the
-      ;; cursor more than N lines past window edges (where N is the settings of
-      ;; `scroll-conservatively'). This is especially slow in larger files
-      ;; during large-scale scrolling commands. If kept over 100, the window is
-      ;; never automatically recentered.
-      scroll-conservatively 101
-      scroll-margin 0
-      scroll-preserve-screen-position t
-      ;; Reduce cursor lag by a tiny bit by not auto-adjusting `window-vscroll'
-      ;; for tall lines.
-      auto-window-vscroll nil
-      ;; mouse
-      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
-      mouse-wheel-scroll-amount-horizontal 2)
-
-
 ;; The package `diminish' introduces the `:diminish' keyword which can
 ;; be used together with `use-package' to hide minor modes from the
 ;; modeline. This allows the modeline to be kept minimal and show only
@@ -437,6 +418,7 @@
    lsp-keymap-prefix "C-c l"
    lsp-headerline-breadcrumb-enable nil
    lsp-enable-symbol-highlighting nil
+   lsp-enable-on-type-formatting nil
    lsp-enable-links nil
    lsp-idle-delay 0.1
    lsp-warn-no-matched-clients nil
@@ -471,6 +453,16 @@
 ;;   :hook (prog-mode . company-mode)
 
 ;;   )
+
+(use-package cmake-mode
+  :straight t
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
+  :hook (cmake-mode . lsp-deferred))
+
+(use-package cmake-font-lock
+  :straight t
+  :after cmake-mode
+  :config (cmake-font-lock-activate))
 
 ;; The package `corfu' display a window for autocomplete candidates
 ;; when writing text. It is a simpler alternative to the highly
