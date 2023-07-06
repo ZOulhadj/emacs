@@ -430,6 +430,11 @@
   :commands (lsp lsp-deferred)
   )
 
+(use-package dap-mode
+  :straight t
+  :config
+  (require 'dap-cpptools))
+
 ;; (use-package lsp-tailwindcss
 ;;   :straight t
 ;;   :init
