@@ -422,6 +422,7 @@
    lsp-enable-links nil
    lsp-idle-delay 0.1
    lsp-warn-no-matched-clients nil
+   lsp-signature-render-documentation nil
    )
   :hook (
          (prog-mode . lsp-deferred)
