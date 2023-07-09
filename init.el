@@ -489,6 +489,8 @@
 
 (use-package emms
   :straight t
+  :init (setq
+         emms-source-file-default-directory "~/Music")
   :config
   (emms-all)
   (emms-default-players))
