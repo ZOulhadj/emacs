@@ -114,7 +114,8 @@
   (recentf-mode 1)
   (savehist-mode)
   (global-auto-revert-mode t)
-
+  (electric-pair-mode 1)
+  
   ;; ui
   (tool-bar-mode -1)
   (display-time-mode)
@@ -491,11 +492,6 @@
   :config
   (emms-all)
   (emms-default-players))
-
-(use-package smartparens
-  :straight t
-  :diminish
-  :hook (prog-mode . smartparens-mode))
 
 ;; The package `flycheck' shows syntactic highlighting in code that
 ;; displays information, warning and errors.
