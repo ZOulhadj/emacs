@@ -37,10 +37,12 @@
   (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
         no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
-(use-package solarized-theme
+
+(use-package solaire-mode
   :straight t
   :config
-  (load-theme 'solarized-dark t))
+  (solaire-global-mode +1)
+  :hook ((dashboard-mode . turn-off-solaire-mode)))
 
 (use-package emacs
   :init
@@ -48,7 +50,7 @@
    ;; startup
    gc-cons-threshold 20000000 ;; 20mb
    read-process-output-max (* 16 1024 1024)
-   native-comp-async-report-warnings-errors nil
+   native-comp-async-report-warnings-errors 'silent
    inhibit-startup-message t
    initial-scratch-message nil
    user-full-name "Zakariya Oulhadj"
@@ -121,7 +123,9 @@
   (global-hl-line-mode 1)
   (blink-cursor-mode 0)
   (toggle-frame-maximized)
-
+  (pixel-scroll-precision-mode 1)
+  (load-theme 'modus-vivendi t)
+  
   ;; other
   (delete-selection-mode t)
     
@@ -140,10 +144,14 @@
 
   :bind
   ("C-x k" . kill-this-buffer)
-  ("C-c t" . shell)
 
-  :hook
-  (prog-mode . display-fill-column-indicator-mode))
+  ;;:hook
+  ;;(prog-mode . display-fill-column-indicator-mode)
+  )
+
+(add-hook 'help-fns-describe-function-functions
+          #'shortdoc-help-fns-examples-function)
+
 
 (global-unset-key [mouse-2])
 
@@ -156,6 +164,8 @@
 (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+
+
 
 ;; The package `diminish' introduces the `:diminish' keyword which can
 ;; be used together with `use-package' to hide minor modes from the
@@ -210,26 +220,20 @@
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
   :straight t
-  :init
+  :init (setq completion-styles '(orderless basic)
+              completion-category-defaults nil
+              completion-category-overrides '((file (styles partial-completion))))
   ;; Configure a custom style dispatcher (see the Consult wiki)
   ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
   ;;       orderless-component-separator #'orderless-escapable-split-on-space)
-  (setq
-   completion-styles '(orderless basic)
-   completion-category-defaults nil
-   completion-category-overrides '((file (styles partial-completion)))
-   )
   )
 
 (use-package vertico
   :straight t
-  :init
-  (setq 
-   vertico-cycle t
-   vertico-resize nil
-   vertico-count 10)
-  (vertico-mode)
-  )
+  :init (setq vertico-cycle t
+              vertico-resize nil
+              vertico-count 10)
+  (vertico-mode))
 
 ;; Enable vertico-multiform
 ;;(vertico-multiform-mode)
@@ -251,9 +255,7 @@
 
 (use-package consult
   :straight t
-  ;; Replace bindings. Lazily loaded due by `use-package'.
-  :bind (;; C-c bindings in `mode-specific-map'
-         ("C-c M-x" . consult-mode-command)
+  :bind (("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
@@ -413,22 +415,17 @@
 ;; and navigation.
 (use-package lsp-mode
   :straight t
-  :init
-  (setq
-   lsp-keymap-prefix "C-c l"
-   lsp-headerline-breadcrumb-enable nil
-   lsp-enable-symbol-highlighting nil
-   lsp-enable-on-type-formatting nil
-   lsp-enable-links nil
-   lsp-idle-delay 0.1
-   lsp-warn-no-matched-clients nil
-   lsp-signature-render-documentation nil
-   )
-  :hook (
-         (prog-mode . lsp-deferred)
+  :init (setq lsp-keymap-prefix "C-c l"
+              lsp-headerline-breadcrumb-enable nil
+              lsp-enable-symbol-highlighting nil
+              lsp-enable-on-type-formatting nil
+              lsp-enable-links nil
+              lsp-idle-delay 0.1
+              lsp-warn-no-matched-clients nil
+              lsp-signature-render-documentation nil)
+  :hook ((prog-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred)
-  )
+  :commands (lsp lsp-deferred))
 
 (use-package dap-mode
   :straight t
@@ -475,53 +472,43 @@
 ;; popular `company' package.
 (use-package corfu
   :straight t
-  :init
-  (setq
-   corfu-cycle nil
-   corfu-auto t
-   corfu-separator ?\s
-   corfu-quit-at-boundary 'separator
-   corfu-quit-no-match t
-   corfu-preview-current nil
-   corfu-preselect 'valid
-   corfu-on-exact-match 'insert
-   corfu-scroll-margin 2
-   )
+  :init (setq
+         corfu-cycle nil
+         corfu-auto t
+         corfu-separator ?\s
+         corfu-quit-at-boundary 'separator
+         corfu-quit-no-match t
+         corfu-preview-current nil
+         corfu-preselect 'valid
+         corfu-on-exact-match 'insert
+         corfu-scroll-margin 2)
   (global-corfu-mode)
   :bind (:map corfu-map
-              ("RET" . nil)
-              )
-  )
-
+              ("RET" . nil)))
 
 (use-package emms
   :straight t
   :config
   (emms-all)
-  (emms-default-players)
-  )
+  (emms-default-players))
 
 (use-package smartparens
   :straight t
   :diminish
-  :hook (prog-mode . smartparens-mode)
-  )
+  :hook (prog-mode . smartparens-mode))
 
 ;; The package `flycheck' shows syntactic highlighting in code that
 ;; displays information, warning and errors.
 (use-package flycheck
   :straight t
   :diminish
-  ;; :init (global-flycheck-mode)
-  )
+  :init (global-flycheck-mode))
 
 ;; The package `neotree' is a window that shows the filesystem for the
 ;; current project or directory.
 (use-package neotree
   :straight t
-  :bind
-  ("C-c n" . neotree-toggle)
-  )
+  :bind (("C-c n" . neotree-toggle)))
 
 ;; (use-package mu4e
 ;;   :straight t
@@ -560,10 +547,9 @@
 ;; a list of RSS sources and the package will retrive the latest news.
 (use-package elfeed
   :straight t
-  :config
-  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
-  :bind
-  ("C-c e" . elfeed))
+  :config (setq
+           elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
+  :bind (("C-c e" . elfeed)))
 
 ;; (use-package ace-window
 ;;   :ensure t
@@ -584,7 +570,6 @@
   :mode (("\\.html?\\'" . web-mode)
          ("\\.htm?\\'" . web-mode)))
 
-
 (use-package emmet-mode
   :straight t
   :hook ((web-mode . emmet-mode)
@@ -592,13 +577,7 @@
          (css-mode . emmet-mode)))
 
 (defun custom/load-config ()
-  "Load my Emacs init.el configuration file"
+  "Load my Emacs init.el configuration file."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
 ;;(global-set-key (kbd "C-c c") 'custom/load-config)
-
-(defun custom/latex-word-count ()
-  (interactive)
-  (shell-command (concat "texcount "
-                         (buffer-file-name))))
-(global-set-key (kbd "C-c w") 'custom/latex-word-count)
