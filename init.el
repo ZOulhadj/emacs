@@ -1,4 +1,5 @@
 ;; Required software
+;; tree-sitter
 ;; rp (RipGrep) - string searching
 ;; mpv - music
 ;; mu, mbsync (MailDir Utils) - mail
@@ -28,21 +29,15 @@
 
 
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
-;; is kept "clean" by moving various different files that get created into
+;; is kept "clean" by moving the various different files that get created into
 ;; specific directories. It is important to note that this package must be
 ;; installed and activated before other Emacs packages are initialised.
 (use-package no-littering
   :straight t
   :init
-  (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
-        no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
-
-
-(use-package solaire-mode
-  :straight t
-  :config
-  (solaire-global-mode +1)
-  :hook ((dashboard-mode . turn-off-solaire-mode)))
+  (setq
+   no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
+   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 (use-package emacs
   :init
@@ -72,6 +67,7 @@
    echo-keystrokes 0.02
    use-short-answers t
    frame-title-format "%f"
+   isearch-lazy-count t
    
    ;; exiting
    confirm-kill-emacs nil
@@ -92,11 +88,11 @@
    c-basic-offset 4
    compilation-scroll-output nil
 
-   isearch-wrap-pause 'no ; automatically wrap search
+   isearch-wrap-pause 'no ; automatically wrap search without pausing
 
    read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
    vc-follow-symlinks t
-   org-agenda-files '("~/Documents/agenda.org")
+   ;;org-agenda-files '("~/Documents/agenda.org")
    
    )
   
@@ -150,10 +146,50 @@
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
 
-(add-hook 'help-fns-describe-function-functions
-          #'shortdoc-help-fns-examples-function)
+;; The `treesit' package performs fast syntax parsing for languages and allows
+;; for other packages to make use of the better context aware functionality.
+(use-package treesit
+  :config
+  (setq
+   treesit-language-source-alist '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+                                   (c "https://github.com/tree-sitter/tree-sitter-c")
+                                   (cmake "https://github.com/uyha/tree-sitter-cmake")
+                                   (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
+                                   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                                   (css "https://github.com/tree-sitter/tree-sitter-css")
+                                   (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+                                   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                                   (go "https://github.com/tree-sitter/tree-sitter-go")
+                                   (go-mod "https://github.com/camdencheek/tree-sitter-go-mod")
+                                   (html "https://github.com/tree-sitter/tree-sitter-html")
+                                   (js . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+                                   (json "https://github.com/tree-sitter/tree-sitter-json")
+                                   (lua "https://github.com/Azganoth/tree-sitter-lua")
+                                   (make "https://github.com/alemuller/tree-sitter-make")
+                                   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                                   (python "https://github.com/tree-sitter/tree-sitter-python")
+                                   (r "https://github.com/r-lib/tree-sitter-r")
+                                   (rust "https://github.com/tree-sitter/tree-sitter-rust")
+                                   (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                                   (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+                                   (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+                                   (yaml "https://github.com/ikatyang/tree-sitter-yaml"))))
 
+;; Even if Tree sitter is installed and the language grammer is configured,
+;; Emacs will not enable it. This is because we must enable the special "ts"
+;; modes. So here we remap the default modes to tree-sitter specific modes.
+(setq major-mode-remap-alist
+      '((c-mode . c-ts-mode)
+        (c++-mode . c++-ts-mode)
+        (python-mode . python-ts-mode)
+        (yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (js2-mode . js-ts-mode)
+        (typescript-mode . typescript-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)))
 
+;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 (global-unset-key [mouse-2])
 
 (add-to-list 'recentf-exclude
@@ -171,7 +207,7 @@
 ;; The package `diminish' introduces the `:diminish' keyword which can
 ;; be used together with `use-package' to hide minor modes from the
 ;; modeline. This allows the modeline to be kept minimal and show only
-;; required information.
+;; required modes.
 (use-package diminish
   :straight t)
 
@@ -196,6 +232,9 @@
 ;; small subset of variables. However, this package works by copying
 ;; all enviornment variables from the system into Emacs so that all
 ;; commands are accessible.
+
+;; todo: Take a closer look how this package behaves on Windows since its
+;; not Unix based.
 (use-package exec-path-from-shell
   :straight t
   :config
@@ -203,20 +242,24 @@
 
 (use-package dashboard
   :straight t
-  :init (setq dashboard-banner-logo-title "Welcome to Emacs!"
-              dashboard-set-footer nil
-              dashboard-startup-banner 2
-              dashboard-center-content nil
-              dashboard-show-shortcuts t
-              dashboard-set-navigator t
-              dashboard-items '((recents  . 5)
-                        (bookmarks . 5)
-                        (projects . 5)
-                        (agenda . 5)
-                        (registers . 5))
-              dashboard-week-agenda t)
-              ;dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
-  :config (dashboard-setup-startup-hook))
+  :init
+  (setq
+   dashboard-banner-logo-title "Welcome to Emacs!"
+   dashboard-set-footer nil
+   dashboard-startup-banner 2
+   dashboard-center-content nil
+   dashboard-show-shortcuts t
+   dashboard-set-navigator t
+   dashboard-items '((recents  . 5)
+                     (bookmarks . 5)
+                     (projects . 5)
+                     (agenda . 5)
+                     (registers . 5))
+   dashboard-week-agenda t
+   ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
+   )
+  :config
+  (dashboard-setup-startup-hook))
 
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
@@ -231,9 +274,11 @@
 
 (use-package vertico
   :straight t
-  :init (setq vertico-cycle t
-              vertico-resize nil
-              vertico-count 10)
+  :init
+  (setq
+   vertico-cycle t
+   vertico-resize nil
+   vertico-count 10)
   (vertico-mode))
 
 ;; Enable vertico-multiform
@@ -256,7 +301,8 @@
 
 (use-package consult
   :straight t
-  :bind (("C-c M-x" . consult-mode-command)
+  :bind (
+         ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
@@ -267,17 +313,12 @@
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
          ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -285,10 +326,11 @@
          ("M-g k" . consult-global-mark)
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
+         ("M-g t" . consult-theme)
          ;; M-s bindings in `search-map'
          ("M-s d" . consult-find)
          ("M-s D" . consult-locate)
-         ("M-s g" . consult-grep)
+         ;("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
@@ -395,6 +437,9 @@
 (use-package consult-projectile
   :straight t)
 
+(use-package consult-flycheck
+  :straight t)
+
 ;; The package `projectile' is a project management package that provides
 ;; many useful features when working with projets such as searching,
 ;; navigation and editing.
@@ -416,17 +461,21 @@
 ;; and navigation.
 (use-package lsp-mode
   :straight t
-  :init (setq lsp-keymap-prefix "C-c l"
-              lsp-headerline-breadcrumb-enable nil
-              lsp-enable-symbol-highlighting nil
-              lsp-enable-on-type-formatting nil
-              lsp-enable-links nil
-              lsp-idle-delay 0.1
-              lsp-warn-no-matched-clients nil
-              lsp-signature-render-documentation nil)
-  :hook ((prog-mode . lsp-deferred)
-         (lsp-mode . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred))
+  :init
+  (setq
+   lsp-keymap-prefix "C-c l"
+   lsp-headerline-breadcrumb-enable nil
+   lsp-enable-symbol-highlighting nil
+   lsp-enable-on-type-formatting nil
+   lsp-enable-links nil
+   lsp-idle-delay 0.1
+   lsp-warn-no-matched-clients nil
+   lsp-signature-render-documentation nil)
+  :hook
+  ((prog-mode . lsp-deferred)
+   (lsp-mode . lsp-enable-which-key-integration))
+  :commands
+  (lsp lsp-deferred))
 
 (use-package dap-mode
   :straight t
