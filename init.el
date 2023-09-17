@@ -1,11 +1,20 @@
+;; =============================================================================
+
 ;; Required software
-;; tree-sitter
-;; rp (RipGrep) - string searching
+;; tree-sitter, librsvg2-dev, libgccjit0, rg
+
+;; rg (RipGrep) - string searching
 ;; mpv - music
 ;; mu, mbsync (MailDir Utils) - mail
 ;; msync -c ~/.config/mu4e/mbsyncrc -a
 ;; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
 ;; mu index
+
+;; Compiling Emacs from source
+;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
+;;
+
+;; =============================================================================
 
 ;; Use straight.el instead of the built-in package.el for downloading external
 ;; packages. As we are completely replacing package.el we need to download
@@ -27,11 +36,12 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default nil)
 
-
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
 ;; specific directories. It is important to note that this package must be
 ;; installed and activated before other Emacs packages are initialised.
+;;
+;; https://github.com/emacscollective/no-littering
 (use-package no-littering
   :straight t
   :init
@@ -148,6 +158,8 @@
 
 ;; The `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
+;;
+;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
   :config
   (setq
@@ -189,6 +201,11 @@
         (json-mode . json-ts-mode)
         (css-mode . css-ts-mode)))
 
+
+(setq
+ c-ts-mode-indent-offset 4
+ c-ts-mode-indent-style "k&r")
+
 ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 (global-unset-key [mouse-2])
 
@@ -208,9 +225,14 @@
 ;; be used together with `use-package' to hide minor modes from the
 ;; modeline. This allows the modeline to be kept minimal and show only
 ;; required modes.
+;;
+;; https://github.com/emacsmirror/diminish
 (use-package diminish
   :straight t)
 
+;; A Git client that can be used within Emacs.
+;;
+;; https://github.com/magit/magit
 (use-package magit
   :straight t
   :bind ("C-c g" . magit-status))
@@ -218,6 +240,8 @@
 ;; The package `which-key' displays a popup window showing all the
 ;; possible key combinations for the current action. This allows a
 ;; user to not forget specific commands.
+;;
+;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :straight t
   :diminish
@@ -235,11 +259,17 @@
 
 ;; todo: Take a closer look how this package behaves on Windows since its
 ;; not Unix based.
+;;
+;; https://github.com/purcell/exec-path-from-shell
 (use-package exec-path-from-shell
   :straight t
   :config
   (exec-path-from-shell-initialize))
 
+;; Provides a dashboard/home screen when starting Emacs that lists projects,
+;; recent files and more.
+;;
+;; https://github.com/emacs-dashboard/emacs-dashboard
 (use-package dashboard
   :straight t
   :init
@@ -261,7 +291,23 @@
   :config
   (dashboard-setup-startup-hook))
 
-;; Optionally use the `orderless' completion style.
+;; The package `vertico' provides vertical interactive completion similar to
+;; `smex' or the built-in package `ido'.
+;;
+;; https://github.com/minad/vertico 
+(use-package vertico
+  :straight t
+  :init
+  (setq
+   vertico-cycle t
+   vertico-resize nil
+   vertico-count 10)
+  (vertico-mode))
+
+;; This package allows completion candidates to be matched using different
+;; completion styles.
+;;
+;; https://github.com/oantolin/orderless
 (use-package orderless
   :straight t
   :init (setq completion-styles '(orderless basic)
@@ -272,25 +318,10 @@
   ;;       orderless-component-separator #'orderless-escapable-split-on-space)
   )
 
-(use-package vertico
-  :straight t
-  :init
-  (setq
-   vertico-cycle t
-   vertico-resize nil
-   vertico-count 10)
-  (vertico-mode))
 
-;; Enable vertico-multiform
-;;(vertico-multiform-mode)
-
-;; (use-package vertico-posframe
-;;   :straight t
-;;   :init
-;;   (setq vertico-posframe-poshandler #'posframe-poshandler-frame-top-center)
-;;   :config
-;;   (vertico-posframe-mode 0))
-
+;; Adds a small description to each item within the minibuffer completion list.
+;;
+;; https://github.com/minad/marginalia
 (use-package marginalia
   :straight t
   :after vertico
@@ -299,6 +330,9 @@
   :init
   (marginalia-mode))
 
+;; Provides search and navigation commands
+;;
+;; https://github.com/minad/consult
 (use-package consult
   :straight t
   :bind (
@@ -403,46 +437,31 @@
   ;; (setq consult-project-function nil)
   )
 
-;; (use-package embark
-;;   :ensure t
-;;   :bind
-;;   (("C-." . embark-act)         ;; pick some comfortable binding
-;;    ("C-;" . embark-dwim)        ;; good alternative: M-.
-;;    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
-;;   :init
-
-;;   ;; Optionally replace the key help with a completing-read interface
-;;   (setq prefix-help-command #'embark-prefix-help-command)
-
-;;   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
-;;   ;; strategy, if you want to see the documentation from multiple providers.
-;;   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-;;   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-
-;;   :config
-
-;;   ;; Hide the mode line of the Embark live/completions buffers
-;;   (add-to-list 'display-buffer-alist
-;;                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-;;                  nil
-;;                  (window-parameters (mode-line-format . none)))))
-
 ;; Consult users will also want the embark-consult package.
+;;
+;; 
 (use-package embark-consult
   :straight t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+;;
+;;
+;;
 (use-package consult-projectile
   :straight t)
 
+;;
+;;
+;;
 (use-package consult-flycheck
   :straight t)
 
 ;; The package `projectile' is a project management package that provides
 ;; many useful features when working with projets such as searching,
 ;; navigation and editing.
+;;
+;; https://github.com/bbatsov/projectile
 (use-package projectile
   :straight t
   :diminish
@@ -452,13 +471,35 @@
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map)))
 
+
+;; The package `flycheck' shows syntactic highlighting in code that
+;; displays logs, warnings and errors.
+;;
+;; https://github.com/flycheck/flycheck
+(use-package flycheck
+  :straight t
+  :diminish
+  :init (global-flycheck-mode))
+
+;; The package `neotree' shows the filesystem for the current directory.
+;;
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :straight t
+  :config
+  (setq
+   neo-theme (if (display-graphic-p)
+                 'icons 'arrow))
+  :bind (("C-c n" . neotree-toggle)))
+
 ;; (use-package consult-lsp
 ;;   :ensure t)
-
 
 ;; The package `lsp-mode' is a front-end to LSP which stands for
 ;; Language Server Protocol and allows for language parsing, debugging
 ;; and navigation.
+;;
+;; https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :straight t
   :init
@@ -482,44 +523,12 @@
   :config
   (require 'dap-cpptools))
 
-;; (use-package lsp-tailwindcss
-;;   :straight t
-;;   :init
-;;   (setq lsp-tailwindcss-add-on-mode t))
-
-;; (use-package company
-;;   :ensure t
-;;   :diminish
-;;   :config (setq
-;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-;;            company-selection-wrap-around t
-;;            company-show-numbers nil
-;;            company-tooltip-align-annotations t
-;;            company-idle-delay 0.0
-;;            company-require-match nil
-;;            company-minimum-prefix-length 2)
-  
-;;   :bind (:map company-active-map
-;;         ("C-n" . company-select-next)
-;;         ("C-p" . company-select-previous)
-;;         ("<tab>" . company-complete-selection))
-;;   :hook (prog-mode . company-mode)
-
-;;   )
-
-(use-package cmake-mode
-  :straight t
-  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-  :hook (cmake-mode . lsp-deferred))
-
-(use-package cmake-font-lock
-  :straight t
-  :after cmake-mode
-  :config (cmake-font-lock-activate))
 
 ;; The package `corfu' display a window for autocomplete candidates
 ;; when writing text. It is a simpler alternative to the highly
 ;; popular `company' package.
+;;
+;; https://github.com/minad/corfu
 (use-package corfu
   :straight t
   :init (setq
@@ -536,6 +545,30 @@
   :bind (:map corfu-map
               ("RET" . nil)))
 
+;; Adds icon support. Once the package is installed, the actual icons need to be
+;; installed manually which can be done using the command `all-the-icons-install-fonts'.
+;;
+;; https://github.com/iyefrat/all-the-icons.el
+(use-package all-the-icons
+  :straight t
+  :if (display-graphic-p))
+
+;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
+;; compiled with SVG support (--with-rsvg).
+;;
+;; https://github.com/jdtsmith/kind-icon
+(use-package kind-icon
+  :straight t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+;; Emacs multimedia system that allows for playing and organising music into
+;; different collections/albums. The music is stored locally on the computer.
+;;
+;; https://github.com/emacsmirror/emms
 (use-package emms
   :straight t
   :init (setq
@@ -544,19 +577,10 @@
   (emms-all)
   (emms-default-players))
 
-;; The package `flycheck' shows syntactic highlighting in code that
-;; displays information, warning and errors.
-(use-package flycheck
-  :straight t
-  :diminish
-  :init (global-flycheck-mode))
 
-;; The package `neotree' is a window that shows the filesystem for the
-;; current project or directory.
-(use-package neotree
-  :straight t
-  :bind (("C-c n" . neotree-toggle)))
-
+;; A Emacs based email client that makes use of mu.
+;;
+;; https://github.com/djcb/mu
 ;; (use-package mu4e
 ;;   :straight t
 ;;   :config
@@ -592,6 +616,8 @@
 
 ;; The package `elfeed' is an RSS client that allows a user to provide
 ;; a list of RSS sources and the package will retrive the latest news.
+;;
+;; https://github.com/skeeto/elfeed
 (use-package elfeed
   :straight t
   :config (setq
@@ -623,8 +649,49 @@
          (sgml-mode . emmet-mode)
          (css-mode . emmet-mode)))
 
+;; (use-package lsp-tailwindcss
+;;   :straight t
+;;   :init
+;;   (setq lsp-tailwindcss-add-on-mode t))
+
+
+(use-package cmake-mode
+  :straight t
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
+  :hook (cmake-mode . lsp-deferred))
+
+(use-package cmake-font-lock
+  :straight t
+  :after cmake-mode
+  :config (cmake-font-lock-activate))
+
+;; =============================================================================
+
 (defun custom/load-config ()
   "Load my Emacs init.el configuration file."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
 ;;(global-set-key (kbd "C-c c") 'custom/load-config)
+
+;; =============================================================================
+
+;; Unused packages
+
+;; (use-package company
+;;   :ensure t
+;;   :diminish
+;;   :config (setq
+;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+;;            company-selection-wrap-around t
+;;            company-show-numbers nil
+;;            company-tooltip-align-annotations t
+;;            company-idle-delay 0.0
+;;            company-require-match nil
+;;            company-minimum-prefix-length 2)
+  
+;;   :bind (:map company-active-map
+;;         ("C-n" . company-select-next)
+;;         ("C-p" . company-select-previous)
+;;         ("<tab>" . company-complete-selection))
+;;   :hook (prog-mode . company-mode)
+;;   )
