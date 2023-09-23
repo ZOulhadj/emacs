@@ -330,7 +330,7 @@
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
 ;;
-;; https://github.com/minad/vertico 
+;; https://github.com/minad/vertico
 (use-package vertico
   :straight t
   :init
@@ -587,13 +587,13 @@
    lsp-warn-no-matched-clients nil
    lsp-signature-render-documentation nil)
   
-  (defun my/lsp-mode-setup-completion ()
+  (defun custom/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless))) ;; Configure flex
   :hook
   (prog-mode . lsp-deferred)
   (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
+  (lsp-completion-mode . custom/lsp-mode-setup-completion)
   :commands
   (lsp lsp-deferred))
 
@@ -726,7 +726,6 @@
 ;;   :straight t
 ;;   :init
 ;;   (setq lsp-tailwindcss-add-on-mode t))
-
 
 (use-package cmake-mode
   :straight t
