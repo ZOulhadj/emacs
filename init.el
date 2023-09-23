@@ -13,13 +13,13 @@
 ;; Compiling Emacs from source
 ;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
 ;;
-
 ;; =============================================================================
 
 ;; Use straight.el instead of the built-in package.el for downloading external
 ;; packages. As we are completely replacing package.el we need to download
-;; straight.el without using it. We first create a bootstrap file that will contain
-;; the install script and is installed the very first time we launch Emacs.
+;; straight.el without using it. We first create a bootstrap file that will
+;; contain the install script and is installed the very first time we launch
+;; Emacs.
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -50,7 +50,7 @@
    no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 (use-package emacs
-  :init
+  :config
   (setq
    ;; startup
    gc-cons-threshold 20000000 ;; 20mb
@@ -73,6 +73,7 @@
    show-paren-delay 0.0
    ring-bell-function 'ignore
    display-time-default-load-average nil
+   display-time-24hr-format t
    frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
    echo-keystrokes 0.02
    use-short-answers t
@@ -83,10 +84,10 @@
    confirm-kill-emacs nil
 
    ;; other
-   fill-column 80
+
    
    enable-recursive-minibuffers t
-   
+   comint-input-ignoredups t
    default-frame-alist nil
    
    tab-always-indent 'complete
@@ -109,6 +110,7 @@
   (setq-default
    indent-tabs-mode nil
    dired-listing-switches "-alh"
+   fill-column 80
    )
   
   :config
@@ -132,22 +134,19 @@
   (toggle-frame-maximized)
   (pixel-scroll-precision-mode 1)
   (load-theme 'modus-vivendi t)
-  
+  (toggle-frame-fullscreen)
+
   ;; other
   (delete-selection-mode t)
     
-  ;; Check each font in order and use fallback fonts if current one is
-  ;; not found. If none of the specified fonts are found then Emacs
-  ;; will use a default font.
+  ;; Check each font in order and use fallback fonts if current one is not
+  ;; found. If none of the specified fonts are found then Emacs will use a
+  ;; default font.
   ;;
   ;; Test char and monospace:
   ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
   ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
-  (cond
-   ((find-font (font-spec :name "Cascadia Mono"))
-    (set-frame-font "Cascadia Mono-14"))
-   ((find-font (font-spec :name "Consolas"))
-    (set-frame-font "Consolas-14")))
+  (set-face-attribute 'default nil :family "Ubuntu Mono" :height 150)
 
   :bind
   ("C-x k" . kill-this-buffer)
@@ -156,6 +155,23 @@
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
 
+(use-package isearch
+  :bind (:map isearch-mode-map
+              ("<backspace>" . isearch-del-char)))
+
+(use-package dabbrev
+  :bind
+  (("M-/" . dabbrev-completion)
+   ("C-M-/" . dabbrev-expand))
+  :custom
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+
+;; Adds support for the Lua programming language.
+;;
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight t)
+
 ;; The `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
 ;;
@@ -163,48 +179,51 @@
 (use-package treesit
   :config
   (setq
-   treesit-language-source-alist '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+   treesit-language-source-alist '(
+                                   ;; Official grammers
                                    (c "https://github.com/tree-sitter/tree-sitter-c")
-                                   (cmake "https://github.com/uyha/tree-sitter-cmake")
-                                   (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
                                    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-                                   (css "https://github.com/tree-sitter/tree-sitter-css")
-                                   (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
-                                   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-                                   (go "https://github.com/tree-sitter/tree-sitter-go")
-                                   (go-mod "https://github.com/camdencheek/tree-sitter-go-mod")
+                                   (rust "https://github.com/tree-sitter/tree-sitter-rust")
+                                   (python "https://github.com/tree-sitter/tree-sitter-python")
+                                   (bash "https://github.com/tree-sitter/tree-sitter-bash")
                                    (html "https://github.com/tree-sitter/tree-sitter-html")
-                                   (js . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+                                   (css "https://github.com/tree-sitter/tree-sitter-css")
                                    (json "https://github.com/tree-sitter/tree-sitter-json")
+                                   
+                                   ;; Community grammers
                                    (lua "https://github.com/Azganoth/tree-sitter-lua")
                                    (make "https://github.com/alemuller/tree-sitter-make")
+                                   (cmake "https://github.com/uyha/tree-sitter-cmake")
+                                   (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
+                                   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
                                    (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-                                   (python "https://github.com/tree-sitter/tree-sitter-python")
-                                   (r "https://github.com/r-lib/tree-sitter-r")
-                                   (rust "https://github.com/tree-sitter/tree-sitter-rust")
-                                   (toml "https://github.com/tree-sitter/tree-sitter-toml")
-                                   (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
-                                   (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
-                                   (yaml "https://github.com/ikatyang/tree-sitter-yaml"))))
+                                   (org "https://github.com/milisims/tree-sitter-org")
+                                   (glsl "https://github.com/theHamsta/tree-sitter-glsl")
+                                   (latex "https://github.com/latex-lsp/tree-sitter-latex")
+                                   )
+   )
+  )
 
-;; Even if Tree sitter is installed and the language grammer is configured,
+;; Even when Tree sitter is installed and the language grammer is configured,
 ;; Emacs will not enable it. This is because we must enable the special "ts"
 ;; modes. So here we remap the default modes to tree-sitter specific modes.
 (setq major-mode-remap-alist
       '((c-mode . c-ts-mode)
         (c++-mode . c++-ts-mode)
         (python-mode . python-ts-mode)
+        ;; (lua-mode . lua-ts-mode) ;; TODO(zak): No Lua tree sitter mode yet.
         (yaml-mode . yaml-ts-mode)
         (bash-mode . bash-ts-mode)
         (js2-mode . js-ts-mode)
         (typescript-mode . typescript-ts-mode)
         (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)))
-
+        (css-mode . css-ts-mode)
+        (cmake-mode . cmake-ts-mode)))
 
 (setq
  c-ts-mode-indent-offset 4
  c-ts-mode-indent-style "k&r")
+
 
 ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 (global-unset-key [mouse-2])
@@ -221,10 +240,9 @@
 
 
 
-;; The package `diminish' introduces the `:diminish' keyword which can
-;; be used together with `use-package' to hide minor modes from the
-;; modeline. This allows the modeline to be kept minimal and show only
-;; required modes.
+;; The package `diminish' introduces the `:diminish' keyword which can be used
+;; together with `use-package' to hide minor modes from the modeline. This
+;; allows the modeline to be kept minimal and show only required modes.
 ;;
 ;; https://github.com/emacsmirror/diminish
 (use-package diminish
@@ -237,9 +255,9 @@
   :straight t
   :bind ("C-c g" . magit-status))
 
-;; The package `which-key' displays a popup window showing all the
-;; possible key combinations for the current action. This allows a
-;; user to not forget specific commands.
+;; The package `which-key' displays a popup window showing all the possible key
+;; combinations for the current action. This allows a user to not forget
+;; specific commands.
 ;;
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
@@ -251,14 +269,13 @@
   :config (which-key-mode))
 
 
-;; The package `exec-path-from-shell' ensures all environment
-;; variables are present within Emacs. By default, Emacs only uses a
-;; small subset of variables. However, this package works by copying
-;; all enviornment variables from the system into Emacs so that all
-;; commands are accessible.
+;; The package `exec-path-from-shell' ensures all environment variables are
+;; present within Emacs. By default, Emacs only uses a small subset of
+;; variables. However, this package works by copying all enviornment variables
+;; from the system into Emacs so that all commands are accessible.
 
-;; todo: Take a closer look how this package behaves on Windows since its
-;; not Unix based.
+;; todo: Take a closer look how this package behaves on Windows since its not
+;; Unix based.
 ;;
 ;; https://github.com/purcell/exec-path-from-shell
 (use-package exec-path-from-shell
@@ -303,21 +320,6 @@
    vertico-resize nil
    vertico-count 10)
   (vertico-mode))
-
-;; This package allows completion candidates to be matched using different
-;; completion styles.
-;;
-;; https://github.com/oantolin/orderless
-(use-package orderless
-  :straight t
-  :init (setq completion-styles '(orderless basic)
-              completion-category-defaults nil
-              completion-category-overrides '((file (styles partial-completion))))
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
-  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
-  )
-
 
 ;; Adds a small description to each item within the minibuffer completion list.
 ;;
@@ -457,9 +459,9 @@
 (use-package consult-flycheck
   :straight t)
 
-;; The package `projectile' is a project management package that provides
-;; many useful features when working with projets such as searching,
-;; navigation and editing.
+;; The package `projectile' is a project management package that provides many
+;; useful features when working with projets such as searching, navigation and
+;; editing.
 ;;
 ;; https://github.com/bbatsov/projectile
 (use-package projectile
@@ -472,8 +474,8 @@
               ("C-c p" . projectile-command-map)))
 
 
-;; The package `flycheck' shows syntactic highlighting in code that
-;; displays logs, warnings and errors.
+;; The package `flycheck' shows syntactic highlighting in code that displays
+;; logs, warnings and errors.
 ;;
 ;; https://github.com/flycheck/flycheck
 (use-package flycheck
@@ -492,16 +494,63 @@
                  'icons 'arrow))
   :bind (("C-c n" . neotree-toggle)))
 
+;; Adds colors to matching brackets based on level
+;;
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight t
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
+
 ;; (use-package consult-lsp
 ;;   :ensure t)
 
-;; The package `lsp-mode' is a front-end to LSP which stands for
-;; Language Server Protocol and allows for language parsing, debugging
-;; and navigation.
+;; The package `corfu' display a window for autocomplete candidates when writing
+;; text. It is a simpler alternative to the highly popular `company'
+;; package. This is because it uses the Emacs buit-in
+;;
+;; https://github.com/minad/corfu
+(use-package corfu
+  :straight t
+  :init
+  (setq
+   corfu-cycle t
+   corfu-auto nil
+   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+   corfu-separator ?\s
+   corfu-quit-at-boundary 'separator
+   corfu-quit-no-match t
+   corfu-preview-current nil
+   corfu-preselect 'valid
+   ;;corfu-on-exact-match 'insert
+   corfu-scroll-margin 1)
+  
+  (global-corfu-mode)
+  :bind
+  (:map corfu-map
+        ("RET" . nil)))
+
+;; This package changes how completion candidates are displayed within a
+;; completion window such as `corfu' or `company'.
+;;
+;; https://github.com/oantolin/orderless
+(use-package orderless
+  :straight t
+  :init
+  (setq
+   completion-styles '(orderless partial-completion basic)
+   completion-category-defaults nil
+   completion-category-overrides nil)
+  )
+
+;; The package `lsp-mode' is a front-end to LSP which stands for Language Server
+;; Protocol and allows for language parsing, debugging and navigation.
 ;;
 ;; https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :straight t
+  :custom
+  (lsp-completion-provider :none)
   :init
   (setq
    lsp-keymap-prefix "C-c l"
@@ -512,9 +561,14 @@
    lsp-idle-delay 0.1
    lsp-warn-no-matched-clients nil
    lsp-signature-render-documentation nil)
+  
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))) ;; Configure flex
   :hook
-  ((prog-mode . lsp-deferred)
-   (lsp-mode . lsp-enable-which-key-integration))
+  (prog-mode . lsp-deferred)
+  (lsp-mode . lsp-enable-which-key-integration)
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
   :commands
   (lsp lsp-deferred))
 
@@ -522,28 +576,6 @@
   :straight t
   :config
   (require 'dap-cpptools))
-
-
-;; The package `corfu' display a window for autocomplete candidates
-;; when writing text. It is a simpler alternative to the highly
-;; popular `company' package.
-;;
-;; https://github.com/minad/corfu
-(use-package corfu
-  :straight t
-  :init (setq
-         corfu-cycle nil
-         corfu-auto t
-         corfu-separator ?\s
-         corfu-quit-at-boundary 'separator
-         corfu-quit-no-match t
-         corfu-preview-current nil
-         corfu-preselect 'valid
-         corfu-on-exact-match 'insert
-         corfu-scroll-margin 2)
-  (global-corfu-mode)
-  :bind (:map corfu-map
-              ("RET" . nil)))
 
 ;; Adds icon support. Once the package is installed, the actual icons need to be
 ;; installed manually which can be done using the command `all-the-icons-install-fonts'.
@@ -557,13 +589,13 @@
 ;; compiled with SVG support (--with-rsvg).
 ;;
 ;; https://github.com/jdtsmith/kind-icon
-(use-package kind-icon
-  :straight t
-  :after corfu
-  :custom
-  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+;; (use-package kind-icon
+;;   :straight t
+;;   :after corfu
+;;   :custom
+;;   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+;;   :config
+;;   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 ;; Emacs multimedia system that allows for playing and organising music into
 ;; different collections/albums. The music is stored locally on the computer.
@@ -614,8 +646,8 @@
   :config
   (mu4e-alert-enable-mode-line-display))
 
-;; The package `elfeed' is an RSS client that allows a user to provide
-;; a list of RSS sources and the package will retrive the latest news.
+;; The package `elfeed' is an RSS client that allows a user to provide a list of
+;; RSS sources and the package will retrive the latest news.
 ;;
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
@@ -624,10 +656,17 @@
            elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
   :bind (("C-c e" . elfeed)))
 
-;; (use-package ace-window
-;;   :ensure t
-;;   :bind
-;;   ("C-x o" . ace-window))
+(use-package ace-window
+  :straight t
+  :config
+  (setq
+   aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:inherit ace-jump-face-foreground :height 1.0)))))
+  :bind
+  ("M-o" . ace-window))
 
 (use-package web-mode
   :straight t
