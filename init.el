@@ -135,6 +135,7 @@
   (pixel-scroll-precision-mode 1)
   (load-theme 'modus-vivendi t)
   (toggle-frame-fullscreen)
+  (fringe-mode nil)
 
   ;; other
   (delete-selection-mode t)
@@ -308,6 +309,24 @@
   :config
   (dashboard-setup-startup-hook))
 
+(use-package doom-themes
+  :straight t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  ;;(doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
 ;;
@@ -318,8 +337,14 @@
   (setq
    vertico-cycle t
    vertico-resize nil
-   vertico-count 10)
-  (vertico-mode))
+   vertico-count 10
+
+   vertico-multiform-commands '((consult-imenu buffer))
+   vertico-multiform-categories '((consult-grep buffer))
+   )
+  
+  (vertico-mode)
+  (vertico-multiform-mode))
 
 ;; Adds a small description to each item within the minibuffer completion list.
 ;;
@@ -584,6 +609,15 @@
 (use-package all-the-icons
   :straight t
   :if (display-graphic-p))
+
+;; Keeps the cursor in centered within a buffer.
+;; 
+;; https://github.com/emacsmirror/centered-cursor-mode
+;; (use-package centered-cursor-mode
+;;   :straight t
+;;   :config
+;;   ;; Optional, enables centered-cursor-mode in all buffers.
+;;   (global-centered-cursor-mode))
 
 ;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
 ;; compiled with SVG support (--with-rsvg).
