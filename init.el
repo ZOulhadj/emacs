@@ -119,8 +119,10 @@
 
   ;; files
   (save-place-mode 1)
-  (recentf-mode 1)
   (savehist-mode)
+  (desktop-save-mode 1)
+  (recentf-mode 1)
+
   (global-auto-revert-mode t)
   (electric-pair-mode 1)
   
@@ -133,8 +135,8 @@
   (blink-cursor-mode 0)
   (toggle-frame-maximized)
   (pixel-scroll-precision-mode 1)
-  (load-theme 'modus-vivendi t)
-  (toggle-frame-fullscreen)
+  ;;(load-theme 'modus-vivendi t)
+  ;;(toggle-frame-fullscreen)
   (fringe-mode nil)
 
   ;; other
@@ -147,11 +149,23 @@
   ;; Test char and monospace:
   ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
   ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
-  (set-face-attribute 'default nil :family "Ubuntu Mono" :height 150)
+  (set-face-attribute 'default nil
+                      :family "Liberation Mono"
+                      :height 150
+                      :width 'normal
+                      :slant 'normal
+                      :weight 'normal)
+
+
+  ;; Disable bindings for suspending Emacs in graphical mode since it's super
+  ;; annoying.
+  (when (display-graphic-p)
+    (global-unset-key (kbd "C-z"))
+    (global-unset-key (kbd "C-x C-z")))
 
   :bind
   ("C-x k" . kill-this-buffer)
-
+  ("<f5>" . recompile)
   ;;:hook
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
@@ -166,6 +180,16 @@
    ("C-M-/" . dabbrev-expand))
   :custom
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+
+(use-package tab-bar
+  :config
+  (setq
+   tab-bar-show t
+   tab-bar-new-tab-to 'rightmost
+   ;;tab-bar-new-tab-choice "*dashboard*"
+   )
+  
+  (tab-bar-mode 1))
 
 ;; Adds support for the Lua programming language.
 ;;
@@ -208,22 +232,27 @@
 ;; Even when Tree sitter is installed and the language grammer is configured,
 ;; Emacs will not enable it. This is because we must enable the special "ts"
 ;; modes. So here we remap the default modes to tree-sitter specific modes.
-(setq major-mode-remap-alist
-      '((c-mode . c-ts-mode)
-        (c++-mode . c++-ts-mode)
-        (python-mode . python-ts-mode)
-        ;; (lua-mode . lua-ts-mode) ;; TODO(zak): No Lua tree sitter mode yet.
-        (yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (js2-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (cmake-mode . cmake-ts-mode)))
+;; (setq major-mode-remap-alist
+;;       '((c-mode . c-ts-mode)
+;;         (c++-mode . c++-ts-mode)
+;;         (python-mode . python-ts-mode)
+;;         ;; (lua-mode . lua-ts-mode) ;; TODO(zak): No Lua tree sitter mode yet.
+;;         (yaml-mode . yaml-ts-mode)
+;;         (bash-mode . bash-ts-mode)
+;;         (js2-mode . js-ts-mode)
+;;         (typescript-mode . typescript-ts-mode)
+;;         (json-mode . json-ts-mode)
+;;         (css-mode . css-ts-mode)
+;;         (cmake-mode . cmake-ts-mode)))
+
+(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+(add-to-list 'major-mode-remap-alist
+             '(c-or-c++-mode . c-or-c++-ts-mode))
 
 (setq
  c-ts-mode-indent-offset 4
- c-ts-mode-indent-style "k&r")
+ c-ts-mode-indent-style 'k&r)
 
 
 ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
@@ -239,7 +268,15 @@
       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
 
-
+;; Adds additional functionaility to the default dired mode
+;;
+;; https://github.com/emacsmirror/dired-plus/tree/master
+;; (use-package dired+
+;;   :straight t
+;;   :config
+;;   (setq
+;;    diredp-toggle-find-file-reuse-dir 1) ;; todo: does not seem to reuse the same buffer
+;;   )
 
 ;; The package `diminish' introduces the `:diminish' keyword which can be used
 ;; together with `use-package' to hide minor modes from the modeline. This
@@ -288,44 +325,25 @@
 ;; recent files and more.
 ;;
 ;; https://github.com/emacs-dashboard/emacs-dashboard
-(use-package dashboard
-  :straight t
-  :init
-  (setq
-   dashboard-banner-logo-title "Welcome to Emacs!"
-   dashboard-set-footer nil
-   dashboard-startup-banner 2
-   dashboard-center-content nil
-   dashboard-show-shortcuts t
-   dashboard-set-navigator t
-   dashboard-items '((recents  . 5)
-                     (bookmarks . 5)
-                     (projects . 5)
-                     (agenda . 5)
-                     (registers . 5))
-   dashboard-week-agenda t
-   ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
-   )
-  :config
-  (dashboard-setup-startup-hook))
-
-(use-package doom-themes
-  :straight t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
-  ;;(doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+;; (use-package dashboard
+;;   :straight t
+;;   :init
+;;   (setq
+;;    dashboard-banner-logo-title "Welcome to Emacs!"
+;;    dashboard-set-footer nil
+;;    dashboard-startup-banner 2
+;;    dashboard-center-content nil
+;;    dashboard-show-shortcuts t
+;;    dashboard-set-navigator t
+;;    dashboard-items '((recents  . 5)
+;;                      (bookmarks . 5)
+;;                      (projects . 5)
+;;                      (agenda . 5))
+;;    dashboard-week-agenda t
+;;    ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
+;;    )
+;;   :config
+;;   (dashboard-setup-startup-hook))
 
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
@@ -481,8 +499,8 @@
 ;;
 ;;
 ;;
-(use-package consult-flycheck
-  :straight t)
+;; (use-package consult-flycheck
+;;   :straight t)
 
 ;; The package `projectile' is a project management package that provides many
 ;; useful features when working with projets such as searching, navigation and
@@ -503,10 +521,10 @@
 ;; logs, warnings and errors.
 ;;
 ;; https://github.com/flycheck/flycheck
-(use-package flycheck
-  :straight t
-  :diminish
-  :init (global-flycheck-mode))
+;; (use-package flycheck
+;;   :straight t
+;;   :diminish
+;;   :init (global-flycheck-mode))
 
 ;; The package `neotree' shows the filesystem for the current directory.
 ;;
@@ -522,10 +540,10 @@
 ;; Adds colors to matching brackets based on level
 ;;
 ;; https://github.com/Fanael/rainbow-delimiters
-(use-package rainbow-delimiters
-  :straight t
-  :hook
-  (prog-mode . rainbow-delimiters-mode))
+;; (use-package rainbow-delimiters
+;;   :straight t
+;;   :hook
+;;   (prog-mode . rainbow-delimiters-mode))
 
 ;; (use-package consult-lsp
 ;;   :ensure t)
@@ -540,14 +558,14 @@
   :init
   (setq
    corfu-cycle t
-   corfu-auto nil
+   corfu-auto t
    corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
    corfu-separator ?\s
    corfu-quit-at-boundary 'separator
    corfu-quit-no-match t
    corfu-preview-current nil
    corfu-preselect 'valid
-   ;;corfu-on-exact-match 'insert
+   corfu-on-exact-match 'insert
    corfu-scroll-margin 1)
   
   (global-corfu-mode)
@@ -572,35 +590,47 @@
 ;; Protocol and allows for language parsing, debugging and navigation.
 ;;
 ;; https://github.com/emacs-lsp/lsp-mode
-(use-package lsp-mode
-  :straight t
-  :custom
-  (lsp-completion-provider :none)
-  :init
-  (setq
-   lsp-keymap-prefix "C-c l"
-   lsp-headerline-breadcrumb-enable nil
-   lsp-enable-symbol-highlighting nil
-   lsp-enable-on-type-formatting nil
-   lsp-enable-links nil
-   lsp-idle-delay 0.1
-   lsp-warn-no-matched-clients nil
-   lsp-signature-render-documentation nil)
+;; (use-package lsp-mode
+;;   :straight t
+;;   :custom
+;;   (lsp-completion-provider :none)
+;;   :init
+;;   (setq
+;;    lsp-keymap-prefix "C-c l"
+;;    lsp-headerline-breadcrumb-enable nil
+;;    lsp-enable-symbol-highlighting nil
+;;    lsp-enable-on-type-formatting nil
+;;    lsp-enable-links nil
+;;    lsp-idle-delay 0.1
+;;    lsp-warn-no-matched-clients nil
+;;    lsp-signature-render-documentation nil)
   
-  (defun custom/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; Configure flex
-  :hook
-  (prog-mode . lsp-deferred)
-  (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . custom/lsp-mode-setup-completion)
-  :commands
-  (lsp lsp-deferred))
+;;   (defun custom/lsp-mode-setup-completion ()
+;;     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+;;           '(orderless))) ;; Configure flex
+;;   :hook
+;;   (prog-mode . lsp-deferred)
+;;   (lsp-mode . lsp-enable-which-key-integration)
+;;   (lsp-completion-mode . custom/lsp-mode-setup-completion)
+;;   :commands
+;;   (lsp lsp-deferred))
 
-(use-package dap-mode
+;; (use-package dap-mode
+;;   :straight t
+;;   :config
+;;   (require 'dap-cpptools))
+
+
+
+;; Allows for lines or regions to be moved.
+;;
+;;https://github.com/rejeep/drag-stuff.el
+(use-package drag-stuff
   :straight t
+  :diminish
   :config
-  (require 'dap-cpptools))
+  (drag-stuff-global-mode 1)
+  (drag-stuff-define-keys))
 
 ;; Adds icon support. Once the package is installed, the actual icons need to be
 ;; installed manually which can be done using the command `all-the-icons-install-fonts'.
@@ -647,32 +677,32 @@
 ;; A Emacs based email client that makes use of mu.
 ;;
 ;; https://github.com/djcb/mu
-;; (use-package mu4e
-;;   :straight t
-;;   :config
-;;   (setq
-;;    mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-;;    mu4e-update-interval 300
-;;    message-send-mail-function 'smtpmail-send-it
-;;    starttls-use-gnutls t
-;;    smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-;;    smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-;;    smtpmail-default-smtp-server "smtp.gmail.com"
-;;    smtpmail-smtp-server "smtp.gmail.com"
-;;    smtpmail-smtp-service 587
-;;    mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
-;;                             ("/gmail/Sent" . ?s)
-;;                             ("/gmail/All Mail" . ?a)
-;;                             ("/gmail/Trash" . ?t)
-;;                             ("/gmail/Drafts" . ?d))
-;;    mu4e-sent-folder "/gmail/Sent"
-;;    mu4e-drafts-folder "/gmail/Drafts"
-;;    mu4e-trash-folder "/gmail/Trash"
-;;    mu4e-refile-folder "/gmail/All Mail"
-;;    )
-;;   :bind
-;;   ("C-c m" . mu4e)
-;;   )
+(use-package mu4e
+  :straight t
+  :config
+  (setq
+   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+   mu4e-update-interval 300
+   message-send-mail-function 'smtpmail-send-it
+   starttls-use-gnutls t
+   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+   smtpmail-default-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-service 587
+   mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
+                            ("/gmail/Sent" . ?s)
+                            ("/gmail/All Mail" . ?a)
+                            ("/gmail/Trash" . ?t)
+                            ("/gmail/Drafts" . ?d))
+   mu4e-sent-folder "/gmail/Sent"
+   mu4e-drafts-folder "/gmail/Drafts"
+   mu4e-trash-folder "/gmail/Trash"
+   mu4e-refile-folder "/gmail/All Mail"
+   )
+  :bind
+  ("C-c m" . mu4e)
+  )
 
 (use-package mu4e-alert
   :straight t
@@ -702,19 +732,19 @@
   :bind
   ("M-o" . ace-window))
 
-(use-package web-mode
-  :straight t
-  :init (setq web-mode-markup-indent-offset 4
-              web-mode-css-indent-offset 4
-              web-mode-code-indent-offset 4
-              web-mode-indent-style 4
+;; (use-package web-mode
+;;   :straight t
+;;   :init (setq web-mode-markup-indent-offset 4
+;;               web-mode-css-indent-offset 4
+;;               web-mode-code-indent-offset 4
+;;               web-mode-indent-style 4
               
-              web-mode-enable-auto-pairing t
-              web-mode-enable-css-colorization t
-              web-mode-enable-current-element-highlight t)
+;;               web-mode-enable-auto-pairing t
+;;               web-mode-enable-css-colorization t
+;;               web-mode-enable-current-element-highlight t)
   
-  :mode (("\\.html?\\'" . web-mode)
-         ("\\.htm?\\'" . web-mode)))
+;;   :mode (("\\.html?\\'" . web-mode)
+;;          ("\\.htm?\\'" . web-mode)))
 
 (use-package emmet-mode
   :straight t
@@ -737,6 +767,9 @@
   :after cmake-mode
   :config (cmake-font-lock-activate))
 
+(use-package simple-httpd
+  :straight t)
+
 ;; =============================================================================
 
 (defun custom/load-config ()
@@ -746,6 +779,7 @@
 ;;(global-set-key (kbd "C-c c") 'custom/load-config)
 
 ;; =============================================================================
+;;(load-theme 'my-custom-theme t)
 
 ;; Unused packages
 
@@ -767,3 +801,18 @@
 ;;         ("<tab>" . company-complete-selection))
 ;;   :hook (prog-mode . company-mode)
 ;;   )
+
+
+
+
+
+;; Make the compilation window automatically disappear - from enberg on #emacs
+(setq compilation-finish-functions
+      (lambda (buf str)
+        (if (null (string-match ".*exited abnormally.*" str))
+            ;;no errors, make the compilation window go away in a few seconds
+            (progn
+              (run-at-time
+               "1 sec" nil 'delete-windows-on
+               (get-buffer-create "*compilation*"))
+              (message "No Compilation Errors!")))))
