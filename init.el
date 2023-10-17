@@ -1,17 +1,24 @@
 ;; =============================================================================
-
-;; Required software
-;; tree-sitter, librsvg2-dev, libgccjit0, rg
-
-;; rg (RipGrep) - string searching
-;; mpv - music
-;; mu, mbsync (MailDir Utils) - mail
-;; msync -c ~/.config/mu4e/mbsyncrc -a
-;; mu init --maildir=~/Mail --my-address=zakariyaoulhadj01@gmail.com
+;; ==== [Built-in] ====
+;; - tree-sitter (Tree sitter)
+;; - librsvg2-dev (SVG support)
+;; - libgccjit0 (Just-in-time compilation)
+;; - rg (RipGrep search)
+;;
+;; Compiling from source
+;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
+;;
+;; ==== [Email] ====
+;; - mbsync (Mail fetching/sending)
+;; - mu4e (Mail indexing)
+;; - mpv (Music Player)
+;;
+;; ==== [Commands] ====
+;; mbsync -c ~/.config/mu4e/mbsyncrc -a
+;; mu init --maildir=~/Mail/personal --my-address=zakariyaoulhadj01@gmail.com
+;; mu init --maildir=~/Mail/website --my-address=contact@zakariyaoulhadj.com
 ;; mu index
 
-;; Compiling Emacs from source
-;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
 ;;
 ;; =============================================================================
 
@@ -58,8 +65,6 @@
    native-comp-async-report-warnings-errors 'silent
    inhibit-startup-message t
    initial-scratch-message nil
-   user-full-name "Zakariya Oulhadj"
-   user-mail-address "zakariyaoulhadj01@gmail.com"
    
    ;; files
    custom-file (locate-user-emacs-file "custom.el")
@@ -135,7 +140,6 @@
   (blink-cursor-mode 0)
   (toggle-frame-maximized)
   (pixel-scroll-precision-mode 1)
-  ;;(load-theme 'modus-vivendi t)
   ;;(toggle-frame-fullscreen)
   (fringe-mode nil)
 
@@ -150,8 +154,8 @@
   ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
   ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
   (set-face-attribute 'default nil
-                      :family "Liberation Mono"
-                      :height 150
+                      :family "Hack"
+                      :height 140
                       :width 'normal
                       :slant 'normal
                       :weight 'normal)
@@ -640,6 +644,16 @@
   :straight t
   :if (display-graphic-p))
 
+(use-package doom-themes
+  :straight t
+  :config
+  (setq
+   doom-themes-enable-bold t    ; if nil, bold is universally disabled
+   doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (doom-themes-neotree-config)
+  (doom-themes-org-config)
+  (load-theme 'doom-one t))
+
 ;; Keeps the cursor in centered within a buffer.
 ;; 
 ;; https://github.com/emacsmirror/centered-cursor-mode
@@ -678,37 +692,59 @@
 ;;
 ;; https://github.com/djcb/mu
 (use-package mu4e
-  :straight t
+  :straight (:local-repo "/usr/share/emacs/site-lisp/elpa/mu4e/"
+                         :type built-in)
+  :commands mu4e
   :config
   (setq
+   
+   mu4e-contexts `( ,(make-mu4e-context
+                      :name "Personal"
+                      :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches msg
+                                                              :to "zakariyaoulhadj01@gmail.com")))
+                      :vars '( (user-mail-address . "zakariyaoulhadj01@gmail.com")
+                               (user-full-name . "Zakariya Oulhadj")))
+                    ,(make-mu4e-context
+                      :name "Website"
+                      :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches msg
+                                                              :to "contact@zakariyaoulhadj.com")))
+                      :vars '( (user-mail-address . "contact@zakariyaoulhadj.com")
+                               (user-full-name . "Zakariya Oulhadj")))
+                    )
+   mu4e-mu-debug nil
    mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
    mu4e-update-interval 300
-   message-send-mail-function 'smtpmail-send-it
-   starttls-use-gnutls t
-   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-   smtpmail-default-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-service 587
-   mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
-                            ("/gmail/Sent" . ?s)
-                            ("/gmail/All Mail" . ?a)
-                            ("/gmail/Trash" . ?t)
-                            ("/gmail/Drafts" . ?d))
-   mu4e-sent-folder "/gmail/Sent"
-   mu4e-drafts-folder "/gmail/Drafts"
-   mu4e-trash-folder "/gmail/Trash"
-   mu4e-refile-folder "/gmail/All Mail"
+   ;; mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
+   ;;                          ("/gmail/Sent" . ?s)
+   ;;                          ("/gmail/All Mail" . ?a)
+   ;;                          ("/gmail/Trash" . ?t)
+   ;;                          ("/gmail/Drafts" . ?d))
+   ;; mu4e-sent-folder "/gmail/Sent"
+   ;; mu4e-drafts-folder "/gmail/Drafts"
+   ;; mu4e-trash-folder "/gmail/Trash"
+   ;; mu4e-refile-folder "/gmail/All Mail"
+   
+   ;; message-send-mail-function 'smtpmail-send-it
+   ;; starttls-use-gnutls t
+   ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+   ;; smtpmail-default-smtp-server "smtp.gmail.com"
+   ;; smtpmail-smtp-server "smtp.gmail.com"
+   ;; smtpmail-smtp-service 587
    )
   :bind
   ("C-c m" . mu4e)
   )
 
-(use-package mu4e-alert
-  :straight t
-  :requires mu4e
-  :config
-  (mu4e-alert-enable-mode-line-display))
+;; (use-package mu4e-alert
+;;   :straight t
+;;   :requires mu4e
+;;   :config
+;;   (mu4e-alert-enable-mode-line-display))
 
 ;; The package `elfeed' is an RSS client that allows a user to provide a list of
 ;; RSS sources and the package will retrive the latest news.
