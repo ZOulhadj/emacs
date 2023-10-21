@@ -71,6 +71,7 @@
    create-lockfiles nil
    make-backup-files t
    global-auto-revert-non-file-buffers t
+   custom-safe-themes t
    
    ;; ui
    use-dialog-box nil
@@ -142,6 +143,7 @@
   (pixel-scroll-precision-mode 1)
   ;;(toggle-frame-fullscreen)
   (fringe-mode nil)
+  (global-display-line-numbers-mode 1)
 
   ;; other
   (delete-selection-mode t)
@@ -697,7 +699,18 @@
   :commands mu4e
   :config
   (setq
-   
+   mu4e-mu-debug nil
+   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+   mu4e-update-interval 60
+   mu4e-confirm-quit nil
+   mu4e-context-policy 'pick-first
+   message-kill-buffer-on-exit t
+   mu4e-headers-fields `((:human-date . 12)
+                         (:flags . 6)
+                         (:mailing-list . 10)
+                         (:from . 22)
+                         (:subject))
+   mu4e-headers-date-format "%d/%m/%Y %H:%M"
    mu4e-contexts `( ,(make-mu4e-context
                       :name "Personal"
                       :match-func (lambda (msg)
@@ -705,7 +718,23 @@
                           (mu4e-message-contact-field-matches msg
                                                               :to "zakariyaoulhadj01@gmail.com")))
                       :vars '( (user-mail-address . "zakariyaoulhadj01@gmail.com")
-                               (user-full-name . "Zakariya Oulhadj")))
+                               (user-full-name . "Zakariya Oulhadj")
+                               (mu4e-sent-folder . "/gmail/Sent")
+                               (mu4e-drafts-folder . "/gmail/Drafts")
+                               (mu4e-trash-folder . "/gmail/Trash")
+                               (mu4e-refile-folder . "/gmail/All Mail")
+                               (mu4e-maildir-shortcuts . ( ("/gmail/Inbox" . ?i)
+                                                           ("/gmail/Sent" . ?s)
+                                                           ("/gmail/All Mail" . ?a)
+                                                           ("/gmail/Trash" . ?t)
+                                                           ("/gmail/Drafts" . ?d)))))
+                               ;; message-send-mail-function 'smtpmail-send-it
+                               ;; starttls-use-gnutls t
+                               ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+                               ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+                               ;; smtpmail-default-smtp-server "smtp.gmail.com"
+                               ;; smtpmail-smtp-server "smtp.gmail.com"
+                               ;; smtpmail-smtp-service 587
                     ,(make-mu4e-context
                       :name "Website"
                       :match-func (lambda (msg)
@@ -713,38 +742,32 @@
                           (mu4e-message-contact-field-matches msg
                                                               :to "contact@zakariyaoulhadj.com")))
                       :vars '( (user-mail-address . "contact@zakariyaoulhadj.com")
-                               (user-full-name . "Zakariya Oulhadj")))
+                               (user-full-name . "Zakariya Oulhadj")
+                               (mu4e-sent-folder . "/website/Sent")
+                               (mu4e-drafts-folder . "/website/Drafts")
+                               (mu4e-trash-folder . "/website/Trash")
+                               (mu4e-refile-folder . "/website/All Mail")
+                               (mu4e-maildir-shortcuts . ( ("/website/Inbox" . ?i)
+                                                           ("/website/Sent" . ?s)
+                                                           ("/website/All Mail" . ?a)
+                                                           ("/website/Trash" . ?t)
+                                                           ("/website/Drafts" . ?d)))))
                     )
-   mu4e-mu-debug nil
-   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-   mu4e-update-interval 300
-   ;; mu4e-maildir-shortcuts '(("/gmail/Inbox" . ?i)
-   ;;                          ("/gmail/Sent" . ?s)
-   ;;                          ("/gmail/All Mail" . ?a)
-   ;;                          ("/gmail/Trash" . ?t)
-   ;;                          ("/gmail/Drafts" . ?d))
-   ;; mu4e-sent-folder "/gmail/Sent"
-   ;; mu4e-drafts-folder "/gmail/Drafts"
-   ;; mu4e-trash-folder "/gmail/Trash"
-   ;; mu4e-refile-folder "/gmail/All Mail"
-   
-   ;; message-send-mail-function 'smtpmail-send-it
-   ;; starttls-use-gnutls t
-   ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-   ;; smtpmail-default-smtp-server "smtp.gmail.com"
-   ;; smtpmail-smtp-server "smtp.gmail.com"
-   ;; smtpmail-smtp-service 587
    )
   :bind
   ("C-c m" . mu4e)
   )
 
-;; (use-package mu4e-alert
-;;   :straight t
-;;   :requires mu4e
-;;   :config
-;;   (mu4e-alert-enable-mode-line-display))
+(use-package mu4e-alert
+  :straight t
+  :requires mu4e
+  :config
+  (mu4e-alert-enable-mode-line-display))
+
+(use-package mu4e-marker-icons
+  :requires all-the-icons
+  :straight t
+  :init (mu4e-marker-icons-mode 1))
 
 ;; The package `elfeed' is an RSS client that allows a user to provide a list of
 ;; RSS sources and the package will retrive the latest news.
@@ -768,6 +791,16 @@
   :bind
   ("M-o" . ace-window))
 
+;; (use-package centered-window
+;;   :straight t
+;;   :config
+;;   (centered-window-mode 1)
+;;   :custom
+;;   (cwm-centered-window-width 110))
+
+(use-package mood-line
+  :straight t
+  :config (mood-line-mode))
 ;; (use-package web-mode
 ;;   :straight t
 ;;   :init (setq web-mode-markup-indent-offset 4
