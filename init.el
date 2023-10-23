@@ -1,3 +1,32 @@
+;;; init.el --- Init File -*- lexical-binding: t -*-
+
+;; Copyright (c) 2020-2023  Zakariya Oulhadj
+
+;; Author: Zakariya Oulhadj <contact@zakariyaoulhadj.com>
+;; URL: https://github.com/ZOulhadj/emacs
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "29.1"))
+
+;; This file is NOT part of GNU Emacs.
+
+;; This file is free software: you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the
+;; Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This file is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+
+;;; Code:
+
 ;; =============================================================================
 ;; ==== [Built-in] ====
 ;; - tree-sitter (Tree sitter)
@@ -57,17 +86,17 @@
    no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 (use-package emacs
+  :custom
+  (inhibit-startup-echo-area-message user-login-name)
   :config
   (setq
    ;; startup
+   
    gc-cons-threshold 20000000 ;; 20mb
-   read-process-output-max (* 16 1024 1024)
    native-comp-async-report-warnings-errors 'silent
-   inhibit-startup-message t
    initial-scratch-message nil
    
    ;; files
-   custom-file (locate-user-emacs-file "custom.el")
    create-lockfiles nil
    make-backup-files t
    global-auto-revert-non-file-buffers t
@@ -120,9 +149,6 @@
    )
   
   :config
-  ;; startup
-  ;;(load custom-file 'noerror 'nomessage)
-
   ;; files
   (save-place-mode 1)
   (savehist-mode)
@@ -133,12 +159,9 @@
   (electric-pair-mode 1)
   
   ;; ui
-  (tool-bar-mode -1)
   (display-time-mode)
   (show-paren-mode t)
-  (scroll-bar-mode -1)
   (global-hl-line-mode 1)
-  (blink-cursor-mode 0)
   (toggle-frame-maximized)
   (pixel-scroll-precision-mode 1)
   ;;(toggle-frame-fullscreen)
@@ -195,7 +218,7 @@
    ;;tab-bar-new-tab-choice "*dashboard*"
    )
   
-  (tab-bar-mode 1))
+  (tab-bar-mode 0))
 
 ;; Adds support for the Lua programming language.
 ;;
@@ -272,7 +295,9 @@
 (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
+      custom-file (no-littering-expand-etc-file-name "custom.el"))
+
 
 ;; Adds additional functionaility to the default dired mode
 ;;
@@ -654,7 +679,8 @@
    doom-themes-enable-italic t) ; if nil, italics is universally disabled
   (doom-themes-neotree-config)
   (doom-themes-org-config)
-  (load-theme 'doom-one t))
+  ;;(load-theme 'doom-one t)
+  )
 
 ;; Keeps the cursor in centered within a buffer.
 ;; 
