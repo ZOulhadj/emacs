@@ -178,13 +178,14 @@
   ;; Test char and monospace:
   ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
   ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
-  (set-face-attribute 'default nil
-                      :family "Hack"
-                      :height 140
-                      :width 'normal
-                      :slant 'normal
-                      :weight 'normal)
+  ;; (set-face-attribute 'default nil
+  ;;                     :family "Jetbrains-Mono-Regular"
+  ;;                     :height 140
+  ;;                     :width 'normal
+  ;;                     :slant 'normal
+  ;;                     :weight 'normal)
 
+  (set-frame-font "JetBrains Mono 14" nil t)
 
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
@@ -679,7 +680,7 @@
    doom-themes-enable-italic t) ; if nil, italics is universally disabled
   (doom-themes-neotree-config)
   (doom-themes-org-config)
-  ;;(load-theme 'doom-one t)
+  (load-theme 'modus-vivendi t)
   )
 
 ;; Keeps the cursor in centered within a buffer.
