@@ -42,10 +42,10 @@
 (setq package-enable-at-startup nil)
 
 
-(when (fboundp 'startup-redirect-eln-cache)
-  (startup-redirect-eln-cache
-   (convert-standard-filename
-    (expand-file-name  "tmp/data/" user-emacs-directory))))
+;; (when (fboundp 'startup-redirect-eln-cache)
+;;   (startup-redirect-eln-cache
+;;    (convert-standard-filename
+;;     (expand-file-name  "tmp/data/" user-emacs-directory))))
 
 (add-hook 'after-init-hook
           (lambda ()
