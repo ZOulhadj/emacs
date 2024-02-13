@@ -272,13 +272,13 @@
 ;; ;;    diredp-toggle-find-file-reuse-dir 1) ;; todo: does not seem to reuse the same buffer
 ;; ;;   )
 
-;; ;; The package `diminish' introduces the `:diminish' keyword which can be used
-;; ;; together with `use-package' to hide minor modes from the modeline. This
-;; ;; allows the modeline to be kept minimal and show only required modes.
-;; ;;
-;; ;; https://github.com/emacsmirror/diminish
-;; (use-package diminish
-;;   :straight t)
+;; The package `diminish' introduces the `:diminish' keyword which can be used
+;; together with `use-package' to hide minor modes from the modeline. This
+;; allows the modeline to be kept minimal and show only required modes.
+;;
+;; https://github.com/emacsmirror/diminish
+(use-package diminish
+  :straight t)
 
 ;; A Git client that can be used within Emacs.
 ;;
@@ -350,8 +350,9 @@
    vertico-resize nil
    vertico-count 10
 
-   vertico-multiform-commands '((consult-imenu buffer))
-   vertico-multiform-categories '((consult-grep buffer))
+   vertico-multiform-commands '((consult-imenu buffer indexed))
+   vertico-multiform-categories '((file grid)
+                                  (consult-grep buffer))
    )
 
   (vertico-mode)
@@ -502,7 +503,6 @@
 ;; https://github.com/bbatsov/projectile
 (use-package projectile
   :straight t
-  :diminish
   :init
   (projectile-mode +1)
   :bind (:map projectile-mode-map
@@ -510,18 +510,18 @@
               ("C-c p" . projectile-command-map)))
 
 
-;; ;; The package `flycheck' shows syntactic highlighting in code that displays
-;; ;; logs, warnings and errors.
-;; ;;
-;; ;; https://github.com/flycheck/flycheck
-;; ;; (use-package flycheck
-;; ;;   :straight t
-;; ;;   :diminish
-;; ;;   :init (global-flycheck-mode))
+;; The package `flycheck' shows syntactic highlighting in code that displays
+;; logs, warnings and errors.
+;;
+;; https://github.com/flycheck/flycheck
+(use-package flycheck
+  :straight t
+  :init (global-flycheck-mode)
+  :diminish)
 
-;; ;; The package `neotree' shows the filesystem for the current directory.
-;; ;;
-;; ;; https://github.com/jaypei/emacs-neotree
+;; The package `neotree' shows the filesystem for the current directory.
+;;
+;; https://github.com/jaypei/emacs-neotree
 ;; (use-package neotree
 ;;   :straight t
 ;;   :config
@@ -530,13 +530,13 @@
 ;;                  'icons 'arrow))
 ;;   :bind (("C-c n" . neotree-toggle)))
 
-;; ;; Adds colors to matching brackets based on level
-;; ;;
-;; ;; https://github.com/Fanael/rainbow-delimiters
-;; ;; (use-package rainbow-delimiters
-;; ;;   :straight t
-;; ;;   :hook
-;; ;;   (prog-mode . rainbow-delimiters-mode))
+;; Adds colors to matching brackets based on level
+;;
+;; https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :straight t
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
 
 ;; ;; (use-package consult-lsp
 ;; ;;   :ensure t)
@@ -643,7 +643,9 @@
   (doom-themes-org-config))
 
 (use-package gruber-darker-theme
-  :straight t)
+  :straight t
+  :config
+  (load-theme 'gruber-darker))
 
 ;; ;; Keeps the cursor in centered within a buffer.
 ;; ;;
@@ -758,15 +760,15 @@
 ;;   :straight t
 ;;   :init (mu4e-marker-icons-mode 1))
 
-;; ;; The package `elfeed' is an RSS client that allows a user to provide a list of
-;; ;; RSS sources and the package will retrive the latest news.
-;; ;;
-;; ;; https://github.com/skeeto/elfeed
-;; (use-package elfeed
-;;   :straight t
-;;   :config (setq
-;;            elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
-;;   :bind (("C-c e" . elfeed)))
+;; The package `elfeed' is an RSS client that allows a user to provide a list of
+;; RSS sources and the package will retrive the latest news.
+;;
+;; https://github.com/skeeto/elfeed
+(use-package elfeed
+  :straight t
+  :config (setq
+           elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
+  :bind (("C-c e" . elfeed)))
 
 ;; (use-package ace-window
 ;;   :straight t
