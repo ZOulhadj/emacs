@@ -111,8 +111,10 @@
 
    read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
    vc-follow-symlinks t
-   ;;org-agenda-files '("~/Documents/agenda.org")
 
+   ;; Org-mode
+   org-agenda-files '("~/Documents/agenda.org")
+   org-startup-indented t
    )
 
   (setq-default
@@ -175,6 +177,7 @@
 (use-package isearch
   :bind (:map isearch-mode-map
               ("<backspace>" . isearch-del-char)))
+
 
 ;; (use-package dabbrev
 ;;   :bind
@@ -280,13 +283,6 @@
 (use-package diminish
   :straight t)
 
-;; A Git client that can be used within Emacs.
-;;
-;; https://github.com/magit/magit
-(use-package magit
-  :straight t
-  :bind ("C-c g" . magit-status))
-
 ;; The package `which-key' displays a popup window showing all the possible key
 ;; combinations for the current action. This allows a user to not forget
 ;; specific commands.
@@ -368,6 +364,44 @@
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :init
   (marginalia-mode))
+
+;; The package `corfu' display a window for autocomplete candidates when writing
+;; text. It is a simpler alternative to the highly popular `company'
+;; package. This is because it uses the Emacs buit-in
+;;
+;; https://github.com/minad/corfu
+(use-package corfu
+  :straight t
+  :init
+  (setq
+   corfu-cycle t
+   corfu-auto t
+   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+   corfu-separator ?\s
+   corfu-quit-at-boundary 'separator
+   corfu-quit-no-match t
+   corfu-preview-current nil
+   corfu-preselect 'valid
+   corfu-on-exact-match 'insert
+   corfu-scroll-margin 1)
+
+  (global-corfu-mode)
+  :bind
+  (:map corfu-map
+        ("RET" . nil)))
+
+;; This package changes how completion candidates are displayed within a
+;; completion window such as `corfu' or `company'.
+;;
+;; https://github.com/oantolin/orderless
+(use-package orderless
+  :straight t
+  :init
+  (setq
+   completion-styles '(orderless partial-completion basic)
+   completion-category-defaults nil
+   completion-category-overrides nil)
+  )
 
 ;; Provides search and navigation commands
 ;;
@@ -484,11 +518,15 @@
 ;;   :hook
 ;;   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; ;;
-;; ;;
-;; ;;
-;; (use-package consult-projectile
-;;   :straight t)
+;;
+;;
+;;
+(use-package consult-projectile
+  :straight t)
+
+;; ;; (use-package consult-lsp
+;; ;;   :ensure t)
+
 
 ;; ;;
 ;; ;;
@@ -510,6 +548,14 @@
               ("C-c p" . projectile-command-map)))
 
 
+;; A Git client that can be used within Emacs.
+;;
+;; https://github.com/magit/magit
+(use-package magit
+  :straight t
+  :bind ("C-c g" . magit-status))
+
+
 ;; The package `flycheck' shows syntactic highlighting in code that displays
 ;; logs, warnings and errors.
 ;;
@@ -519,17 +565,6 @@
   :init (global-flycheck-mode)
   :diminish)
 
-;; The package `neotree' shows the filesystem for the current directory.
-;;
-;; https://github.com/jaypei/emacs-neotree
-;; (use-package neotree
-;;   :straight t
-;;   :config
-;;   (setq
-;;    neo-theme (if (display-graphic-p)
-;;                  'icons 'arrow))
-;;   :bind (("C-c n" . neotree-toggle)))
-
 ;; Adds colors to matching brackets based on level
 ;;
 ;; https://github.com/Fanael/rainbow-delimiters
@@ -537,47 +572,6 @@
   :straight t
   :hook
   (prog-mode . rainbow-delimiters-mode))
-
-;; ;; (use-package consult-lsp
-;; ;;   :ensure t)
-
-;; The package `corfu' display a window for autocomplete candidates when writing
-;; text. It is a simpler alternative to the highly popular `company'
-;; package. This is because it uses the Emacs buit-in
-;;
-;; https://github.com/minad/corfu
-(use-package corfu
-  :straight t
-  :init
-  (setq
-   corfu-cycle t
-   corfu-auto t
-   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
-   corfu-separator ?\s
-   corfu-quit-at-boundary 'separator
-   corfu-quit-no-match t
-   corfu-preview-current nil
-   corfu-preselect 'valid
-   corfu-on-exact-match 'insert
-   corfu-scroll-margin 1)
-
-  (global-corfu-mode)
-  :bind
-  (:map corfu-map
-        ("RET" . nil)))
-
-;; This package changes how completion candidates are displayed within a
-;; completion window such as `corfu' or `company'.
-;;
-;; https://github.com/oantolin/orderless
-(use-package orderless
-  :straight t
-  :init
-  (setq
-   completion-styles '(orderless partial-completion basic)
-   completion-category-defaults nil
-   completion-category-overrides nil)
-  )
 
 ;; The package `lsp-mode' is a front-end to LSP which stands for Language Server
 ;; Protocol and allows for language parsing, debugging and navigation.
@@ -607,13 +601,6 @@
   (lsp-completion-mode . custom/lsp-mode-setup-completion)
   :commands
   (lsp lsp-deferred))
-
-;; ;; (use-package dap-mode
-;; ;;   :straight t
-;; ;;   :config
-;; ;;   (require 'dap-cpptools))
-
-
 
 ;; ;; Allows for lines or regions to be moved.
 ;; ;;
