@@ -5,10 +5,13 @@
 ;; - tree-sitter (Tree sitter)
 ;; - librsvg2-dev (SVG support)
 ;; - libgccjit0 (Just-in-time compilation)
-;; - rg (RipGrep search)
 ;;
 ;; Compiling from source
 ;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
+;;
+;; ==== [External programs] ====
+;; - rg (RipGrep search)
+;; - aspell, aspell-en
 ;;
 ;; ==== [Email] ====
 ;; - mbsync (Mail fetching/sending)
@@ -58,6 +61,14 @@
    no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
    no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
+;; The package `diminish' introduces the `:diminish' keyword which can be used
+;; together with `use-package' to hide minor modes from the modeline. This
+;; allows the modeline to be kept minimal and show only required modes.
+;;
+;; https://github.com/emacsmirror/diminish
+(use-package diminish
+  :straight t)
+
 (use-package emacs
   :custom
   (inhibit-startup-echo-area-message user-login-name)
@@ -65,7 +76,13 @@
   (setq
    ;; startup
 
-   gc-cons-threshold 20000000 ;; 20mb
+   ;; reduce the frequency of garbage collection by making it happen on
+   ;; each 50MB of allocated data (the default is on every 0.76MB)
+   gc-cons-threshold 50000000
+
+   ;; warn when opening files bigger than 100MB
+   large-file-warning-threshold 100000000
+
    native-comp-async-report-warnings-errors 'silent
    initial-scratch-message nil
 
@@ -74,6 +91,8 @@
    make-backup-files nil
    global-auto-revert-non-file-buffers t
    custom-safe-themes t
+   next-line-add-newlines t
+   require-final-newline t
 
    ;; ui
    use-dialog-box nil
@@ -85,11 +104,13 @@
    frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
    echo-keystrokes 0.02
    use-short-answers t
-   frame-title-format "%f"
+   frame-title-format '("Emacs - " (:eval (if (buffer-file-name)
+                                   (abbreviate-file-name (buffer-file-name))
+                                 "%b")))
    isearch-lazy-count t
 
    ;; exiting
-   confirm-kill-emacs nil
+   confirm-kill-emacs 'y-or-n-p
 
    ;; other
 
@@ -112,6 +133,9 @@
    read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
    vc-follow-symlinks t
 
+   ;; Dired
+   dired-kill-when-opening-new-dired-buffer t
+
    ;; Org-mode
    org-agenda-files '("~/Documents/agenda.org")
    org-startup-indented t
@@ -119,16 +143,14 @@
 
   (setq-default
    indent-tabs-mode nil
+   tab-width 8
    dired-listing-switches "-alhG"
    fill-column 80
    )
 
   :config
   ;; files
-  (save-place-mode 1)
-  (savehist-mode)
   (desktop-save-mode 0)
-  (recentf-mode 1)
 
   (global-auto-revert-mode t)
   (electric-pair-mode 1)
@@ -140,6 +162,7 @@
   (toggle-frame-maximized)
   (pixel-scroll-precision-mode 1)
   (scroll-bar-mode -1)
+  (size-indication-mode t)
   ;;(toggle-frame-fullscreen)
   (fringe-mode nil)
   (global-display-line-numbers-mode 0)
@@ -159,6 +182,8 @@
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
 
+  (fset 'yes-or-no-p 'y-or-n-p)
+
   :bind
   ("C-x k" . kill-this-buffer)
   ("<f5>" . recompile)
@@ -168,16 +193,56 @@
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
 
-;; (use-package god-mode
-;;   :straight t
-;;   :config (god-mode))
-;; (global-set-key (kbd "<Escape>") #'god-local-mode)
+(use-package display-line-numbers
+  :custom
+  (display-line-numbers-type 'relative)
+  :hook
+  (prog-mode . display-line-numbers-mode))
 
+(use-package saveplace
+  :init
+  (setq save-place-limit 500)
+  :config
+  (save-place-mode 1))
+
+(use-package savehist
+  :init
+  (setq savehist-additional-variables
+        '(search-ring regexp-search-ring)
+        savehist-autosave-interval 60)
+  :config
+  (savehist-mode +1))
+
+(use-package recentf
+  :init
+  (setq recentf-max-saved-items 500
+        recentf-max-menu-items 15
+        ;; disable recentf-cleanup on Emacs start, because it can cause
+        ;; problems with remote files
+        recentf-auto-cleanup 'never)
+
+  ;; Exclude all of  files in the no-littering directories from recentf.
+  (add-to-list 'recentf-exclude
+               (recentf-expand-file-name no-littering-var-directory))
+  (add-to-list 'recentf-exclude
+               (recentf-expand-file-name no-littering-etc-directory))
+  :config
+  (recentf-mode 1))
+
+(use-package windmove
+  :config
+  (windmove-default-keybindings))
+
+(use-package flyspell
+  :init
+  (setq ispell-program-name "aspell"
+        ispell-extra-args '("--sug-mode=ultra"))
+  :config
+  (flyspell-mode))
 
 (use-package isearch
   :bind (:map isearch-mode-map
               ("<backspace>" . isearch-del-char)))
-
 
 ;; (use-package dabbrev
 ;;   :bind
@@ -195,6 +260,16 @@
 ;;    )
 
 ;;   (tab-bar-mode 0))
+
+;; /////////////////////////////////////////////////////////////////////////////
+(use-package undo-tree
+  :straight t
+  :init
+  (setq undo-tree-history-directory-alist
+      `((".*" . ,temporary-file-directory)))
+  :config
+  (global-undo-tree-mode)
+  :diminish)
 
 ;; ;; Adds support for the Lua programming language.
 ;; ;;
@@ -253,10 +328,6 @@
 ;; ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 ;; (global-unset-key [mouse-2])
 
-;; (add-to-list 'recentf-exclude
-;;              (recentf-expand-file-name no-littering-var-directory))
-;; (add-to-list 'recentf-exclude
-;;              (recentf-expand-file-name no-littering-etc-directory))
 
 ;; (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 ;; (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
@@ -264,24 +335,12 @@
 ;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
 ;;       custom-file (no-littering-expand-etc-file-name "custom.el"))
 
-
-;; ;; Adds additional functionaility to the default dired mode
-;; ;;
-;; ;; https://github.com/emacsmirror/dired-plus/tree/master
-;; ;; (use-package dired+
-;; ;;   :straight t
-;; ;;   :config
-;; ;;   (setq
-;; ;;    diredp-toggle-find-file-reuse-dir 1) ;; todo: does not seem to reuse the same buffer
-;; ;;   )
-
-;; The package `diminish' introduces the `:diminish' keyword which can be used
-;; together with `use-package' to hide minor modes from the modeline. This
-;; allows the modeline to be kept minimal and show only required modes.
+;; Adds additional functionaility to the default dired mode
 ;;
-;; https://github.com/emacsmirror/diminish
-(use-package diminish
-  :straight t)
+;; https://github.com/emacsmirror/dired-plus/tree/master
+;; (use-package dired+
+;;   :straight t)
+
 
 ;; The package `which-key' displays a popup window showing all the possible key
 ;; combinations for the current action. This allows a user to not forget
@@ -291,10 +350,50 @@
 (use-package which-key
   :straight t
   :diminish
-  :init (setq which-key-show-early-on-C-h nil
-              which-key-idle-delay 0.5
-              which-key-idle-secondary-delay nil)
-  :config (which-key-mode))
+  :init
+  (setq which-key-show-early-on-C-h nil
+        which-key-idle-delay 0.5
+        which-key-idle-secondary-delay nil)
+  :config
+  (which-key-enable-god-mode-support)
+  (which-key-setup-side-window-bottom)
+  (which-key-mode))
+
+(use-package god-mode
+  :straight t
+  :config
+  (setq god-exempt-major-modes nil
+        god-exempt-predicates nil)
+  (god-mode))
+
+; This mortal mode is designed to allow temporary departures from god mode
+; The idea is that within god-mode, you can hit shift-i, type in a few characters
+; and then hit enter to return to god-mode. To avoid clobbering the previous bindings,
+; we wrap up this behavior in a minor-mode.
+(define-minor-mode mortal-mode
+  "Allow temporary departures from god-mode."
+  :lighter " mortal"
+  :keymap '(([return] . (lambda ()
+                          "Exit mortal-mode and resume god mode." (interactive)
+                          (god-local-mode-resume)
+                          (mortal-mode 0))))
+  (when mortal-mode
+    (god-local-mode-pause)))
+
+(define-key god-local-mode-map (kbd "i") 'mortal-mode)
+(global-set-key (kbd "<escape>") #'god-mode-all)
+
+;; (use-package evil
+;;   :straight t
+;;   :config
+;;   (setq evil-undo-system 'undo-redo)
+;;   (evil-mode 0))
+
+;; (use-package xah-fly-keys
+;;   :straight t
+;;   :config
+;;   (xah-fly-keys-set-layout "colemak-dhm")
+;;   (xah-fly-keys 0))
 
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
@@ -553,8 +652,9 @@
 ;; https://github.com/magit/magit
 (use-package magit
   :straight t
-  :bind ("C-c g" . magit-status))
-
+  :bind
+  ("C-c g" . magit-status)
+  ("C-c f" . magit-file-dispatch))
 
 ;; The package `flycheck' shows syntactic highlighting in code that displays
 ;; logs, warnings and errors.

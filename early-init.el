@@ -41,11 +41,11 @@
 
 (setq package-enable-at-startup nil)
 
-
-;; (when (fboundp 'startup-redirect-eln-cache)
-;;   (startup-redirect-eln-cache
-;;    (convert-standard-filename
-;;     (expand-file-name  "tmp/data/" user-emacs-directory))))
+;; Move all eln-cache into the no-littering directory.
+(when (fboundp 'startup-redirect-eln-cache)
+  (startup-redirect-eln-cache
+   (convert-standard-filename
+    (expand-file-name  "tmp/data/" user-emacs-directory))))
 
 (add-hook 'after-init-hook
           (lambda ()
