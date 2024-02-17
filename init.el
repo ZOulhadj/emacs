@@ -1,35 +1,35 @@
 ;;; init.el --- Init File -*- lexical-binding: t -*-
+;;; Commentary:
+;;; This is my personal programming-focused Emacs configuration file.
+;;;
+;;; If building Emacs from source, below are dependencies which are required:
+;;; - tree-sitter (Tree sitter)
+;;; - librsvg2-dev (SVG support)
+;;; - libgccjit0 (Just-in-time compilation)
+;;;
+;;; Compiling from source command:
+;;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
+;;;
+;;; Below is a list of applications that this configuration relies on:
+;;; - rg (Ripgrep search)
+;;; - aspell (Spelling)
+;;; - aspell-en (English spelling dictionary)
+;;; - mbsync (Mail fetching and sending)
+;;; - mu4e (Mail indexing)
+;;; - mpv (Music Player)
+;;;
+;;; Below are some commands related to emailing:
+;;; mbsync -c ~/.config/mu4e/mbsyncrc -a
+;;; mu init --maildir=~/Mail/personal --my-address=zakariyaoulhadj01@gmail.com
+;;; mu init --maildir=~/Mail/website --my-address=contact@zakariyaoulhadj.com
+;;; mu index
 
-;; =============================================================================
-;; ==== [Built-in] ====
-;; - tree-sitter (Tree sitter)
-;; - librsvg2-dev (SVG support)
-;; - libgccjit0 (Just-in-time compilation)
-;;
-;; Compiling from source
-;; ./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg
-;;
-;; ==== [External programs] ====
-;; - rg (RipGrep search)
-;; - aspell, aspell-en
-;;
-;; ==== [Email] ====
-;; - mbsync (Mail fetching/sending)
-;; - mu4e (Mail indexing)
-;; - mpv (Music Player)
-;;
-;; ==== [Commands] ====
-;; mbsync -c ~/.config/mu4e/mbsyncrc -a
-;; mu init --maildir=~/Mail/personal --my-address=zakariyaoulhadj01@gmail.com
-;; mu init --maildir=~/Mail/website --my-address=contact@zakariyaoulhadj.com
-;; mu index
+;;; Code:
 
-;;
-;; =============================================================================
 
-;; Use straight.el instead of the built-in package.el for downloading external
-;; packages. As we are completely replacing package.el we need to download
-;; straight.el without using it. We first create a bootstrap file that will
+;; Use `straight.el' instead of the built-in `package.el' for downloading external
+;; packages.  As we are completely replacing `package.el' we need to download
+;; `straight.el' without using it.  We first create a bootstrap file that will
 ;; contain the install script and is installed the very first time we launch
 ;; Emacs.
 (defvar bootstrap-version)
@@ -57,9 +57,8 @@
 (use-package no-littering
   :straight t
   :init
-  (setq
-   no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
-   no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
+  (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
+        no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
 ;; The package `diminish' introduces the `:diminish' keyword which can be used
 ;; together with `use-package' to hide minor modes from the modeline. This
@@ -70,106 +69,21 @@
   :straight t)
 
 (use-package emacs
-  :custom
-  (inhibit-startup-echo-area-message user-login-name)
   :config
-  (setq
-   ;; startup
-
-   ;; reduce the frequency of garbage collection by making it happen on
-   ;; each 50MB of allocated data (the default is on every 0.76MB)
-   gc-cons-threshold 50000000
-
-   ;; warn when opening files bigger than 100MB
-   large-file-warning-threshold 100000000
-
-   native-comp-async-report-warnings-errors 'silent
-   initial-scratch-message nil
-
-   ;; files
-   create-lockfiles nil
-   make-backup-files nil
-   global-auto-revert-non-file-buffers t
-   custom-safe-themes t
-   next-line-add-newlines t
-   require-final-newline t
-
-   ;; ui
-   use-dialog-box nil
-   column-number-mode t
-   show-paren-delay 0.0
-   ring-bell-function 'ignore
-   display-time-default-load-average nil
-   display-time-24hr-format t
-   frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
-   echo-keystrokes 0.02
-   use-short-answers t
-   frame-title-format '("Emacs - " (:eval (if (buffer-file-name)
-                                   (abbreviate-file-name (buffer-file-name))
-                                 "%b")))
-   isearch-lazy-count t
-
-   ;; exiting
-   confirm-kill-emacs 'y-or-n-p
-
-   ;; other
-
-
-   enable-recursive-minibuffers t
-   comint-input-ignoredups t
-   default-frame-alist nil
-
-   tab-always-indent 'complete
-   calendar-date-style "european"
-   org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
-   org-display-custom-times t
-
-   c-default-style "k&r"
-   c-basic-offset 4
-   compilation-scroll-output nil
-
-   isearch-wrap-pause 'no ; automatically wrap search without pausing
-
-   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode
-   vc-follow-symlinks t
-
-   ;; Dired
-   dired-kill-when-opening-new-dired-buffer t
-
-   ;; Org-mode
-   org-agenda-files '("~/Documents/agenda.org")
-   org-startup-indented t
-   )
-
-  (setq-default
-   indent-tabs-mode nil
-   tab-width 8
-   dired-listing-switches "-alhG"
-   fill-column 80
-   )
-
+  (setq gc-cons-threshold 50000000
+        create-lockfiles nil
+        use-dialog-box nil
+        ring-bell-function 'ignore
+        frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
+        echo-keystrokes 0.02
+        use-short-answers t
+        frame-title-format '("Emacs - " (:eval (if (buffer-file-name)
+                                                   (abbreviate-file-name (buffer-file-name))
+                                                 "%b")))
+        enable-recursive-minibuffers t)
+  (setq-default tab-width 8
+                fill-column 80)
   :config
-  ;; files
-  (desktop-save-mode 0)
-
-  (global-auto-revert-mode t)
-  (electric-pair-mode 1)
-  (visual-line-mode -1)
-  ;; ui
-  (display-time-mode -1)
-  (show-paren-mode t)
-  (global-hl-line-mode 1)
-  (toggle-frame-maximized)
-  (pixel-scroll-precision-mode 1)
-  (scroll-bar-mode -1)
-  (size-indication-mode t)
-  ;;(toggle-frame-fullscreen)
-  (fringe-mode nil)
-  (global-display-line-numbers-mode 0)
-
-  ;; other
-  (delete-selection-mode t)
-
   ;; TODO: Check each font in order and use fallback fonts if current one is not
   ;; found. If none of the specified fonts are found then Emacs will use a
   ;; default font.
@@ -182,22 +96,136 @@
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
 
-  (fset 'yes-or-no-p 'y-or-n-p)
-
   :bind
-  ("C-x k" . kill-this-buffer)
-  ("<f5>" . recompile)
+  ("C-x k" . kill-this-buffer))
 
-  :hook
-  (before-save . whitespace-cleanup)
+;; ========== [Core] ==========
+;; Note: startup does not provide package so use-package cannot be used
+(setq initial-scratch-message nil)
+(setq inhibit-startup-echo-area-message user-login-name)
+
+(use-package comp
+  :init
+  (setq native-comp-async-report-warnings-errors 'silent))
+
+(use-package custom
+  :init
+  (setq custom-safe-themes t))
+
+;; ========== [User Interface] ==========
+(use-package frame
+  :custom ()
+  ;;(toggle-frame-maximized)
+  ;;(toggle-frame-fullscreen)
+  )
+
+(use-package display-fill-column-indicator
+  ;;:hook
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
+
+(use-package scroll-bar
+  :config
+  (scroll-bar-mode -1))
+
+(use-package fringe
+  :config
+  (fringe-mode nil))
+
+(use-package hl-line
+  :config
+  (global-hl-line-mode 1))
+
+;; ========== [Files] ==========
+;; Note: indent does not provide package so use-package cannot be used
+(setq tab-always-indent 'complete)
+
+(use-package cc-vars
+  :init
+  (setq c-default-style "k&r"
+        c-basic-offset 4))
+
+(use-package compile
+  :init
+  (setq compilation-scroll-output nil)
+  :bind
+  ("<f5>" . recompile))
+
+(use-package comint
+  :init
+  (setq comint-input-ignoredups t))
+
+(use-package whitespace
+  :hook
+  (before-save . whitespace-cleanup))
+
+(use-package calendar
+  :init
+  (setq calendar-date-style "european"))
+
+(use-package vc-hooks
+  :init
+  (setq vc-follow-symlinks t))
+
+(use-package files
+  :init
+  (setq large-file-warning-threshold 100000000 ; warn when opening files bigger than 100MB
+        make-backup-files nil
+        require-final-newline t
+        confirm-kill-emacs 'y-or-n-p))
+
+(use-package delsel
+  :config
+  (delete-selection-mode t))
+
+(use-package desktop
+  :config
+  (desktop-save-mode 0))
+
+(use-package pixel-scroll
+  :config
+  (pixel-scroll-precision-mode 1))
+
+(use-package autorevert
+  :init
+  (setq global-auto-revert-non-file-buffers t)
+  :config
+  (global-auto-revert-mode t))
+
+(use-package elec-pair
+  :config
+  (electric-pair-mode 1))
+
+(use-package simple
+  :init
+  (setq read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
+        column-number-mode t
+        next-line-add-newlines t)
+  (setq-default indent-tabs-mode nil)
+  :config
+  (visual-line-mode -1)
+  (size-indication-mode t))
+
+(use-package time
+  :init
+  (setq display-time-24hr-format t)
+  :config
+  (display-time-mode -1)
+  :custom
+  (display-time-default-load-average nil))
 
 (use-package display-line-numbers
   :custom
   (display-line-numbers-type 'relative)
+  ;;(global-display-line-numbers-mode 0) ;; display-line-numbers
   :hook
   (prog-mode . display-line-numbers-mode))
+
+(use-package paren
+  :init
+  (setq show-paren-delay 0.0)
+  :config
+  (show-paren-mode 1))
 
 (use-package saveplace
   :init
@@ -221,13 +249,15 @@
         ;; problems with remote files
         recentf-auto-cleanup 'never)
 
+  :config
+  (recentf-mode 1)
+
+  :custom
   ;; Exclude all of  files in the no-littering directories from recentf.
   (add-to-list 'recentf-exclude
                (recentf-expand-file-name no-littering-var-directory))
   (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-etc-directory))
-  :config
-  (recentf-mode 1))
+               (recentf-expand-file-name no-littering-etc-directory)))
 
 (use-package windmove
   :config
@@ -241,8 +271,23 @@
   (flyspell-mode))
 
 (use-package isearch
+  :config
+  (setq isearch-wrap-pause 'no ; automatically wrap search without pausing
+        isearch-lazy-count t)
   :bind (:map isearch-mode-map
               ("<backspace>" . isearch-del-char)))
+
+(use-package dired
+  :init
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  (setq-default dired-listing-switches "-alhG"))
+
+(use-package org
+  :init
+  (setq org-agenda-files '("~/Documents/agenda.org")
+        org-startup-indented t
+        org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+        org-display-custom-times t))
 
 ;; (use-package dabbrev
 ;;   :bind
@@ -949,9 +994,6 @@
 ;; ;;         ("<tab>" . company-complete-selection))
 ;; ;;   :hook (prog-mode . company-mode)
 ;; ;;   )
-
-
-
 
 
 ;; ;; Make the compilation window automatically disappear - from enberg on #emacs
