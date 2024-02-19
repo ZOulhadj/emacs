@@ -80,6 +80,9 @@
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
 
+  :config
+  (put 'narrow-to-region 'disabled nil)
+
   :bind
   ("C-x k" . kill-this-buffer)
 
@@ -136,7 +139,8 @@
 
 (use-package comint
   :init
-  (setq comint-input-ignoredups t))
+  (setq comint-input-ignoredups t
+        comint-process-echoes t))
 
 (use-package whitespace
   :hook
@@ -247,6 +251,7 @@
   (windmove-default-keybindings))
 
 ;; todo: only enable if aspell is installed
+;; maybe we can use :ensure-system-package
 (use-package flyspell
   :init
   (setq ispell-program-name "aspell"
@@ -328,6 +333,12 @@
 ;;   (tab-bar-mode 0))
 
 ;; /////////////////////////////////////////////////////////////////////////////
+(use-package keyfreq
+  :straight t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
+
 (use-package undo-tree
   :straight t
   :init
@@ -337,11 +348,11 @@
   (global-undo-tree-mode)
   :diminish)
 
-;; ;; Adds support for the Lua programming language.
-;; ;;
-;; ;; https://github.com/immerrr/lua-mode
-;; (use-package lua-mode
-;;   :straight t)
+;; Adds support for the Lua programming language.
+;;
+;; https://github.com/immerrr/lua-mode
+(use-package lua-mode
+  :straight t)
 
 ;; ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 ;; (global-unset-key [mouse-2])
@@ -378,6 +389,7 @@
   :diminish)
 
 (use-package god-mode
+  :disabled
   :straight t
   :init
   (setq god-exempt-major-modes nil
