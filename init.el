@@ -1,11 +1,8 @@
-;;; init.el --- Init File -*- lexical-binding: t -*-
+;; init.el --- Init File -*- lexical-binding: t -*-
 ;;; Commentary:
-;;; This is my personal programming-focused Emacs configuration file.
-;;;
-
-
+;; This is my personal programming-focused Emacs configuration file.
+;;
 ;;; Code:
-
 
 ;; Use `straight.el' instead of the built-in `package.el' for downloading external
 ;; packages.  As we are completely replacing `package.el' we need to download
@@ -28,6 +25,9 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default nil)
 
+;; Load private information
+(load-file (concat user-emacs-directory "secret.el"))
+
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
 ;; specific directories. It is important to note that this package must be
@@ -49,7 +49,7 @@
   :straight t)
 
 (use-package emacs
-  :config
+  :init
   (setq gc-cons-threshold 50000000
         create-lockfiles nil
         use-dialog-box nil
@@ -60,10 +60,14 @@
         frame-title-format '("Emacs - " (:eval (if (buffer-file-name)
                                                    (abbreviate-file-name (buffer-file-name))
                                                  "%b")))
-        enable-recursive-minibuffers t)
+        enable-recursive-minibuffers t
+        initial-scratch-message nil
+        inhibit-startup-echo-area-message user-login-name
+        tab-always-indent 'complete
+        delete-by-moving-to-trash t)
   (setq-default tab-width 8
                 fill-column 80)
-  :config
+
   ;; TODO: Check each font in order and use fallback fonts if current one is not
   ;; found. If none of the specified fonts are found then Emacs will use a
   ;; default font.
@@ -77,12 +81,18 @@
     (global-unset-key (kbd "C-x C-z")))
 
   :bind
-  ("C-x k" . kill-this-buffer))
+  ("C-x k" . kill-this-buffer)
+
+  ;; These bindings make it easier dealing with windows in `god-mode'.
+  ("C-x C-1" . delete-other-windows)
+  ("C-x C-2" . split-window-below)
+  ("C-x C-3" . split-window-right)
+  ("C-x C-0" . delete-window))
 
 ;; ========== [Core] ==========
-;; Note: startup does not provide package so use-package cannot be used
-(setq initial-scratch-message nil)
-(setq inhibit-startup-echo-area-message user-login-name)
+(use-package use-package-core
+  :init
+  (setq use-package-verbose t))
 
 (use-package comp
   :init
@@ -94,8 +104,8 @@
 
 ;; ========== [User Interface] ==========
 (use-package frame
-  :custom ()
-  ;;(toggle-frame-maximized)
+  :config
+  (toggle-frame-maximized)
   ;;(toggle-frame-fullscreen)
   )
 
@@ -103,10 +113,6 @@
   ;;:hook
   ;;(prog-mode . display-fill-column-indicator-mode)
   )
-
-(use-package scroll-bar
-  :config
-  (scroll-bar-mode -1))
 
 (use-package fringe
   :config
@@ -116,9 +122,6 @@
   :config
   (global-hl-line-mode 1))
 
-;; ========== [Files] ==========
-;; Note: indent does not provide package so use-package cannot be used
-(setq tab-always-indent 'complete)
 
 (use-package cc-vars
   :init
@@ -184,7 +187,8 @@
   (setq-default indent-tabs-mode nil)
   :config
   (visual-line-mode -1)
-  (size-indication-mode t))
+  (size-indication-mode t)
+  (set-default 'truncate-lines t))
 
 (use-package time
   :init
@@ -197,7 +201,6 @@
 (use-package display-line-numbers
   :custom
   (display-line-numbers-type 'relative)
-  ;;(global-display-line-numbers-mode 0) ;; display-line-numbers
   :hook
   (prog-mode . display-line-numbers-mode))
 
@@ -243,6 +246,7 @@
   :config
   (windmove-default-keybindings))
 
+;; todo: only enable if aspell is installed
 (use-package flyspell
   :init
   (setq ispell-program-name "aspell"
@@ -259,8 +263,12 @@
 
 (use-package dired
   :init
-  (setq dired-kill-when-opening-new-dired-buffer t)
-  (setq-default dired-listing-switches "-alhG"))
+  (setq dired-kill-when-opening-new-dired-buffer t
+        dired-hide-details-hide-symlink-targets nil
+        dired-dwim-target t)
+  (setq-default dired-listing-switches "-alhG")
+  :hook
+  (dired-mode . dired-hide-details-mode))
 
 (use-package org
   :init
@@ -269,21 +277,54 @@
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
         org-display-custom-times t))
 
-;; (use-package dabbrev
-;;   :bind
-;;   (("M-/" . dabbrev-completion)
-;;    ("C-M-/" . dabbrev-expand))
-;;   :custom
-;;   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+;; The `treesit' package performs fast syntax parsing for languages and allows
+;; for other packages to make use of the better context aware functionality.
+;;
+;; https://github.com/tree-sitter/tree-sitter
+(use-package treesit
+  :init
+  (setq treesit-language-source-alist
+        '(;; Official grammers
+          (c "https://github.com/tree-sitter/tree-sitter-c")
+          (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+          (rust "https://github.com/tree-sitter/tree-sitter-rust")
+          (python "https://github.com/tree-sitter/tree-sitter-python")
+          (bash "https://github.com/tree-sitter/tree-sitter-bash")
+          (html "https://github.com/tree-sitter/tree-sitter-html")
+          (css "https://github.com/tree-sitter/tree-sitter-css")
+          (json "https://github.com/tree-sitter/tree-sitter-json")
+
+          ;; Community grammers
+          (lua "https://github.com/Azganoth/tree-sitter-lua")
+          (make "https://github.com/alemuller/tree-sitter-make")
+          (cmake "https://github.com/uyha/tree-sitter-cmake")
+          (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (org "https://github.com/milisims/tree-sitter-org")
+          (glsl "https://github.com/theHamsta/tree-sitter-glsl")
+          (latex "https://github.com/latex-lsp/tree-sitter-latex")
+          ))
+  ;; Even when Tree sitter is installed and the language grammer is configured,
+  ;; Emacs will not enable it. This is because we must enable the special "ts"
+  ;; modes. So here we remap the default modes to tree-sitter specific modes.
+  (setq major-mode-remap-alist '((c-mode . c-ts-mode)
+                                 (c++-mode . c++-ts-mode)
+                                 (c-or-c++-mode . c-or-c++-ts-mode))))
+
+(use-package c-ts-mode
+  :init
+  (setq c-ts-mode-indent-offset 4
+        c-ts-mode-indent-style 'k&r))
 
 ;; (use-package tab-bar
-;;   :config
+;;   :init
 ;;   (setq
 ;;    tab-bar-show t
 ;;    tab-bar-new-tab-to 'rightmost
 ;;    ;;tab-bar-new-tab-choice "*dashboard*"
 ;;    )
-
+;;   :config
 ;;   (tab-bar-mode 0))
 
 ;; /////////////////////////////////////////////////////////////////////////////
@@ -301,54 +342,6 @@
 ;; ;; https://github.com/immerrr/lua-mode
 ;; (use-package lua-mode
 ;;   :straight t)
-
-;; ;; The `treesit' package performs fast syntax parsing for languages and allows
-;; ;; for other packages to make use of the better context aware functionality.
-;; ;;
-;; ;; https://github.com/tree-sitter/tree-sitter
-;; (use-package treesit
-;;   :config
-;;   (setq
-;;    treesit-language-source-alist '(
-;;                                    ;; Official grammers
-;;                                    (c "https://github.com/tree-sitter/tree-sitter-c")
-;;                                    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-;;                                    (rust "https://github.com/tree-sitter/tree-sitter-rust")
-;;                                    (python "https://github.com/tree-sitter/tree-sitter-python")
-;;                                    (bash "https://github.com/tree-sitter/tree-sitter-bash")
-;;                                    (html "https://github.com/tree-sitter/tree-sitter-html")
-;;                                    (css "https://github.com/tree-sitter/tree-sitter-css")
-;;                                    (json "https://github.com/tree-sitter/tree-sitter-json")
-
-;;                                    ;; Community grammers
-;;                                    (lua "https://github.com/Azganoth/tree-sitter-lua")
-;;                                    (make "https://github.com/alemuller/tree-sitter-make")
-;;                                    (cmake "https://github.com/uyha/tree-sitter-cmake")
-;;                                    (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
-;;                                    (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-;;                                    (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-;;                                    (org "https://github.com/milisims/tree-sitter-org")
-;;                                    (glsl "https://github.com/theHamsta/tree-sitter-glsl")
-;;                                    (latex "https://github.com/latex-lsp/tree-sitter-latex")
-;;                                    )
-;;    )
-;;   )
-
-;; Even when Tree sitter is installed and the language grammer is configured,
-;; Emacs will not enable it. This is because we must enable the special "ts"
-;; modes. So here we remap the default modes to tree-sitter specific modes.
-(setq major-mode-remap-alist
-      '((c-mode . c-ts-mode)
-        (c++-mode . c++-ts-mode)))
-
-;; (when (featurep 'treesitter)
-;;   (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-;;   (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-;;   (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))
-
-(setq c-ts-mode-indent-offset 4
-      c-ts-mode-indent-style 'k&r)
-
 
 ;; ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 ;; (global-unset-key [mouse-2])
@@ -374,7 +367,6 @@
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :straight t
-  :diminish
   :init
   (setq which-key-show-early-on-C-h nil
         which-key-idle-delay 0.5
@@ -382,43 +374,42 @@
   :config
   (which-key-enable-god-mode-support)
   (which-key-setup-side-window-bottom)
-  (which-key-mode))
+  (which-key-mode)
+  :diminish)
 
 (use-package god-mode
   :straight t
-  :config
+  :init
   (setq god-exempt-major-modes nil
         god-exempt-predicates nil)
-  (god-mode))
+  :config
+  (god-mode)
+  :bind
+  ("<escape>" . #'god-mode-all)
+  (:map god-local-mode-map
+        ("." . repeat)
+        ("i" . god-local-mode)
+        ("[" . backward-paragraph)
+        ("]" . forward-paragraph)))
 
-; This mortal mode is designed to allow temporary departures from god mode
-; The idea is that within god-mode, you can hit shift-i, type in a few characters
-; and then hit enter to return to god-mode. To avoid clobbering the previous bindings,
-; we wrap up this behavior in a minor-mode.
-(define-minor-mode mortal-mode
-  "Allow temporary departures from god-mode."
-  :lighter " mortal"
-  :keymap '(([return] . (lambda ()
-                          "Exit mortal-mode and resume god mode." (interactive)
-                          (god-local-mode-resume)
-                          (mortal-mode 0))))
-  (when mortal-mode
-    (god-local-mode-pause)))
+(defun my-god-mode-update-cursor-type ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+;;(add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
 
-(define-key god-local-mode-map (kbd "i") 'mortal-mode)
-(global-set-key (kbd "<escape>") #'god-mode-all)
+(use-package evil
+  :disabled
+  :straight t
+  :init
+  (setq evil-undo-system 'undo-redo)
+  :config
+  (evil-mode 0))
 
-;; (use-package evil
-;;   :straight t
-;;   :config
-;;   (setq evil-undo-system 'undo-redo)
-;;   (evil-mode 0))
-
-;; (use-package xah-fly-keys
-;;   :straight t
-;;   :config
-;;   (xah-fly-keys-set-layout "colemak-dhm")
-;;   (xah-fly-keys 0))
+(use-package xah-fly-keys
+  :disabled
+  :straight t
+  :config
+  (xah-fly-keys-set-layout "colemak-dhm")
+  (xah-fly-keys 0))
 
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
@@ -434,29 +425,27 @@
 ;;   :config
 ;;   (exec-path-from-shell-initialize))
 
-;; ;; Provides a dashboard/home screen when starting Emacs that lists projects,
-;; ;; recent files and more.
-;; ;;
-;; ;; https://github.com/emacs-dashboard/emacs-dashboard
-;; ;; (use-package dashboard
-;; ;;   :straight t
-;; ;;   :init
-;; ;;   (setq
-;; ;;    dashboard-banner-logo-title "Welcome to Emacs!"
-;; ;;    dashboard-set-footer nil
-;; ;;    dashboard-startup-banner 2
-;; ;;    dashboard-center-content nil
-;; ;;    dashboard-show-shortcuts t
-;; ;;    dashboard-set-navigator t
-;; ;;    dashboard-items '((recents  . 5)
-;; ;;                      (bookmarks . 5)
-;; ;;                      (projects . 5)
-;; ;;                      (agenda . 5))
-;; ;;    dashboard-week-agenda t
-;; ;;    ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
-;; ;;    )
-;; ;;   :config
-;; ;;   (dashboard-setup-startup-hook))
+;; Provides a dashboard/home screen when starting Emacs that lists projects,
+;; recent files and more.
+;;
+;; https://github.com/emacs-dashboard/emacs-dashboard
+(use-package dashboard
+  :straight t
+  :init
+  (setq dashboard-banner-logo-title "Welcome to Emacs!"
+        dashboard-set-footer nil
+        dashboard-startup-banner 2
+        dashboard-center-content nil
+        dashboard-show-shortcuts t
+        dashboard-set-navigator t
+        dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5))
+        dashboard-week-agenda t)
+        ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
+  :config
+  (dashboard-setup-startup-hook))
 
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
@@ -465,16 +454,13 @@
 (use-package vertico
   :straight t
   :init
-  (setq
-   vertico-cycle t
-   vertico-resize nil
-   vertico-count 10
-
-   vertico-multiform-commands '((consult-imenu buffer indexed))
-   vertico-multiform-categories '((file grid)
-                                  (consult-grep buffer))
-   )
-
+  (setq vertico-cycle t
+        vertico-resize nil
+        vertico-count 10
+        vertico-multiform-commands '((consult-imenu buffer indexed))
+        vertico-multiform-categories '((file grid)
+                                       (consult-grep buffer)))
+  :config
   (vertico-mode)
   (vertico-multiform-mode))
 
@@ -484,10 +470,10 @@
 (use-package marginalia
   :straight t
   :after vertico
+  :config
+  (marginalia-mode)
   :custom
-  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
-  :init
-  (marginalia-mode))
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 
 ;; The package `corfu' display a window for autocomplete candidates when writing
 ;; text. It is a simpler alternative to the highly popular `company'
@@ -497,22 +483,20 @@
 (use-package corfu
   :straight t
   :init
-  (setq
-   corfu-cycle t
-   corfu-auto t
-   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
-   corfu-separator ?\s
-   corfu-quit-at-boundary 'separator
-   corfu-quit-no-match t
-   corfu-preview-current nil
-   corfu-preselect 'valid
-   corfu-on-exact-match 'insert
-   corfu-scroll-margin 1)
-
+  (setq corfu-cycle t
+        corfu-auto t
+        corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+        corfu-separator ?\s
+        corfu-quit-at-boundary 'separator
+        corfu-quit-no-match t
+        corfu-preview-current nil
+        corfu-preselect 'valid
+        corfu-on-exact-match 'insert
+        corfu-scroll-margin 1)
+  :config
   (global-corfu-mode)
-  :bind
-  (:map corfu-map
-        ("RET" . nil)))
+  :bind (:map corfu-map
+              ("RET" . nil)))
 
 ;; This package changes how completion candidates are displayed within a
 ;; completion window such as `corfu' or `company'.
@@ -524,16 +508,60 @@
   (setq
    completion-styles '(orderless partial-completion basic)
    completion-category-defaults nil
-   completion-category-overrides nil)
-  )
+   completion-category-overrides nil))
 
 ;; Provides search and navigation commands
 ;;
 ;; https://github.com/minad/consult
 (use-package consult
   :straight t
-  :bind (
-         ("C-c M-x" . consult-mode-command)
+  :init
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  :config
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 3. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  ;;;; 4. projectile.el (projectile-project-root)
+  (autoload 'projectile-project-root "projectile")
+  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  :bind (("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
@@ -579,60 +607,11 @@
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  :init
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
-
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  :config
-
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
-  (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
-   :preview-key '(:debounce 0.4 any))
-
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; "C-+"
-    ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-  ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 3. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-  ;;;; 4. projectile.el (projectile-project-root)
-  (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
-  )
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode))
 
 ;; ;; Consult users will also want the embark-consult package.
 ;; ;;
@@ -646,17 +625,17 @@
 ;;
 ;;
 (use-package consult-projectile
+  :straight t
+  :after consult)
+
+(use-package consult-lsp
+  :disabled
+  :after consult)
+
+(use-package consult-flycheck
+  :disabled
+  :after consult
   :straight t)
-
-;; ;; (use-package consult-lsp
-;; ;;   :ensure t)
-
-
-;; ;;
-;; ;;
-;; ;;
-;; ;; (use-package consult-flycheck
-;; ;;   :straight t)
 
 ;; The package `projectile' is a project management package that provides many
 ;; useful features when working with projets such as searching, navigation and
@@ -667,10 +646,8 @@
   :straight t
   :init
   (projectile-mode +1)
-  :bind (:map projectile-mode-map
-              ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)))
-
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
 
 ;; A Git client that can be used within Emacs.
 ;;
@@ -704,38 +681,40 @@
 ;; https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :straight t
-  :custom
-  (lsp-completion-provider :none)
   :init
-  (setq
-   lsp-keymap-prefix "C-c l"
-   lsp-headerline-breadcrumb-enable nil
-   lsp-enable-symbol-highlighting nil
-   lsp-enable-on-type-formatting nil
-   lsp-enable-links nil
-   lsp-idle-delay 0.1
-   lsp-warn-no-matched-clients nil
-   lsp-signature-render-documentation nil)
+  (setq lsp-keymap-prefix "C-c l"
+        lsp-headerline-breadcrumb-enable nil
+        lsp-enable-symbol-highlighting nil
+        lsp-enable-on-type-formatting nil
+        lsp-enable-links nil
+        lsp-idle-delay 0.1
+        lsp-warn-no-matched-clients nil
+        lsp-signature-render-documentation nil)
 
   (defun custom/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless))) ;; Configure flex
+  :custom
+  (lsp-completion-provider :none)
+
   :hook
   (prog-mode . lsp-deferred)
   (lsp-mode . lsp-enable-which-key-integration)
   (lsp-completion-mode . custom/lsp-mode-setup-completion)
+
   :commands
   (lsp lsp-deferred))
 
-;; ;; Allows for lines or regions to be moved.
-;; ;;
-;; ;;https://github.com/rejeep/drag-stuff.el
-;; (use-package drag-stuff
-;;   :straight t
-;;   :diminish
-;;   :config
-;;   (drag-stuff-global-mode 1)
-;;   (drag-stuff-define-keys))
+;; Allows for lines or regions to be moved.
+;;
+;;https://github.com/rejeep/drag-stuff.el
+(use-package drag-stuff
+  :disabled
+  :straight t
+  :config
+  (drag-stuff-global-mode 1)
+  (drag-stuff-define-keys)
+  :diminish)
 
 ;; ;; Adds icon support. Once the package is installed, the actual icons need to be
 ;; ;; installed manually which can be done using the command `all-the-icons-install-fonts'.
@@ -746,11 +725,12 @@
 ;;   :if (display-graphic-p))
 
 (use-package doom-themes
+  :disabled
   :straight t
+  :init
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
-  (setq
-   doom-themes-enable-bold t    ; if nil, bold is universally disabled
-   doom-themes-enable-italic t) ; if nil, italics is universally disabled
   (doom-themes-neotree-config)
   (doom-themes-org-config))
 
@@ -759,14 +739,14 @@
   :config
   (load-theme 'gruber-darker))
 
-;; ;; Keeps the cursor in centered within a buffer.
-;; ;;
-;; ;; https://github.com/emacsmirror/centered-cursor-mode
-;; ;; (use-package centered-cursor-mode
-;; ;;   :straight t
-;; ;;   :config
-;; ;;   ;; Optional, enables centered-cursor-mode in all buffers.
-;; ;;   (global-centered-cursor-mode))
+;; Keeps the cursor in centered within a buffer.
+;;
+;; https://github.com/emacsmirror/centered-cursor-mode
+(use-package centered-cursor-mode
+  :disabled
+  :straight t
+  :config
+  (global-centered-cursor-mode))
 
 ;; ;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
 ;; ;; compiled with SVG support (--with-rsvg).
@@ -780,86 +760,85 @@
 ;; ;;   :config
 ;; ;;   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;; ;; Emacs multimedia system that allows for playing and organising music into
-;; ;; different collections/albums. The music is stored locally on the computer.
-;; ;;
-;; ;; https://github.com/emacsmirror/emms
-;; (use-package emms
-;;   :straight t
-;;   :init (setq
-;;          emms-source-file-default-directory "~/Music")
-;;   :config
-;;   (emms-all)
-;;   (emms-default-players))
+;; Emacs multimedia system that allows for playing and organising music into
+;; different collections/albums. The music is stored locally on the computer.
+;;
+;; https://github.com/emacsmirror/emms
+(use-package emms
+  :disabled
+  :straight t
+  :init (setq
+         emms-source-file-default-directory "~/Music")
+  :config
+  (emms-all)
+  (emms-default-players))
 
 
-;; ;; A Emacs based email client that makes use of mu.
-;; ;;
-;; ;; https://github.com/djcb/mu
-;; (use-package mu4e
-;;   :straight (:local-repo "/usr/share/emacs/site-lisp/elpa/mu4e/"
-;;                          :type built-in)
-;;   :commands mu4e
-;;   :config
-;;   (setq
-;;    mu4e-mu-debug nil
-;;    mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-;;    mu4e-update-interval 60
-;;    mu4e-confirm-quit nil
-;;    mu4e-context-policy 'pick-first
-;;    message-kill-buffer-on-exit t
-;;    mu4e-headers-fields `((:human-date . 12)
-;;                          (:flags . 6)
-;;                          (:mailing-list . 10)
-;;                          (:from . 22)
-;;                          (:subject))
-;;    mu4e-headers-date-format "%d/%m/%Y %H:%M"
-;;    mu4e-contexts `( ,(make-mu4e-context
-;;                       :name "Personal"
-;;                       :match-func (lambda (msg)
-;;                         (when msg
-;;                           (mu4e-message-contact-field-matches msg
-;;                                                               :to "zakariyaoulhadj01@gmail.com")))
-;;                       :vars '( (user-mail-address . "zakariyaoulhadj01@gmail.com")
-;;                                (user-full-name . "Zakariya Oulhadj")
-;;                                (mu4e-sent-folder . "/gmail/Sent")
-;;                                (mu4e-drafts-folder . "/gmail/Drafts")
-;;                                (mu4e-trash-folder . "/gmail/Trash")
-;;                                (mu4e-refile-folder . "/gmail/All Mail")
-;;                                (mu4e-maildir-shortcuts . ( ("/gmail/Inbox" . ?i)
-;;                                                            ("/gmail/Sent" . ?s)
-;;                                                            ("/gmail/All Mail" . ?a)
-;;                                                            ("/gmail/Trash" . ?t)
-;;                                                            ("/gmail/Drafts" . ?d)))))
-;;                                ;; message-send-mail-function 'smtpmail-send-it
-;;                                ;; starttls-use-gnutls t
-;;                                ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-;;                                ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-;;                                ;; smtpmail-default-smtp-server "smtp.gmail.com"
-;;                                ;; smtpmail-smtp-server "smtp.gmail.com"
-;;                                ;; smtpmail-smtp-service 587
-;;                     ,(make-mu4e-context
-;;                       :name "Website"
-;;                       :match-func (lambda (msg)
-;;                         (when msg
-;;                           (mu4e-message-contact-field-matches msg
-;;                                                               :to "contact@zakariyaoulhadj.com")))
-;;                       :vars '( (user-mail-address . "contact@zakariyaoulhadj.com")
-;;                                (user-full-name . "Zakariya Oulhadj")
-;;                                (mu4e-sent-folder . "/website/Sent")
-;;                                (mu4e-drafts-folder . "/website/Drafts")
-;;                                (mu4e-trash-folder . "/website/Trash")
-;;                                (mu4e-refile-folder . "/website/All Mail")
-;;                                (mu4e-maildir-shortcuts . ( ("/website/Inbox" . ?i)
-;;                                                            ("/website/Sent" . ?s)
-;;                                                            ("/website/All Mail" . ?a)
-;;                                                            ("/website/Trash" . ?t)
-;;                                                            ("/website/Drafts" . ?d)))))
-;;                     )
-;;    )
-;;   :bind
-;;   ("C-c m" . mu4e)
-;;   )
+;; A Emacs based email client that makes use of mu.
+;;
+;; https://github.com/djcb/mu
+(use-package mu4e
+  :disabled
+  :straight (:local-repo "/usr/share/emacs/site-lisp/elpa/mu4e/"
+                         :type built-in)
+  :commands mu4e
+  :init
+  (setq
+   mu4e-mu-debug nil
+   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+   mu4e-update-interval 60
+   mu4e-confirm-quit nil
+   mu4e-context-policy 'pick-first
+   message-kill-buffer-on-exit t
+   mu4e-headers-fields `((:human-date . 12)
+                         (:flags . 6)
+                         (:mailing-list . 10)
+                         (:from . 22)
+                         (:subject))
+   mu4e-headers-date-format "%d/%m/%Y %H:%M"
+   mu4e-contexts `( ,(make-mu4e-context
+                      :name "Personal"
+                      :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches msg
+                                                              :to "zakariyaoulhadj01@gmail.com")))
+                      :vars '( (user-mail-address . "zakariyaoulhadj01@gmail.com")
+                               (user-full-name . "Zakariya Oulhadj")
+                               (mu4e-sent-folder . "/gmail/Sent")
+                               (mu4e-drafts-folder . "/gmail/Drafts")
+                               (mu4e-trash-folder . "/gmail/Trash")
+                               (mu4e-refile-folder . "/gmail/All Mail")
+                               (mu4e-maildir-shortcuts . ( ("/gmail/Inbox" . ?i)
+                                                           ("/gmail/Sent" . ?s)
+                                                           ("/gmail/All Mail" . ?a)
+                                                           ("/gmail/Trash" . ?t)
+                                                           ("/gmail/Drafts" . ?d)))))
+                               ;; message-send-mail-function 'smtpmail-send-it
+                               ;; starttls-use-gnutls t
+                               ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+                               ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+                               ;; smtpmail-default-smtp-server "smtp.gmail.com"
+                               ;; smtpmail-smtp-server "smtp.gmail.com"
+                               ;; smtpmail-smtp-service 587
+                    ,(make-mu4e-context
+                      :name "Website"
+                      :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches msg
+                                                              :to "contact@zakariyaoulhadj.com")))
+                      :vars '( (user-mail-address . "contact@zakariyaoulhadj.com")
+                               (user-full-name . "Zakariya Oulhadj")
+                               (mu4e-sent-folder . "/website/Sent")
+                               (mu4e-drafts-folder . "/website/Drafts")
+                               (mu4e-trash-folder . "/website/Trash")
+                               (mu4e-refile-folder . "/website/All Mail")
+                               (mu4e-maildir-shortcuts . ( ("/website/Inbox" . ?i)
+                                                           ("/website/Sent" . ?s)
+                                                           ("/website/All Mail" . ?a)
+                                                           ("/website/Trash" . ?t)
+                                                           ("/website/Drafts" . ?d)))))))
+  :bind
+  ("C-c m" . mu4e))
 
 ;; (use-package mu4e-alert
 ;;   :straight t
@@ -878,8 +857,8 @@
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
   :straight t
-  :config (setq
-           elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
+  :init
+  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
   :bind (("C-c e" . elfeed)))
 
 ;; (use-package ace-window
@@ -943,7 +922,7 @@
 ;; (use-package simple-httpd
 ;;   :straight t)
 
-;; ;; =============================================================================
+;; =============================================================================
 
 (defun custom/load-config ()
   "Load my Emacs init.el configuration file."
@@ -951,29 +930,26 @@
   (find-file (concat user-emacs-directory "init.el")))
 (global-set-key (kbd "C-c c") 'custom/load-config)
 
-;; ;; =============================================================================
-;; ;;(load-theme 'my-custom-theme t)
+;; =============================================================================
+;; Unused packages
 
-;; ;; Unused packages
+;; (use-package company
+;;   :ensure t
+;;   :diminish
+;;   :config (setq
+;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+;;            company-selection-wrap-around t
+;;            company-show-numbers nil
+;;            company-tooltip-align-annotations t
+;;            company-idle-delay 0.0
+;;            company-require-match nil
+;;            company-minimum-prefix-length 2)
 
-;; ;; (use-package company
-;; ;;   :ensure t
-;; ;;   :diminish
-;; ;;   :config (setq
-;; ;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-;; ;;            company-selection-wrap-around t
-;; ;;            company-show-numbers nil
-;; ;;            company-tooltip-align-annotations t
-;; ;;            company-idle-delay 0.0
-;; ;;            company-require-match nil
-;; ;;            company-minimum-prefix-length 2)
-
-;; ;;   :bind (:map company-active-map
-;; ;;         ("C-n" . company-select-next)
-;; ;;         ("C-p" . company-select-previous)
-;; ;;         ("<tab>" . company-complete-selection))
-;; ;;   :hook (prog-mode . company-mode)
-;; ;;   )
+;;   :bind (:map company-active-map
+;;         ("C-n" . company-select-next)
+;;         ("C-p" . company-select-previous)
+;;         ("<tab>" . company-complete-selection))
+;;   :hook (prog-mode . company-mode))
 
 
 ;; ;; Make the compilation window automatically disappear - from enberg on #emacs
@@ -986,3 +962,6 @@
 ;;                "1 sec" nil 'delete-windows-on
 ;;                (get-buffer-create "*compilation*"))
 ;;               (message "No Compilation Errors!")))))
+
+(provide 'init)
+;;; init.el ends here
