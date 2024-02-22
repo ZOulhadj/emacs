@@ -63,6 +63,10 @@
         enable-recursive-minibuffers t
         initial-scratch-message nil
         inhibit-startup-echo-area-message user-login-name
+        inhibit-startup-screen t
+        ;;inhibit-splash-screen t
+        ;;inhibit-startup-message t
+
         tab-always-indent 'complete
         delete-by-moving-to-trash t)
   (setq-default tab-width 8
@@ -90,7 +94,12 @@
   ("C-x C-1" . delete-other-windows)
   ("C-x C-2" . split-window-below)
   ("C-x C-3" . split-window-right)
-  ("C-x C-0" . delete-window))
+  ("C-x C-0" . delete-window)
+
+  :hook
+  (after-init . (lambda ()
+                  (message "Emacs loaded in %s seconds with %d garbage collections"
+                           (emacs-init-time) gcs-done))))
 
 ;; ========== [Core] ==========
 (use-package use-package-core
@@ -124,7 +133,6 @@
 (use-package hl-line
   :config
   (global-hl-line-mode 1))
-
 
 (use-package cc-vars
   :init
@@ -167,7 +175,7 @@
 
 (use-package desktop
   :config
-  (desktop-save-mode 0))
+  (desktop-save-mode 1))
 
 (use-package pixel-scroll
   :config
@@ -203,10 +211,11 @@
   (display-time-default-load-average nil))
 
 (use-package display-line-numbers
-  :custom
-  (display-line-numbers-type 'relative)
+  :init
+  (setq display-line-numbers-type 'visual)
   :hook
-  (prog-mode . display-line-numbers-mode))
+  (prog-mode . display-line-numbers-mode)
+  (org-mode . display-line-numbers-mode))
 
 (use-package paren
   :init
@@ -232,7 +241,7 @@
   :init
   (setq recentf-max-saved-items 500
         recentf-max-menu-items 15
-        ;; disable recentf-cleanup on Emacs start, because it can cause
+        ;; disable recentf-cleanup on emacs start, because it can cause
         ;; problems with remote files (prelude)
         recentf-auto-cleanup 'never)
 
@@ -240,7 +249,7 @@
   (recentf-mode 1)
 
   :custom
-  ;; Exclude all of  files in the no-littering directories from recentf.
+  ;; exclude all of files in the no-littering directories from recentf.
   (add-to-list 'recentf-exclude
                (recentf-expand-file-name no-littering-var-directory))
   (add-to-list 'recentf-exclude
@@ -271,25 +280,25 @@
   (setq dired-kill-when-opening-new-dired-buffer t
         dired-hide-details-hide-symlink-targets nil
         dired-dwim-target t)
-  (setq-default dired-listing-switches "-alhG")
+  (setq-default dired-listing-switches "-alhGA --group-directories-first")
   :hook
   (dired-mode . dired-hide-details-mode))
 
 (use-package org
   :init
-  (setq org-agenda-files '("~/Documents/agenda.org")
+  (setq org-agenda-files '("~/documents/agenda.org")
         org-startup-indented t
-        org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %H:%M>")
+        org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t))
 
-;; The `treesit' package performs fast syntax parsing for languages and allows
+;; the `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
 ;;
 ;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
   :init
   (setq treesit-language-source-alist
-        '(;; Official grammers
+        '(;; official grammers
           (c "https://github.com/tree-sitter/tree-sitter-c")
           (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
           (rust "https://github.com/tree-sitter/tree-sitter-rust")
@@ -297,22 +306,23 @@
           (bash "https://github.com/tree-sitter/tree-sitter-bash")
           (html "https://github.com/tree-sitter/tree-sitter-html")
           (css "https://github.com/tree-sitter/tree-sitter-css")
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (json "https://github.com/tree-sitter/tree-sitter-json")
 
-          ;; Community grammers
-          (lua "https://github.com/Azganoth/tree-sitter-lua")
+          ;; community grammers
+          (lua "https://github.com/azganoth/tree-sitter-lua")
           (make "https://github.com/alemuller/tree-sitter-make")
           (cmake "https://github.com/uyha/tree-sitter-cmake")
-          (common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
-          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (common-lisp "https://github.com/thehamsta/tree-sitter-commonlisp")
+          (elisp "https://github.com/wilfred/tree-sitter-elisp")
           (markdown "https://github.com/ikatyang/tree-sitter-markdown")
           (org "https://github.com/milisims/tree-sitter-org")
-          (glsl "https://github.com/theHamsta/tree-sitter-glsl")
+          (glsl "https://github.com/thehamsta/tree-sitter-glsl")
           (latex "https://github.com/latex-lsp/tree-sitter-latex")
-          ))
-  ;; Even when Tree sitter is installed and the language grammer is configured,
-  ;; Emacs will not enable it. This is because we must enable the special "ts"
-  ;; modes. So here we remap the default modes to tree-sitter specific modes.
+          (astro "https://github.com/virchau13/tree-sitter-astro")))
+  ;; even when tree sitter is installed and the language grammer is configured,
+  ;; emacs will not enable it. this is because we must enable the special "ts"
+  ;; modes. so here we remap the default modes to tree-sitter specific modes.
   (setq major-mode-remap-alist '((c-mode . c-ts-mode)
                                  (c++-mode . c++-ts-mode)
                                  (c-or-c++-mode . c-or-c++-ts-mode))))
@@ -333,11 +343,24 @@
 ;;   (tab-bar-mode 0))
 
 ;; /////////////////////////////////////////////////////////////////////////////
+
 (use-package keyfreq
   :straight t
   :config
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
+
+;; allows you to define keys to be entered in quick succession.
+;;
+;; https://github.com/emacsorphanage/key-chord
+(use-package key-chord
+  :straight t
+  :init
+  (setq key-chord-two-keys-delay 0.1
+        key-chord-one-key-delay 0.2)
+  :config
+  (key-chord-define-global "jj" 'god-mode-all)
+  (key-chord-mode 1))
 
 (use-package undo-tree
   :straight t
@@ -388,6 +411,8 @@
   (which-key-mode)
   :diminish)
 
+(defun my-god-mode-update-cursor-type ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
 (use-package god-mode
   :disabled
   :straight t
@@ -402,11 +427,10 @@
         ("." . repeat)
         ("i" . god-local-mode)
         ("[" . backward-paragraph)
-        ("]" . forward-paragraph)))
-
-(defun my-god-mode-update-cursor-type ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
-;;(add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+        ("]" . forward-paragraph))
+  :hook
+  (god-mode-enabled . my-god-mode-update-cursor-type)
+  (god-mode-disabled . my-god-mode-update-cursor-type))
 
 (use-package evil
   :disabled
@@ -666,6 +690,8 @@
 ;; https://github.com/magit/magit
 (use-package magit
   :straight t
+  :config
+  (magit-auto-revert-mode 1)
   :bind
   ("C-c g" . magit-status)
   ("C-c f" . magit-file-dispatch))
@@ -692,6 +718,7 @@
 ;;
 ;; https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
+  :disabled
   :straight t
   :init
   (setq lsp-keymap-prefix "C-c l"
@@ -896,19 +923,28 @@
 ;;   :straight t
 ;;   :config (mood-line-mode))
 
-;; ;; (use-package web-mode
-;; ;;   :straight t
-;; ;;   :init (setq web-mode-markup-indent-offset 4
-;; ;;               web-mode-css-indent-offset 4
-;; ;;               web-mode-code-indent-offset 4
-;; ;;               web-mode-indent-style 4
+(use-package web-mode
+  :straight t
+  :init (setq web-mode-enable-auto-pairing t
+              web-mode-enable-css-colorization t
+              web-mode-enable-current-element-highlight t)
+  :custom
+  (web-mode-markup-indent-offset 4)
+  (web-mode-css-indent-offset 4)
+  (web-mode-code-indent-offset 4)
+  :mode (("\\.html?\\'" . web-mode)
+         ("\\.htm?\\'" . web-mode)))
 
-;; ;;               web-mode-enable-auto-pairing t
-;; ;;               web-mode-enable-css-colorization t
-;; ;;               web-mode-enable-current-element-highlight t)
+;; ASTRO
+;; (define-derived-mode astro-mode web-mode "astro")
+;; (setq auto-mode-alist
+;;       (append '((".*\\.astro\\'" . astro-mode))
+;;               auto-mode-alist))
 
-;; ;;   :mode (("\\.html?\\'" . web-mode)
-;; ;;          ("\\.htm?\\'" . web-mode)))
+(use-package astro-ts-mode
+  :straight t
+  :init
+  (setq astro-ts-mode-indent-offset 4))
 
 ;; (use-package emmet-mode
 ;;   :straight t
@@ -977,3 +1013,15 @@
 
 (provide 'init)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-agenda-files nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

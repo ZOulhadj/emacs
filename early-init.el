@@ -30,14 +30,10 @@
 (setq gc-cons-threshold most-positive-fixnum
       read-process-output-max (* 16 1024 1024))
 
-(setq inhibit-startup-screen t
-      inhibit-startup-message t
-      inhibit-splash-screen t)
-
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (blink-cursor-mode -1)
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 
 (setq package-enable-at-startup nil)
 
@@ -46,8 +42,3 @@
   (startup-redirect-eln-cache
    (convert-standard-filename
     (expand-file-name  "tmp/data/" user-emacs-directory))))
-
-(add-hook 'after-init-hook
-          (lambda ()
-            (message "Emacs loaded in %s seconds with %d garbage collections"
-                       (emacs-init-time) gcs-done)))
