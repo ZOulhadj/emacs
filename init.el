@@ -173,7 +173,25 @@
   :config
   (delete-selection-mode t))
 
+(use-package saveplace
+  :init
+  (setq save-place-limit 500)
+  :config
+  (save-place-mode 1))
+
+(use-package savehist
+  :init
+  (setq savehist-additional-variables
+        '(search-ring regexp-search-ring)
+        savehist-autosave-interval 60)
+  :config
+  (savehist-mode +1))
+
 (use-package desktop
+  :disabled ;; todo: messes up the previously loaded theme.
+  :init
+  (setq desktop-load-locked-desktop nil
+        desktop-auto-save-timeout 30)
   :config
   (desktop-save-mode 1))
 
@@ -223,19 +241,7 @@
   :config
   (show-paren-mode 1))
 
-(use-package saveplace
-  :init
-  (setq save-place-limit 500)
-  :config
-  (save-place-mode 1))
 
-(use-package savehist
-  :init
-  (setq savehist-additional-variables
-        '(search-ring regexp-search-ring)
-        savehist-autosave-interval 60)
-  :config
-  (savehist-mode +1))
 
 (use-package recentf
   :init
@@ -286,7 +292,7 @@
 
 (use-package org
   :init
-  (setq org-agenda-files '("~/documents/agenda.org")
+  (setq org-agenda-files '("~/Documents/agenda.org")
         org-startup-indented t
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t))
@@ -331,6 +337,10 @@
   :init
   (setq c-ts-mode-indent-offset 4
         c-ts-mode-indent-style 'k&r))
+
+(use-package eglot
+  :custom
+  (eglot-inlay-hints-mode -1))
 
 ;; (use-package tab-bar
 ;;   :init
@@ -466,6 +476,7 @@
 ;;
 ;; https://github.com/emacs-dashboard/emacs-dashboard
 (use-package dashboard
+  :disabled
   :straight t
   :init
   (setq dashboard-banner-logo-title "Welcome to Emacs!"
