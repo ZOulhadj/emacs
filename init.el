@@ -68,7 +68,9 @@
         ;;inhibit-startup-message t
 
         tab-always-indent 'complete
-        delete-by-moving-to-trash t)
+        delete-by-moving-to-trash t
+        user-full-name "Zakariya Oulhadj"
+        user-mail-address "zakariyaoulhadj01@gmail.com")
   (setq-default tab-width 8
                 fill-column 80)
 
@@ -241,8 +243,6 @@
   :config
   (show-paren-mode 1))
 
-
-
 (use-package recentf
   :init
   (setq recentf-max-saved-items 500
@@ -271,8 +271,8 @@
   :init
   (setq ispell-program-name "aspell"
         ispell-extra-args '("--sug-mode=ultra"))
-  :config
-  (flyspell-mode))
+  :hook
+  (prog-mode . flyspell-prog-mode))
 
 (use-package isearch
   :config
@@ -339,8 +339,16 @@
         c-ts-mode-indent-style 'k&r))
 
 (use-package eglot
+  :init
+  (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
+                                            :inlayHintProvider))
+  :config
+  (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   :custom
-  (eglot-inlay-hints-mode -1))
+  (setq-default eglot-inlay-hints-mode -1)
+  (eldoc-echo-area-use-multiline-p nil))
+  ;;:hook
+  ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
 ;; (use-package tab-bar
 ;;   :init
@@ -600,14 +608,14 @@
     ;; By default `consult-project-function' uses `project-root' from project.el.
   ;; Optionally configure a different project root function.
   ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;(setq consult-project-function #'consult--default-project--function)
   ;;;; 2. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
   ;;;; 3. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   ;;;; 4. projectile.el (projectile-project-root)
-  (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;(autoload 'projectile-project-root "projectile")
+  ;;(setq consult-project-function (lambda (_) (projectile-project-root)))
   :bind (("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
@@ -672,6 +680,7 @@
 ;;
 ;;
 (use-package consult-projectile
+  :disabled
   :straight t
   :after consult)
 
@@ -690,6 +699,7 @@
 ;;
 ;; https://github.com/bbatsov/projectile
 (use-package projectile
+  :disabled
   :straight t
   :init
   (projectile-mode +1)
@@ -712,6 +722,7 @@
 ;;
 ;; https://github.com/flycheck/flycheck
 (use-package flycheck
+  :disabled
   :straight t
   :init (global-flycheck-mode)
   :diminish)
@@ -720,6 +731,7 @@
 ;;
 ;; https://github.com/Fanael/rainbow-delimiters
 (use-package rainbow-delimiters
+  :disabled
   :straight t
   :hook
   (prog-mode . rainbow-delimiters-mode))
@@ -775,7 +787,6 @@
 ;;   :if (display-graphic-p))
 
 (use-package doom-themes
-  :disabled
   :straight t
   :init
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -827,42 +838,48 @@
 ;; A Emacs based email client that makes use of mu.
 ;;
 ;; https://github.com/djcb/mu
+;; todo: only enable if mu (maildir-utils) is installed
+;; maybe we can use :ensure-system-package
+;; Commands:
+;; mu init --maildir=MAILDIR --my-address=MYADDRESS
+;; mu index
 (use-package mu4e
-  :disabled
-  :straight (:local-repo "/usr/share/emacs/site-lisp/elpa/mu4e/"
+  :straight (:local-repo "/usr/share/emacs/site-lisp/mu4e/"
                          :type built-in)
   :commands mu4e
   :init
   (setq
-   mu4e-mu-debug nil
-   mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+   mu4e-maildir "~/Mail"
+   mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
    mu4e-update-interval 60
-   mu4e-confirm-quit nil
-   mu4e-context-policy 'pick-first
-   message-kill-buffer-on-exit t
-   mu4e-headers-fields `((:human-date . 12)
-                         (:flags . 6)
-                         (:mailing-list . 10)
-                         (:from . 22)
-                         (:subject))
-   mu4e-headers-date-format "%d/%m/%Y %H:%M"
-   mu4e-contexts `( ,(make-mu4e-context
-                      :name "Personal"
-                      :match-func (lambda (msg)
-                        (when msg
-                          (mu4e-message-contact-field-matches msg
-                                                              :to "zakariyaoulhadj01@gmail.com")))
-                      :vars '( (user-mail-address . "zakariyaoulhadj01@gmail.com")
-                               (user-full-name . "Zakariya Oulhadj")
-                               (mu4e-sent-folder . "/gmail/Sent")
-                               (mu4e-drafts-folder . "/gmail/Drafts")
-                               (mu4e-trash-folder . "/gmail/Trash")
-                               (mu4e-refile-folder . "/gmail/All Mail")
-                               (mu4e-maildir-shortcuts . ( ("/gmail/Inbox" . ?i)
-                                                           ("/gmail/Sent" . ?s)
-                                                           ("/gmail/All Mail" . ?a)
-                                                           ("/gmail/Trash" . ?t)
-                                                           ("/gmail/Drafts" . ?d)))))
+   mu4e-mu-debug nil
+   ;;mu4e-confirm-quit nil
+   ;;mu4e-context-policy 'pick-first
+   mu4e-change-filenames-when-moving t
+   ;;mu4e-headers-fields `((:human-date . 12)
+   ;;                      (:flags . 6)
+   ;;                      (:mailing-list . 10)
+   ;;                      (:from . 22)
+   ;;                      (:subject))
+   mu4e-sent-folder   "/[Gmail].Sent Mail"
+   mu4e-refile-folder "/[Gmail].All Mail"
+   mu4e-drafts-folder "/[Gmail].Drafts"
+   mu4e-trash-folder  "/[Gmail].Trash"
+   mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
+                            ("/[Gmail].Sent Mail" . ?s)
+                            ("/[Gmail].All Mail"  . ?a)
+                            ("/[Gmail].Trash"     . ?t)
+                            ("/[Gmail].Drafts"    . ?d))
+
+   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+   smtpmail-default-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-service 587
+   )
+
+   ;;message-kill-buffer-on-exit t)
+   ;;mu4e-headers-date-format "%d/%m/%Y %H:%M"
                                ;; message-send-mail-function 'smtpmail-send-it
                                ;; starttls-use-gnutls t
                                ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
@@ -870,23 +887,7 @@
                                ;; smtpmail-default-smtp-server "smtp.gmail.com"
                                ;; smtpmail-smtp-server "smtp.gmail.com"
                                ;; smtpmail-smtp-service 587
-                    ,(make-mu4e-context
-                      :name "Website"
-                      :match-func (lambda (msg)
-                        (when msg
-                          (mu4e-message-contact-field-matches msg
-                                                              :to "contact@zakariyaoulhadj.com")))
-                      :vars '( (user-mail-address . "contact@zakariyaoulhadj.com")
-                               (user-full-name . "Zakariya Oulhadj")
-                               (mu4e-sent-folder . "/website/Sent")
-                               (mu4e-drafts-folder . "/website/Drafts")
-                               (mu4e-trash-folder . "/website/Trash")
-                               (mu4e-refile-folder . "/website/All Mail")
-                               (mu4e-maildir-shortcuts . ( ("/website/Inbox" . ?i)
-                                                           ("/website/Sent" . ?s)
-                                                           ("/website/All Mail" . ?a)
-                                                           ("/website/Trash" . ?t)
-                                                           ("/website/Drafts" . ?d)))))))
+
   :bind
   ("C-c m" . mu4e))
 
@@ -956,6 +957,12 @@
   :straight t
   :init
   (setq astro-ts-mode-indent-offset 4))
+
+;; :ensure-system-package unzip
+(use-package nov
+  :straight t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
 ;; (use-package emmet-mode
 ;;   :straight t
