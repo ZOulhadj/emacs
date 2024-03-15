@@ -124,9 +124,10 @@
   )
 
 (use-package display-fill-column-indicator
-  ;;:hook
-  ;;(prog-mode . display-fill-column-indicator-mode)
-  )
+  :config
+  (set-face-attribute 'fill-column-indicator nil :foreground "grey14")
+  :hook
+  (prog-mode . display-fill-column-indicator-mode))
 
 (use-package fringe
   :config
@@ -190,7 +191,7 @@
   (savehist-mode +1))
 
 (use-package desktop
-  :disabled ;; todo: messes up the previously loaded theme.
+  ;;:disabled ;; todo: messes up the previously loaded theme.
   :init
   (setq desktop-load-locked-desktop nil
         desktop-auto-save-timeout 30)
@@ -199,7 +200,8 @@
 
 (use-package pixel-scroll
   :config
-  (pixel-scroll-precision-mode 1))
+  ;; @TODO: Disabled for now because it feels laggy.
+  (pixel-scroll-precision-mode 0))
 
 (use-package autorevert
   :init
@@ -287,6 +289,8 @@
         dired-hide-details-hide-symlink-targets nil
         dired-dwim-target t)
   (setq-default dired-listing-switches "-alhGA --group-directories-first")
+  :config
+  (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
   :hook
   (dired-mode . dired-hide-details-mode))
 
@@ -312,7 +316,7 @@
           (bash "https://github.com/tree-sitter/tree-sitter-bash")
           (html "https://github.com/tree-sitter/tree-sitter-html")
           (css "https://github.com/tree-sitter/tree-sitter-css")
-          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+          ;;(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (json "https://github.com/tree-sitter/tree-sitter-json")
 
           ;; community grammers
@@ -324,8 +328,7 @@
           (markdown "https://github.com/ikatyang/tree-sitter-markdown")
           (org "https://github.com/milisims/tree-sitter-org")
           (glsl "https://github.com/thehamsta/tree-sitter-glsl")
-          (latex "https://github.com/latex-lsp/tree-sitter-latex")
-          (astro "https://github.com/virchau13/tree-sitter-astro")))
+          (latex "https://github.com/latex-lsp/tree-sitter-latex")))
   ;; even when tree sitter is installed and the language grammer is configured,
   ;; emacs will not enable it. this is because we must enable the special "ts"
   ;; modes. so here we remap the default modes to tree-sitter specific modes.
@@ -338,12 +341,46 @@
   (setq c-ts-mode-indent-offset 4
         c-ts-mode-indent-style 'k&r))
 
+;; (const :tag "Documentation on hover" :hoverProvider)
+;; (const :tag "Code completion" :completionProvider)
+;; (const :tag "Function signature help" :signatureHelpProvider)
+;; (const :tag "Go to definition" :definitionProvider)
+;; (const :tag "Go to type definition" :typeDefinitionProvider)
+;; (const :tag "Go to implementation" :implementationProvider)
+;; (const :tag "Go to declaration" :declarationProvider)
+;; (const :tag "Find references" :referencesProvider)
+;; (const :tag "Highlight symbols automatically" :documentHighlightProvider)
+;; (const :tag "List symbols in buffer" :documentSymbolProvider)
+;; (const :tag "List symbols in workspace" :workspaceSymbolProvider)
+;; (const :tag "Execute code actions" :codeActionProvider)
+;; (const :tag "Code lens" :codeLensProvider)
+;; (const :tag "Format buffer" :documentFormattingProvider)
+;; (const :tag "Format portion of buffer" :documentRangeFormattingProvider)
+;; (const :tag "On-type formatting" :documentOnTypeFormattingProvider)
+;; (const :tag "Rename symbol" :renameProvider)
+;; (const :tag "Highlight links in document" :documentLinkProvider)
+;; (const :tag "Decorate color references" :colorProvider)
+;; (const :tag "Fold regions of buffer" :foldingRangeProvider)
+;; (const :tag "Execute custom commands" :executeCommandProvider)
+;; (const :tag "Inlay hints" :inlayHintProvider)
 (use-package eglot
   :init
   (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
                                             :inlayHintProvider))
   :config
   (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
+  (add-to-list 'eglot-server-programs
+               '((c-ts-mode c++-ts-mode c-mode c++-mode)
+                 . ("clangd"
+                    "-j=8"
+                    "--log=error"
+                    "--malloc-trim"
+                    "--background-index"
+                    "--clang-tidy"
+                    "--completion-style=detailed"
+                    "--pch-storage=memory"
+                    "--header-insertion=never"
+                    "--header-insertion-decorators=0")))
   :custom
   (setq-default eglot-inlay-hints-mode -1)
   (eldoc-echo-area-use-multiline-p nil))
@@ -421,7 +458,7 @@
   :straight t
   :init
   (setq which-key-show-early-on-C-h nil
-        which-key-idle-delay 0.5
+        which-key-idle-delay 1.0
         which-key-idle-secondary-delay nil)
   :config
   (which-key-enable-god-mode-support)
@@ -793,12 +830,14 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   (doom-themes-neotree-config)
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  (load-theme 'doom-tomorrow-night))
 
 (use-package gruber-darker-theme
   :straight t
   :config
-  (load-theme 'gruber-darker))
+  ;;(load-theme 'gruber-darker))
+  )
 
 ;; Keeps the cursor in centered within a buffer.
 ;;
@@ -954,6 +993,7 @@
 ;;               auto-mode-alist))
 
 (use-package astro-ts-mode
+  :disabled
   :straight t
   :init
   (setq astro-ts-mode-indent-offset 4))
