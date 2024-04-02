@@ -502,6 +502,10 @@
   (xah-fly-keys-set-layout "colemak-dhm")
   (xah-fly-keys 0))
 
+(use-package avy
+  :straight t
+  :config
+  (global-set-key (kbd "C-:") 'avy-goto-char))
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
 ;; ;; variables. However, this package works by copying all enviornment variables
