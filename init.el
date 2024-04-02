@@ -193,8 +193,10 @@
 (use-package desktop
   ;;:disabled ;; todo: messes up the previously loaded theme.
   :init
-  (setq desktop-load-locked-desktop nil
-        desktop-auto-save-timeout 30)
+  (setq
+   desktop-dirname "/home/zakariya/.config/emacs/tmp/data/desktop/" ;; @TODO: For some reason dirname is not set?
+   desktop-load-locked-desktop t
+   desktop-auto-save-timeout 30)
   :config
   (desktop-save-mode 1))
 
