@@ -78,7 +78,7 @@
   ;; found. If none of the specified fonts are found then Emacs will use a
   ;; default font.
   (add-to-list 'default-frame-alist
-               '(font . "Cascadia Code 12"))
+               '(font . "Consolas 13"))
 
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
@@ -410,14 +410,14 @@
 ;; allows you to define keys to be entered in quick succession.
 ;;
 ;; https://github.com/emacsorphanage/key-chord
-(use-package key-chord
-  :straight t
-  :init
-  (setq key-chord-two-keys-delay 0.1
-        key-chord-one-key-delay 0.2)
-  :config
-  (key-chord-define-global "jj" 'god-mode-all)
-  (key-chord-mode 1))
+;; (use-package key-chord
+;;   :straight t
+;;   :init
+;;   (setq key-chord-two-keys-delay 0.1
+;;         key-chord-one-key-delay 0.2)
+;;   :config
+;;   (key-chord-define-global "jj" 'god-mode-all)
+;;   (key-chord-mode 1))
 
 (use-package undo-tree
   :straight t
@@ -427,6 +427,22 @@
   :config
   (global-undo-tree-mode)
   :diminish)
+
+
+;; Note that rust-analyzer is needed for eglot and can be obtained through
+;; rustup.
+(use-package rust-mode
+  :straight t
+  :init
+  (setq rust-mode-treesitter-derive t)
+  :config
+  ;;(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+  :hook
+  (rust-mode . eglot-ensure))
+
+(use-package zig-mode
+  :straight t
+  )
 
 ;; Adds support for the Lua programming language.
 ;;
@@ -444,7 +460,7 @@
 ;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
 ;;       custom-file (no-littering-expand-etc-file-name "custom.el"))
 
-;; Adds additional functionaility to the default dired mode
+;; Adds additional functionality to the default dired mode
 ;;
 ;; https://github.com/emacsmirror/dired-plus/tree/master
 ;; (use-package dired+
@@ -508,6 +524,7 @@
   :straight t
   :config
   (global-set-key (kbd "C-:") 'avy-goto-char))
+
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
 ;; ;; variables. However, this package works by copying all enviornment variables
@@ -836,14 +853,12 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   (doom-themes-neotree-config)
-  (doom-themes-org-config)
-  (load-theme 'doom-tomorrow-night))
+  (doom-themes-org-config))
 
 (use-package gruber-darker-theme
   :straight t
   :config
-  ;;(load-theme 'gruber-darker))
-  )
+  (load-theme 'gruber-darker))
 
 ;; Keeps the cursor in centered within a buffer.
 ;;
