@@ -30,10 +30,12 @@
 (setq gc-cons-threshold most-positive-fixnum
       read-process-output-max (* 16 1024 1024))
 
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(blink-cursor-mode -1)
-(menu-bar-mode -1)
+(when (display-graphic-p)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (blink-cursor-mode -1)
+  ;;(menu-bar-mode -1)
+  )
 
 (setq package-enable-at-startup nil)
 
