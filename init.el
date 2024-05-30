@@ -26,7 +26,7 @@
 (setq straight-use-package-by-default nil)
 
 ;; Load private information
-(load-file (concat user-emacs-directory "secret.el"))
+;;(load-file (concat user-emacs-directory "secret.el"))
 
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
@@ -78,13 +78,20 @@
   ;; found. If none of the specified fonts are found then Emacs will use a
   ;; default font.
   (add-to-list 'default-frame-alist
-               '(font . "Consolas 13"))
+               '(font . "Cascadia Mono 14"))
 
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
   (when (display-graphic-p)
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
+
+  (when (display-graphic-p)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (blink-cursor-mode -1)
+    ;;(menu-bar-mode -1)
+    )
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -93,6 +100,7 @@
   ("C-x k" . kill-this-buffer)
 
   ;; These bindings make it easier dealing with windows in `god-mode'.
+  ;; @TODO: Only enable these bindings when god-mode is active.
   ("C-x C-1" . delete-other-windows)
   ("C-x C-2" . split-window-below)
   ("C-x C-3" . split-window-right)
@@ -117,6 +125,14 @@
   (setq custom-safe-themes t))
 
 ;; ========== [User Interface] ==========
+
+(use-package window
+  :bind
+  ("C-1" . delete-other-windows)
+  ("C-2" . split-window-below)
+  ("C-3" . split-window-right)
+  ("C-0" . delete-window))
+
 (use-package frame
   :config
   (toggle-frame-maximized)
@@ -191,10 +207,11 @@
   (savehist-mode +1))
 
 (use-package desktop
-  ;;:disabled ;; todo: messes up the previously loaded theme.
+  :disabled ;; todo: messes up the previously loaded theme.
   :init
   (setq
-   desktop-dirname "/home/zakariya/.config/emacs/tmp/data/desktop/" ;; @TODO: For some reason dirname is not set?
+   ;; @TODO: For some reason dirname is not set?
+   desktop-dirname (expand-file-name "tmp/data/desktop/" user-emacs-directory)
    desktop-load-locked-desktop t
    desktop-auto-save-timeout 30)
   :config
@@ -290,7 +307,9 @@
   (setq dired-kill-when-opening-new-dired-buffer t
         dired-hide-details-hide-symlink-targets nil
         dired-dwim-target t)
-  (setq-default dired-listing-switches "-alhGA --group-directories-first")
+  ;; @TODO: on macOS --group-directories-first is not supported.
+  ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
+  ;;(setq-default dired-listing-switches "-alhGA --group-directories-first")
   :config
   (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
   :hook
@@ -301,13 +320,16 @@
   (setq org-agenda-files '("~/Documents/agenda.org")
         org-startup-indented t
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
-        org-display-custom-times t))
+        org-display-custom-times t)
+  :hook
+  (org-mode . turn-on-auto-fill))
 
 ;; the `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
 ;;
 ;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
+  :disabled
   :init
   (setq treesit-language-source-alist
         '(;; official grammers
@@ -407,18 +429,6 @@
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 
-;; allows you to define keys to be entered in quick succession.
-;;
-;; https://github.com/emacsorphanage/key-chord
-;; (use-package key-chord
-;;   :straight t
-;;   :init
-;;   (setq key-chord-two-keys-delay 0.1
-;;         key-chord-one-key-delay 0.2)
-;;   :config
-;;   (key-chord-define-global "jj" 'god-mode-all)
-;;   (key-chord-mode 1))
-
 (use-package undo-tree
   :straight t
   :init
@@ -427,7 +437,6 @@
   :config
   (global-undo-tree-mode)
   :diminish)
-
 
 ;; Note that rust-analyzer is needed for eglot and can be obtained through
 ;; rustup.
@@ -511,19 +520,41 @@
   :init
   (setq evil-undo-system 'undo-redo)
   :config
-  (evil-mode 0))
+  (evil-mode 1))
+
+(use-package evil-escape
+  :disabled
+  :straight t
+  :init
+  (setq-default evil-escape-key-sequence "jk"
+                evil-escape-delay 0.2)
+  :config
+  (evil-escape-mode)
+  )
+
+
+(use-package evil-colemak-basics
+  :disabled
+  :straight t
+  :init
+  (setq evil-colemak-basics-layout-mod 'mod-dh)
+  :config
+  (global-evil-colemak-basics-mode))
 
 (use-package xah-fly-keys
   :disabled
   :straight t
   :config
-  (xah-fly-keys-set-layout "colemak-dhm")
-  (xah-fly-keys 0))
+  ;;(xah-fly-keys-set-layout "colemak-dhm")
+  (xah-fly-keys-set-layout "qwerty")
+  (xah-fly-keys 1))
 
 (use-package avy
   :straight t
+  :init
+  (setq avy-timeout-seconds 0.40)
   :config
-  (global-set-key (kbd "C-:") 'avy-goto-char))
+  (global-set-key (kbd "M-j") 'avy-goto-char-timer))
 
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
@@ -855,10 +886,21 @@
   (doom-themes-neotree-config)
   (doom-themes-org-config))
 
+(use-package modus-themes
+  :straight t
+  )
+
 (use-package gruber-darker-theme
   :straight t
+  ;; :config
+  ;; (load-theme 'gruber-darker)
+  )
+
+(use-package naysayer-theme
+  :straight t
   :config
-  (load-theme 'gruber-darker))
+  (load-theme 'naysayer t)
+  )
 
 ;; Keeps the cursor in centered within a buffer.
 ;;
@@ -868,6 +910,14 @@
   :straight t
   :config
   (global-centered-cursor-mode))
+
+(use-package centered-window
+  :disabled
+  :straight t
+  :init
+  (setq cwm-centered-window-width 120)
+  :hook
+  (prog-mode . centered-window-mode))
 
 ;; ;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
 ;; ;; compiled with SVG support (--with-rsvg).
@@ -1049,6 +1099,24 @@
 ;; (use-package simple-httpd
 ;;   :straight t)
 
+(use-package golden-ratio
+  :disabled
+  :straight t
+  :config
+  (golden-ratio-mode 1))
+
+(use-package highlight-indentation
+  :disabled
+  :straight t
+  :config
+  (setq highlight-indentation-blank-lines t)
+  :custom
+  (set-face-background 'highlight-indentation-face "#e3e3d3")
+  (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
+  :hook
+  (prog-mode . highlight-indentation-mode)
+  :diminish)
+
 ;; =============================================================================
 
 (defun custom/load-config ()
@@ -1079,7 +1147,7 @@
 ;;   :hook (prog-mode . company-mode))
 
 
-;; ;; Make the compilation window automatically disappear - from enberg on #emacs
+;; Make the compilation window automatically disappear - from enberg on #emacs
 ;; (setq compilation-finish-functions
 ;;       (lambda (buf str)
 ;;         (if (null (string-match ".*exited abnormally.*" str))
