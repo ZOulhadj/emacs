@@ -361,7 +361,7 @@
                                  (c-or-c++-mode . c-or-c++-ts-mode))))
 
 (use-package c-ts-mode
-  :if treesit
+  :requires treesit
   :init
   (setq c-ts-mode-indent-offset 4
         c-ts-mode-indent-style 'k&r))
