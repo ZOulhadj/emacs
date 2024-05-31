@@ -105,6 +105,12 @@
                   (message "Emacs loaded in %s seconds with %d garbage collections"
                            (emacs-init-time) gcs-done))))
 
+(defun custom/load-config ()
+  "Load my Emacs init.el configuration file."
+  (interactive)
+  (find-file (concat user-emacs-directory "init.el")))
+(global-set-key (kbd "C-c c") 'custom/load-config)
+
 ;; ========== [Core] ==========
 (use-package use-package-core
   :init
@@ -155,6 +161,16 @@
 (use-package compile
   :init
   (setq compilation-scroll-output nil)
+  ;; Make the compilation window automatically disappear - from enberg on #emacs
+  ;; (setq compilation-finish-functions
+  ;;       (lambda (buf str)
+  ;;         (if (null (string-match ".*exited abnormally.*" str))
+  ;;             ;;no errors, make the compilation window go away in a few seconds
+  ;;             (progn
+  ;;               (run-at-time
+  ;;                "1 sec" nil 'delete-windows-on
+  ;;                (get-buffer-create "*compilation*"))
+  ;;               (message "No Compilation Errors!")))))
   :bind
   ("<f5>" . recompile))
 
@@ -354,6 +370,7 @@
                                  (c++-mode . c++-ts-mode)
                                  (c-or-c++-mode . c-or-c++-ts-mode))))
 
+;; @TODO: Requires c/c++ language server
 (use-package c-ts-mode
   :requires treesit
   :init
@@ -445,8 +462,7 @@
   (rust-mode . eglot-ensure))
 
 (use-package zig-mode
-  :straight t
-  )
+  :straight t)
 
 ;; Adds support for the Lua programming language.
 ;;
@@ -638,6 +654,24 @@
   (global-corfu-mode)
   :bind (:map corfu-map
               ("RET" . nil)))
+
+(use-package company
+  :disabled
+  :straight t
+  :diminish
+  :config (setq
+           company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+           company-selection-wrap-around t
+           company-show-numbers nil
+           company-tooltip-align-annotations t
+           company-idle-delay 0.0
+           company-require-match nil
+           company-minimum-prefix-length 2)
+  :bind (:map company-active-map
+        ("C-n" . company-select-next)
+        ("C-p" . company-select-previous)
+        ("<tab>" . company-complete-selection))
+  :hook (prog-mode . company-mode))
 
 ;; This package changes how completion candidates are displayed within a
 ;; completion window such as `corfu' or `company'.
@@ -1111,47 +1145,6 @@
   :hook
   (prog-mode . highlight-indentation-mode)
   :diminish)
-
-;; =============================================================================
-
-(defun custom/load-config ()
-  "Load my Emacs init.el configuration file."
-  (interactive)
-  (find-file (concat user-emacs-directory "init.el")))
-(global-set-key (kbd "C-c c") 'custom/load-config)
-
-;; =============================================================================
-;; Unused packages
-
-;; (use-package company
-;;   :ensure t
-;;   :diminish
-;;   :config (setq
-;;            company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-;;            company-selection-wrap-around t
-;;            company-show-numbers nil
-;;            company-tooltip-align-annotations t
-;;            company-idle-delay 0.0
-;;            company-require-match nil
-;;            company-minimum-prefix-length 2)
-
-;;   :bind (:map company-active-map
-;;         ("C-n" . company-select-next)
-;;         ("C-p" . company-select-previous)
-;;         ("<tab>" . company-complete-selection))
-;;   :hook (prog-mode . company-mode))
-
-
-;; Make the compilation window automatically disappear - from enberg on #emacs
-;; (setq compilation-finish-functions
-;;       (lambda (buf str)
-;;         (if (null (string-match ".*exited abnormally.*" str))
-;;             ;;no errors, make the compilation window go away in a few seconds
-;;             (progn
-;;               (run-at-time
-;;                "1 sec" nil 'delete-windows-on
-;;                (get-buffer-create "*compilation*"))
-;;               (message "No Compilation Errors!")))))
 
 (provide 'init)
 ;;; init.el ends here
