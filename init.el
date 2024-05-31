@@ -74,12 +74,6 @@
   (setq-default tab-width 8
                 fill-column 80)
 
-  ;; TODO: Check each font in order and use fallback fonts if current one is not
-  ;; found. If none of the specified fonts are found then Emacs will use a
-  ;; default font.
-  (add-to-list 'default-frame-alist
-               '(font . "Cascadia Mono 14"))
-
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
   (when (display-graphic-p)
