@@ -23,6 +23,11 @@
   (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'use-package)
+
+;; This is required by org-roam because it requires a specific version of org
+;; and straight uses its own version.
+(straight-use-package 'org)
+
 (setq straight-use-package-by-default nil)
 
 ;; Load private information
@@ -84,7 +89,7 @@
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
     (blink-cursor-mode -1)
-    ;;(menu-bar-mode -1)
+    (menu-bar-mode -1)
     )
 
   :config
@@ -109,7 +114,7 @@
   "Load my Emacs init.el configuration file."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
-(global-set-key (kbd "C-c c") 'custom/load-config)
+;;(global-set-key (kbd "C-c c") 'custom/load-config)
 
 ;; ========== [Core] ==========
 (use-package use-package-core
@@ -330,7 +335,10 @@
   (setq org-agenda-files '("~/Documents/agenda.org")
         org-startup-indented t
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
-        org-display-custom-times t)
+        org-display-custom-times t
+        org-return-follows-link t
+        org-hide-emphasis-markers t
+        )
   :hook
   (org-mode . turn-on-auto-fill))
 
@@ -525,41 +533,6 @@
   (god-mode-enabled . my-god-mode-update-cursor-type)
   (god-mode-disabled . my-god-mode-update-cursor-type))
 
-(use-package evil
-  :disabled
-  :straight t
-  :init
-  (setq evil-undo-system 'undo-redo)
-  :config
-  (evil-mode 1))
-
-(use-package evil-escape
-  :disabled
-  :straight t
-  :init
-  (setq-default evil-escape-key-sequence "jk"
-                evil-escape-delay 0.2)
-  :config
-  (evil-escape-mode)
-  )
-
-
-(use-package evil-colemak-basics
-  :disabled
-  :straight t
-  :init
-  (setq evil-colemak-basics-layout-mod 'mod-dh)
-  :config
-  (global-evil-colemak-basics-mode))
-
-(use-package xah-fly-keys
-  :disabled
-  :straight t
-  :config
-  ;;(xah-fly-keys-set-layout "colemak-dhm")
-  (xah-fly-keys-set-layout "qwerty")
-  (xah-fly-keys 1))
-
 (use-package avy
   :straight t
   :init
@@ -634,7 +607,7 @@
 
 ;; The package `corfu' display a window for autocomplete candidates when writing
 ;; text. It is a simpler alternative to the highly popular `company'
-;; package. This is because it uses the Emacs buit-in
+;; package. This is because it uses the Emacs buit-in completion system.
 ;;
 ;; https://github.com/minad/corfu
 (use-package corfu
@@ -684,6 +657,10 @@
    completion-styles '(orderless partial-completion basic)
    completion-category-defaults nil
    completion-category-overrides nil))
+
+(use-package embark
+  :disabled
+  :straight t)
 
 ;; Provides search and navigation commands
 ;;
@@ -788,29 +765,33 @@
   ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode))
 
-;; ;; Consult users will also want the embark-consult package.
-;; ;;
-;; ;;
-;; (use-package embark-consult
-;;   :straight t
-;;   :hook
-;;   (embark-collect-mode . consult-preview-at-point-mode))
+;; Consult users will also want the embark-consult package.
+;;
+;;
+(use-package embark-consult
+  :straight t
+  :requires (embark consult)
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 ;;
 ;;
 ;;
 (use-package consult-projectile
   :disabled
+  :requires (consult projectile)
   :straight t
-  :after consult)
+  :after (consult projectile))
 
 (use-package consult-lsp
   :disabled
-  :after consult)
+  :requires (consult lsp)
+  :after (consult lsp))
 
 (use-package consult-flycheck
   :disabled
-  :after consult
+  :requires (consult flycheck)
+  :after (consult flycheck)
   :straight t)
 
 ;; The package `projectile' is a project management package that provides many
@@ -1095,6 +1076,7 @@
 (use-package astro-ts-mode
   :disabled
   :straight t
+  :requires treesit
   :init
   (setq astro-ts-mode-indent-offset 4))
 
@@ -1144,6 +1126,34 @@
   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
   :hook
   (prog-mode . highlight-indentation-mode)
+  :diminish)
+
+(use-package org-bullets
+  :straight t
+  :hook
+  (org-mode . org-bullets-mode))
+
+(use-package org-roam
+  :straight t
+  :custom
+  (org-roam-directory "~/org")
+  (org-roam-complete-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         :map org-mode-map
+         ("C-M-i"   . completion-at-point))
+  :config
+  (org-roam-setup))
+
+(use-package org-roam-ui
+  :straight t
+  :requires org-roam
+  :after org-roam
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t)
   :diminish)
 
 (provide 'init)
