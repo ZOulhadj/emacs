@@ -132,7 +132,13 @@
   (other-window -1))
 
 (use-package window
+  :config
+  (global-unset-key (kbd "C-x o"))
+
   :bind
+  ("C-," . prev-window)
+  ("C-." . other-window)
+
   ("C-1" . delete-other-windows)
   ("C-2" . split-window-below)
   ("C-3" . split-window-right)
@@ -145,8 +151,6 @@
   ("C-x C-3" . split-window-right)
   ("C-x C-0" . delete-window)
 
-  ("C-," . prev-window)
-  ("C-." . other-window)
   )
 
 
