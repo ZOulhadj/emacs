@@ -75,7 +75,9 @@
         tab-always-indent 'complete
         delete-by-moving-to-trash t
         user-full-name "Zakariya Oulhadj"
-        user-mail-address "zakariyaoulhadj01@gmail.com")
+        user-mail-address "zakariyaoulhadj01@gmail.com"
+
+        sentence-end-double-space nil)
   (setq-default tab-width 8
                 fill-column 80)
 
@@ -97,13 +99,6 @@
 
   :bind
   ("C-x k" . kill-this-buffer)
-
-  ;; These bindings make it easier dealing with windows in `god-mode'.
-  ;; @TODO: Only enable these bindings when god-mode is active.
-  ("C-x C-1" . delete-other-windows)
-  ("C-x C-2" . split-window-below)
-  ("C-x C-3" . split-window-right)
-  ("C-x C-0" . delete-window)
 
   :hook
   (after-init . (lambda ()
@@ -131,12 +126,33 @@
 
 ;; ========== [User Interface] ==========
 
+
+(defun prev-window ()
+  (interactive)
+  (other-window -1))
+
 (use-package window
   :bind
   ("C-1" . delete-other-windows)
   ("C-2" . split-window-below)
   ("C-3" . split-window-right)
-  ("C-0" . delete-window))
+  ("C-0" . delete-window)
+
+  ;; These bindings make it easier dealing with windows in `god-mode'.
+  ;; @TODO: Only enable these bindings when god-mode is active.
+  ("C-x C-1" . delete-other-windows)
+  ("C-x C-2" . split-window-below)
+  ("C-x C-3" . split-window-right)
+  ("C-x C-0" . delete-window)
+
+  ("C-," . prev-window)
+  ("C-." . other-window)
+  )
+
+
+
+
+
 
 (use-package frame
   :config
@@ -177,7 +193,8 @@
   ;;                (get-buffer-create "*compilation*"))
   ;;               (message "No Compilation Errors!")))))
   :bind
-  ("<f5>" . recompile))
+  ("<f5>" . recompile)
+  ("C-c c" . recompile))
 
 (use-package comint
   :init
@@ -269,9 +286,10 @@
 (use-package display-line-numbers
   :init
   (setq display-line-numbers-type 'visual)
-  :hook
-  (prog-mode . display-line-numbers-mode)
-  (org-mode . display-line-numbers-mode))
+  ;;:hook
+  ;;(prog-mode . display-line-numbers-mode)
+  ;;(org-mode . display-line-numbers-mode)
+  )
 
 (use-package paren
   :init
@@ -304,6 +322,7 @@
 ;; todo: only enable if aspell is installed
 ;; maybe we can use :ensure-system-package
 (use-package flyspell
+  :disabled ;; @TODO: C-, conflicts with prev-window
   :init
   (setq ispell-program-name "aspell"
         ispell-extra-args '("--sug-mode=ultra"))
@@ -313,7 +332,8 @@
 (use-package isearch
   :config
   (setq isearch-wrap-pause 'no ; automatically wrap search without pausing
-        isearch-lazy-count t)
+        isearch-lazy-count t
+        isearch-allow-scroll 'unlimited)
   :bind (:map isearch-mode-map
               ("<backspace>" . isearch-del-char)))
 
@@ -324,7 +344,7 @@
         dired-dwim-target t)
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
-  ;;(setq-default dired-listing-switches "-alhGA --group-directories-first")
+  (setq-default dired-listing-switches "-alhGA --group-directories-first")
   :config
   (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
   :hook
@@ -410,7 +430,9 @@
 (use-package eglot
   :init
   (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
-                                            :inlayHintProvider))
+                                            :inlayHintProvider)
+        eglot-autoshutdown t
+        eglot-events-buffer-size 0)
   :config
   (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   (add-to-list 'eglot-server-programs
@@ -444,6 +466,7 @@
 ;; /////////////////////////////////////////////////////////////////////////////
 
 (use-package keyfreq
+  :disabled
   :straight t
   :config
   (keyfreq-mode 1)
@@ -887,6 +910,9 @@
 ;;   :straight t
 ;;   :if (display-graphic-p))
 
+(use-package ef-themes
+  :straight t)
+
 (use-package doom-themes
   :straight t
   :init
@@ -894,19 +920,23 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   (doom-themes-neotree-config)
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  (load-theme 'doom-gruvbox))
 
 (use-package modus-themes
+  :disabled
   :straight t
   )
 
 (use-package gruber-darker-theme
+  :disabled
   :straight t
   ;; :config
   ;; (load-theme 'gruber-darker)
   )
 
 (use-package naysayer-theme
+  :disabled
   :straight t
   :config
   (load-theme 'naysayer t)

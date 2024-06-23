@@ -41,4 +41,4 @@
 ;; TODO: Check each font in order and use fallback fonts if current one is not
 ;; found. If none of the specified fonts are found then Emacs will use a
 ;; default font.
-(set-face-attribute 'default nil :family "Cascadia Mono" :height 140)
+(set-face-attribute 'default nil :family "Cascadia Mono" :height 130)
