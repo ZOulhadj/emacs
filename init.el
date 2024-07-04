@@ -90,7 +90,7 @@
   (when (display-graphic-p)
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
-    (blink-cursor-mode -1)
+    (blink-cursor-mode t)
     (menu-bar-mode -1)
     )
 
@@ -133,7 +133,7 @@
 
 (use-package window
   :config
-  (global-unset-key (kbd "C-x o"))
+  (global-set-key (kbd "C-x o") 'other-window)
 
   :bind
   ("C-," . prev-window)
@@ -925,11 +925,13 @@
   :config
   (doom-themes-neotree-config)
   (doom-themes-org-config)
-  (load-theme 'doom-gruvbox))
+  )
 
 (use-package modus-themes
   :disabled
   :straight t
+  ;;:config
+  ;;(load-theme 'modus-vivendi)
   )
 
 (use-package gruber-darker-theme
@@ -940,7 +942,6 @@
   )
 
 (use-package naysayer-theme
-  :disabled
   :straight t
   :config
   (load-theme 'naysayer t)
