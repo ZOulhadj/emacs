@@ -335,7 +335,7 @@
 
 (use-package isearch
   :config
-  (setq isearch-wrap-pause 'no ; automatically wrap search without pausing
+  (setq isearch-wrap-pause t
         isearch-lazy-count t
         isearch-allow-scroll 'unlimited)
   :bind (:map isearch-mode-map
