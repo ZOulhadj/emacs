@@ -295,6 +295,10 @@
   ;;(org-mode . display-line-numbers-mode)
   )
 
+(use-package which-func
+  :hook
+  (prog-mode . which-func-mode))
+
 (use-package paren
   :init
   (setq show-paren-delay 0.0)
