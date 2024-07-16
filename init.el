@@ -276,7 +276,7 @@
   (setq-default indent-tabs-mode nil)
   :config
   (visual-line-mode -1)
-  (size-indication-mode t)
+  (size-indication-mode -1)
   (set-default 'truncate-lines t))
 
 (use-package time
