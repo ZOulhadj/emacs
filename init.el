@@ -185,7 +185,8 @@
 
 (use-package compile
   :init
-  (setq compilation-scroll-output nil)
+  (setq compilation-scroll-output nil
+        compilation-ask-about-save nil)
   ;; Make the compilation window automatically disappear - from enberg on #emacs
   ;; (setq compilation-finish-functions
   ;;       (lambda (buf str)
@@ -297,7 +298,7 @@
 
 (use-package which-func
   :hook
-  (prog-mode . which-func-mode))
+  (prog-mode . which-function-mode))
 
 (use-package paren
   :init
