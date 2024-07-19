@@ -178,6 +178,10 @@
   :config
   (global-hl-line-mode 1))
 
+(use-package face-remap
+  :config
+  (setq text-scale-mode-step 1.2))
+
 (use-package cc-vars
   :init
   (setq c-default-style "k&r"
@@ -1195,6 +1199,8 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start t)
   :diminish)
+
+
 
 (provide 'init)
 ;;; init.el ends here
