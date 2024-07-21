@@ -912,13 +912,15 @@
 
 ;; Allows for lines or regions to be moved.
 ;;
-;;https://github.com/rejeep/drag-stuff.el
+;; https://github.com/rejeep/drag-stuff.el
 (use-package drag-stuff
-  :disabled
   :straight t
   :config
   (drag-stuff-global-mode 1)
-  (drag-stuff-define-keys)
+  ;;(drag-stuff-define-keys)
+  :bind
+  ("M-P" . drag-stuff-up)
+  ("M-N" . drag-stuff-down)
   :diminish)
 
 ;; ;; Adds icon support. Once the package is installed, the actual icons need to be
