@@ -33,6 +33,12 @@
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
 
+(use-package gcmh
+  :straight t
+  :config
+  (gcmh-mode 1)
+  :diminish)
+
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
 ;; specific directories. It is important to note that this package must be
@@ -55,8 +61,7 @@
 
 (use-package emacs
   :init
-  (setq gc-cons-threshold 50000000
-        create-lockfiles nil
+  (setq create-lockfiles nil
         use-dialog-box nil
         ring-bell-function 'ignore
         frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
@@ -100,10 +105,11 @@
   :bind
   ("C-x k" . kill-this-buffer)
 
-  :hook
-  (after-init . (lambda ()
-                  (message "Emacs loaded in %s seconds with %d garbage collections"
-                           (emacs-init-time) gcs-done))))
+  ;; :hook
+  ;; (after-init . (lambda ()
+  ;;                 (message "Emacs loaded in %s seconds with %d garbage collections"
+  ;;                          (emacs-init-time) gcs-done)))
+  )
 
 (defun custom/load-config ()
   "Load my Emacs init.el configuration file."
@@ -452,10 +458,10 @@
                '((c-ts-mode c++-ts-mode c-mode c++-mode)
                  . ("clangd"
                     "-j=8"
-                    "--log=error"
+                    ;; "--log=error"
                     "--malloc-trim"
                     "--background-index"
-                    "--clang-tidy"
+                    ;; "--clang-tidy"
                     "--completion-style=detailed"
                     "--pch-storage=memory"
                     "--header-insertion=never"
@@ -939,8 +945,8 @@
 (use-package modus-themes
   :disabled
   :straight t
-  ;;:config
-  ;;(load-theme 'modus-vivendi)
+  :config
+  (load-theme 'modus-vivendi)
   )
 
 (use-package gruber-darker-theme
@@ -952,8 +958,8 @@
 
 (use-package naysayer-theme
   :straight t
-  :config
-  (load-theme 'naysayer t)
+  ;; :config
+  ;; (load-theme 'naysayer t)
   )
 
 ;; Keeps the cursor in centered within a buffer.

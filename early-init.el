@@ -27,8 +27,8 @@
 
 ;;; Code:
 
-(setq gc-cons-threshold most-positive-fixnum
-      read-process-output-max (* 16 1024 1024))
+;; (setq gc-cons-threshold most-positive-fixnum
+;;       read-process-output-max (* 16 1024 1024))
 
 (setq package-enable-at-startup nil)
 
