@@ -33,6 +33,14 @@
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
 
+;; The package `diminish' introduces the `:diminish' keyword which can be used
+;; together with `use-package' to hide minor modes from the modeline. This
+;; allows the modeline to be kept minimal and show only required modes.
+;;
+;; https://github.com/emacsmirror/diminish
+(use-package diminish
+  :straight t)
+
 (use-package gcmh
   :straight t
   :config
@@ -51,13 +59,7 @@
   (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
         no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
 
-;; The package `diminish' introduces the `:diminish' keyword which can be used
-;; together with `use-package' to hide minor modes from the modeline. This
-;; allows the modeline to be kept minimal and show only required modes.
-;;
-;; https://github.com/emacsmirror/diminish
-(use-package diminish
-  :straight t)
+
 
 (use-package emacs
   :init
@@ -945,7 +947,6 @@
   )
 
 (use-package modus-themes
-  :disabled
   :straight t
   :config
   (load-theme 'modus-vivendi)
@@ -980,6 +981,15 @@
   (setq cwm-centered-window-width 120)
   :hook
   (prog-mode . centered-window-mode))
+
+(use-package dimmer
+  :straight t
+  :config
+  (setq dimmer-fraction 0.3
+        dimmer-adjustment-mode :foreground
+        dimmer-use-colorspace :rgb)
+  (dimmer-configure-which-key)
+  (dimmer-mode t))
 
 ;; ;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
 ;; ;; compiled with SVG support (--with-rsvg).
