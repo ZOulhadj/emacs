@@ -19,13 +19,3 @@ If building Emacs from source, below are dependencies which are required:
 
 Compiling from source command:
 ``./configure --with-native-compilation --with-json --with-pgtk --with-tree-sitter --with-rsvg``
-
-;;;
-;;; Below is a list of applications that this configuration relies on:
-;;;
-;;;
-;;; Below are some commands related to emailing:
-;;; mbsync -c ~/.config/mu4e/mbsyncrc -a
-;;; mu init --maildir=~/Mail/personal --my-address=zakariyaoulhadj01@gmail.com
-;;; mu init --maildir=~/Mail/website --my-address=contact@zakariyaoulhadj.com
-;;; mu index
