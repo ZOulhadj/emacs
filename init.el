@@ -175,8 +175,9 @@
 (use-package display-fill-column-indicator
   :config
   (set-face-attribute 'fill-column-indicator nil :foreground "grey14")
-  :hook
-  (prog-mode . display-fill-column-indicator-mode))
+  ;; :hook
+  ;; (prog-mode . display-fill-column-indicator-mode)
+  )
 
 (use-package fringe
   :config
