@@ -670,22 +670,24 @@
         corfu-scroll-margin 1)
   :config
   (global-corfu-mode)
-  :bind (:map corfu-map
-              ("RET" . nil)))
+  :bind
+  (:map corfu-map
+        ("RET" . nil)))
 
 (use-package company
   :disabled
   :straight t
   :diminish
-  :config (setq
-           company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-           company-selection-wrap-around t
-           company-show-numbers nil
-           company-tooltip-align-annotations t
-           company-idle-delay 0.0
-           company-require-match nil
-           company-minimum-prefix-length 2)
-  :bind (:map company-active-map
+  :config
+  (setq company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
+        company-selection-wrap-around t
+        company-show-numbers nil
+        company-tooltip-align-annotations t
+        company-idle-delay 0.0
+        company-require-match nil
+        company-minimum-prefix-length 2)
+  :bind
+  (:map company-active-map
         ("C-n" . company-select-next)
         ("C-p" . company-select-previous)
         ("<tab>" . company-complete-selection))
@@ -698,10 +700,9 @@
 (use-package orderless
   :straight t
   :init
-  (setq
-   completion-styles '(orderless partial-completion basic)
-   completion-category-defaults nil
-   completion-category-overrides nil))
+  (setq completion-styles '(orderless partial-completion basic)
+        completion-category-defaults nil
+        completion-category-overrides nil))
 
 (use-package embark
   :disabled
@@ -938,6 +939,7 @@
   :straight t)
 
 (use-package doom-themes
+  :disabled
   :straight t
   :init
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -956,14 +958,15 @@
 (use-package gruber-darker-theme
   :disabled
   :straight t
-  ;; :config
-  ;; (load-theme 'gruber-darker)
+  :config
+  (load-theme 'gruber-darker)
   )
 
 (use-package naysayer-theme
+  :disabled
   :straight t
-  ;; :config
-  ;; (load-theme 'naysayer t)
+  :config
+  (load-theme 'naysayer t)
   )
 
 ;; Keeps the cursor in centered within a buffer.
@@ -1011,8 +1014,8 @@
 (use-package emms
   :disabled
   :straight t
-  :init (setq
-         emms-source-file-default-directory "~/Music")
+  :init
+  (setq emms-source-file-default-directory "~/Music")
   :config
   (emms-all)
   (emms-default-players))
@@ -1027,38 +1030,38 @@
 ;; mu init --maildir=MAILDIR --my-address=MYADDRESS
 ;; mu index
 (use-package mu4e
+  :disabled
   :straight (:local-repo "/usr/share/emacs/site-lisp/mu4e/"
                          :type built-in)
   :commands mu4e
   :init
-  (setq
-   mu4e-maildir "~/Mail"
-   mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
-   mu4e-update-interval 60
-   mu4e-mu-debug nil
-   ;;mu4e-confirm-quit nil
-   ;;mu4e-context-policy 'pick-first
-   mu4e-change-filenames-when-moving t
-   ;;mu4e-headers-fields `((:human-date . 12)
-   ;;                      (:flags . 6)
-   ;;                      (:mailing-list . 10)
-   ;;                      (:from . 22)
-   ;;                      (:subject))
-   mu4e-sent-folder   "/[Gmail].Sent Mail"
-   mu4e-refile-folder "/[Gmail].All Mail"
-   mu4e-drafts-folder "/[Gmail].Drafts"
-   mu4e-trash-folder  "/[Gmail].Trash"
-   mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
-                            ("/[Gmail].Sent Mail" . ?s)
-                            ("/[Gmail].All Mail"  . ?a)
-                            ("/[Gmail].Trash"     . ?t)
-                            ("/[Gmail].Drafts"    . ?d))
+  (setq mu4e-maildir "~/Mail"
+        mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
+        mu4e-update-interval 60
+        mu4e-mu-debug nil
+        ;;mu4e-confirm-quit nil
+        ;;mu4e-context-policy 'pick-first
+        mu4e-change-filenames-when-moving t
+        ;;mu4e-headers-fields `((:human-date . 12)
+        ;;                      (:flags . 6)
+        ;;                      (:mailing-list . 10)
+        ;;                      (:from . 22)
+        ;;                      (:subject))
+        mu4e-sent-folder   "/[Gmail].Sent Mail"
+        mu4e-refile-folder "/[Gmail].All Mail"
+        mu4e-drafts-folder "/[Gmail].Drafts"
+        mu4e-trash-folder  "/[Gmail].Trash"
+        mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
+                                 ("/[Gmail].Sent Mail" . ?s)
+                                 ("/[Gmail].All Mail"  . ?a)
+                                 ("/[Gmail].Trash"     . ?t)
+                                 ("/[Gmail].Drafts"    . ?d))
 
-   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-   smtpmail-default-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-service 587
+        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+        smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+        smtpmail-default-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587
    )
 
    ;;message-kill-buffer-on-exit t)
@@ -1093,7 +1096,9 @@
   :straight t
   :init
   (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
-  :bind (("C-c e" . elfeed)))
+  :bind
+  (("C-c e" . elfeed))
+  )
 
 ;; (use-package ace-window
 ;;   :straight t
@@ -1120,15 +1125,17 @@
 
 (use-package web-mode
   :straight t
-  :init (setq web-mode-enable-auto-pairing t
-              web-mode-enable-css-colorization t
-              web-mode-enable-current-element-highlight t)
+  :init
+  (setq web-mode-enable-auto-pairing t
+        web-mode-enable-css-colorization t
+        web-mode-enable-current-element-highlight t)
   :custom
   (web-mode-markup-indent-offset 4)
   (web-mode-css-indent-offset 4)
   (web-mode-code-indent-offset 4)
-  :mode (("\\.html?\\'" . web-mode)
-         ("\\.htm?\\'" . web-mode)))
+  :mode
+  (("\\.html?\\'" . web-mode)
+   ("\\.htm?\\'" . web-mode)))
 
 ;; ASTRO
 ;; (define-derived-mode astro-mode web-mode "astro")
@@ -1145,6 +1152,7 @@
 
 ;; :ensure-system-package unzip
 (use-package nov
+  :disabled
   :straight t
   :config
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
@@ -1198,16 +1206,17 @@
 
 (use-package org-roam
   :straight t
+  :config
+  (org-roam-setup)
   :custom
   (org-roam-directory "~/org")
   (org-roam-complete-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)
-         :map org-mode-map
-         ("C-M-i"   . completion-at-point))
-  :config
-  (org-roam-setup))
+  :bind
+  (("C-c n l" . org-roam-buffer-toggle)
+   ("C-c n f" . org-roam-node-find)
+   ("C-c n i" . org-roam-node-insert)
+   :map org-mode-map
+   ("C-M-i"   . completion-at-point)))
 
 (use-package org-roam-ui
   :straight t
@@ -1218,7 +1227,6 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start t)
   :diminish)
-
 
 
 (provide 'init)
