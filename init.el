@@ -84,7 +84,8 @@
         user-full-name "Zakariya Oulhadj"
         user-mail-address "zakariyaoulhadj01@gmail.com"
 
-        sentence-end-double-space nil)
+        sentence-end-double-space nil
+        scroll-conservatively most-positive-fixnum)
   (setq-default tab-width 8
                 fill-column 80)
 
