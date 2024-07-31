@@ -988,6 +988,7 @@
   (prog-mode . centered-window-mode))
 
 (use-package dimmer
+  :disabled
   :straight t
   :config
   (setq dimmer-fraction 0.3
