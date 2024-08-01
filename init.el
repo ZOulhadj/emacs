@@ -579,6 +579,12 @@
   (god-mode-enabled . my-god-mode-update-cursor-type)
   (god-mode-disabled . my-god-mode-update-cursor-type))
 
+(use-package evil
+  :disabled
+  :straight t
+  :config
+  (evil-mode 1))
+
 (use-package avy
   :straight t
   :init
