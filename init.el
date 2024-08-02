@@ -279,10 +279,6 @@
   :config
   (global-auto-revert-mode t))
 
-(use-package elec-pair
-  :config
-  (electric-pair-mode 1))
-
 (use-package simple
   :init
   (setq read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
@@ -313,6 +309,11 @@
 (use-package which-func
   :hook
   (prog-mode . which-function-mode))
+
+
+(use-package elec-pair
+  :config
+  (electric-pair-mode 1))
 
 (use-package paren
   :init
@@ -580,10 +581,9 @@
   (god-mode-disabled . my-god-mode-update-cursor-type))
 
 (use-package evil
-  :disabled
   :straight t
   :config
-  (evil-mode 1))
+  (evil-mode 0))
 
 (use-package avy
   :straight t
@@ -1212,13 +1212,14 @@
   :hook
   (org-mode . org-bullets-mode))
 
+;; @TODO: Maybe do not enable org-roam unless a valid org-roam-directory exists.
 (use-package org-roam
   :straight t
+  :init
+  (setq org-roam-directory (file-truename "~/Documents/org-roam")
+        org-roam-completion-everywhere t)
   :config
-  (org-roam-setup)
-  :custom
-  (org-roam-directory "~/org")
-  (org-roam-complete-everywhere t)
+  (org-roam-db-autosync-enable)
   :bind
   (("C-c n l" . org-roam-buffer-toggle)
    ("C-c n f" . org-roam-node-find)
