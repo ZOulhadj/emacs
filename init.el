@@ -1230,7 +1230,6 @@
 (use-package org-roam-ui
   :straight t
   :requires org-roam
-  :after org-roam
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
         org-roam-ui-update-on-save t
