@@ -487,6 +487,16 @@
 ;;   :config
 ;;   (tab-bar-mode 0))
 
+(use-package erc
+  :init
+  (setq erc-server "irc.libera.chat"
+        erc-nick "zoulhadj"    ; Change this!
+        erc-user-full-name "Zakariya Oulhadj"  ; And this!
+        erc-track-shorten-start 8
+        erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
+        erc-kill-buffer-on-part t
+        erc-auto-query 'bury))
+
 ;; /////////////////////////////////////////////////////////////////////////////
 
 (use-package keyfreq
@@ -1224,12 +1234,14 @@
   (("C-c n l" . org-roam-buffer-toggle)
    ("C-c n f" . org-roam-node-find)
    ("C-c n i" . org-roam-node-insert)
+   ("C-c n r" . org-roam-node-random)
    :map org-mode-map
    ("C-M-i"   . completion-at-point)))
 
 (use-package org-roam-ui
   :straight t
   :requires org-roam
+  :init
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
         org-roam-ui-update-on-save t
