@@ -376,7 +376,7 @@
 
 (use-package org
   :init
-  (setq org-agenda-files '("~/Documents/agenda.org")
+  (setq org-agenda-files '("~/Documents/org/agenda.org")
         org-startup-indented t
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t
