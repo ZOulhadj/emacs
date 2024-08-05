@@ -381,10 +381,16 @@
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t
         org-return-follows-link t
-        org-hide-emphasis-markers t
-        )
+        org-hide-emphasis-markers t)
   :hook
   (org-mode . turn-on-auto-fill))
+
+(use-package org-clock
+  :init
+  (setq org-clock-persist 'history
+        org-clock-idle-time 15)
+  :config
+  (org-clock-persistence-insinuate))
 
 ;; the `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
