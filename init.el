@@ -392,6 +392,13 @@
   :config
   (org-clock-persistence-insinuate))
 
+(use-package gnus
+  :init
+  (setq gnus-select-method '(nntp "news.gmane.io")
+        gnus-thread-hide-subtree t
+        gnus-newsgroup-maximum-articles 50
+        gnus-secondary-select-methods '((nntp "news.tilde.club"))))
+
 ;; the `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
 ;;
@@ -1119,7 +1126,8 @@
 (use-package elfeed
   :straight t
   :init
-  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)))
+  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
+                       ("https://www.kernel.org/feeds/kdist.xml" linux)))
   :bind
   (("C-c e" . elfeed))
   )
