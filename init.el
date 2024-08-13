@@ -64,6 +64,8 @@
 (use-package emacs
   :init
   (setq create-lockfiles nil
+        history-length 1000
+        history-delete-duplicates t
         use-dialog-box nil
         ring-bell-function 'ignore
         frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
@@ -84,8 +86,10 @@
         user-full-name "Zakariya Oulhadj"
         user-mail-address "zakariyaoulhadj01@gmail.com"
 
+        ;; scroll-conservatively most-positive-fixnum
         sentence-end-double-space nil
-        scroll-conservatively most-positive-fixnum)
+        )
+
   (setq-default tab-width 8
                 fill-column 80)
 
@@ -98,7 +102,7 @@
   (when (display-graphic-p)
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
-    (blink-cursor-mode t)
+    (blink-cursor-mode -1)
     (menu-bar-mode -1)
     )
 
@@ -141,6 +145,8 @@
   (other-window -1))
 
 (use-package window
+  :init
+  (setq switch-to-buffer-obey-display-actions nil)
   :config
   (global-set-key (kbd "C-x o") 'other-window)
 
@@ -161,11 +167,6 @@
   ("C-x C-0" . delete-window)
 
   )
-
-
-
-
-
 
 (use-package frame
   :config
@@ -196,6 +197,10 @@
   :init
   (setq c-default-style "k&r"
         c-basic-offset 4))
+
+(use-package subword
+  :config
+  (global-subword-mode 1))
 
 (use-package compile
   :init
@@ -237,6 +242,7 @@
   (setq large-file-warning-threshold 100000000 ; warn when opening files bigger than 100MB
         make-backup-files nil
         require-final-newline t
+        delete-old-versions t
         confirm-kill-emacs 'y-or-n-p))
 
 (use-package delsel
@@ -283,7 +289,8 @@
   :init
   (setq read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
         column-number-mode t
-        next-line-add-newlines t)
+        next-line-add-newlines t
+        kill-do-not-save-duplicates t)
   (setq-default indent-tabs-mode nil)
   :config
   (visual-line-mode -1)
@@ -368,11 +375,12 @@
         dired-dwim-target t)
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
-  (setq-default dired-listing-switches "-alhGA --group-directories-first")
+  (setq-default dired-listing-switches "-l --all --no-group --human-readable --group-directories-first --time-style=long-iso")
   :config
   (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
-  :hook
-  (dired-mode . dired-hide-details-mode))
+  ;; :hook
+  ;; (dired-mode . dired-hide-details-mode)
+  )
 
 (use-package org
   :init
@@ -652,6 +660,12 @@
   :config
   (dashboard-setup-startup-hook))
 
+(use-package dumb-jump
+  :straight t
+  :init
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
 ;;
@@ -744,14 +758,9 @@
 (use-package consult
   :straight t
   :init
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
 
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Use Consult to select xref locations with preview
@@ -759,13 +768,6 @@
         xref-show-definitions-function #'consult-xref)
 
   :config
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep
@@ -775,20 +777,10 @@
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; "C-+"
-    ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-  ;;;; 1. project.el (the default)
-  ;;(setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 3. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-  ;;;; 4. projectile.el (projectile-project-root)
-  ;;(autoload 'projectile-project-root "projectile")
-  ;;(setq consult-project-function (lambda (_) (projectile-project-root)))
+  (setq consult-narrow-key "<")
+  ;; Hide buffers that start with a * and only shown them if SPC is pressed
+  (add-to-list 'consult-buffer-filter "^\\*")
+
   :bind (("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
@@ -835,10 +827,6 @@
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-  ;;;; 5. No project support
-  ;; (setq consult-project-function nil)
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode))
 
 ;; Consult users will also want the embark-consult package.
@@ -969,7 +957,6 @@
   :straight t)
 
 (use-package doom-themes
-  :disabled
   :straight t
   :init
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
