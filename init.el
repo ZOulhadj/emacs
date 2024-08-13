@@ -666,6 +666,17 @@
   (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
+;; The package `flycheck' shows syntactic highlighting in code that displays
+;; logs, warnings and errors.
+;;
+;; https://github.com/flycheck/flycheck
+(use-package flycheck
+  :disabled
+  :straight t
+  :init (global-flycheck-mode)
+  :diminish)
+
+
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
 ;;
@@ -838,38 +849,11 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;;
-;;
-;;
-(use-package consult-projectile
-  :disabled
-  :requires (consult projectile)
-  :straight t
-  :after (consult projectile))
-
-(use-package consult-lsp
-  :disabled
-  :requires (consult lsp)
-  :after (consult lsp))
-
 (use-package consult-flycheck
   :disabled
   :requires (consult flycheck)
   :after (consult flycheck)
   :straight t)
-
-;; The package `projectile' is a project management package that provides many
-;; useful features when working with projets such as searching, navigation and
-;; editing.
-;;
-;; https://github.com/bbatsov/projectile
-(use-package projectile
-  :disabled
-  :straight t
-  :init
-  (projectile-mode +1)
-  :bind-keymap
-  ("C-c p" . projectile-command-map))
 
 ;; A Git client that can be used within Emacs.
 ;;
@@ -882,15 +866,6 @@
   ("C-c g" . magit-status)
   ("C-c f" . magit-file-dispatch))
 
-;; The package `flycheck' shows syntactic highlighting in code that displays
-;; logs, warnings and errors.
-;;
-;; https://github.com/flycheck/flycheck
-(use-package flycheck
-  :disabled
-  :straight t
-  :init (global-flycheck-mode)
-  :diminish)
 
 ;; Adds colors to matching brackets based on level
 ;;
@@ -964,12 +939,11 @@
   :config
   (doom-themes-neotree-config)
   (doom-themes-org-config)
+  (load-theme 'doom-tomorrow-night)
   )
 
 (use-package modus-themes
   :straight t
-  :config
-  (load-theme 'modus-vivendi)
   )
 
 (use-package gruber-darker-theme
@@ -1112,7 +1086,7 @@
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
   :straight t
-  :init
+  :config
   (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
                        ("https://www.kernel.org/feeds/kdist.xml" linux)))
   :bind
@@ -1219,6 +1193,7 @@
   :diminish)
 
 (use-package org-bullets
+  :disabled
   :straight t
   :hook
   (org-mode . org-bullets-mode))
