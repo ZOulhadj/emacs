@@ -385,7 +385,7 @@
 (use-package org
   :init
   (setq org-agenda-files '("~/Documents/org/agenda.org")
-        org-startup-indented t
+        org-startup-indented nil
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t
         org-return-follows-link t
@@ -612,9 +612,10 @@
   (god-mode-disabled . my-god-mode-update-cursor-type))
 
 (use-package evil
+  :disabled
   :straight t
   :config
-  (evil-mode 0))
+  (evil-mode 1))
 
 (use-package avy
   :straight t
@@ -642,20 +643,21 @@
 ;;
 ;; https://github.com/emacs-dashboard/emacs-dashboard
 (use-package dashboard
-  :disabled
   :straight t
   :init
   (setq dashboard-banner-logo-title "Welcome to Emacs!"
-        dashboard-set-footer nil
+        dashboard-footer-messages '("")
         dashboard-startup-banner 2
         dashboard-center-content nil
         dashboard-show-shortcuts t
         dashboard-set-navigator t
+        dashboard-projects-backend 'project-el
         dashboard-items '((recents  . 5)
                           (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5))
-        dashboard-week-agenda t)
+        dashboard-week-agenda t
+        )
         ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
   :config
   (dashboard-setup-startup-hook))
@@ -938,9 +940,7 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   (doom-themes-neotree-config)
-  (doom-themes-org-config)
-  (load-theme 'doom-tomorrow-night)
-  )
+  (doom-themes-org-config))
 
 (use-package modus-themes
   :straight t
@@ -1011,7 +1011,6 @@
   :config
   (emms-all)
   (emms-default-players))
-
 
 ;; A Emacs based email client that makes use of mu.
 ;;
