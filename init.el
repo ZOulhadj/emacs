@@ -231,7 +231,8 @@
 
 (use-package calendar
   :init
-  (setq calendar-date-style "european"))
+  (setq calendar-date-style "european"
+        calendar-week-start-day 1))
 
 (use-package vc-hooks
   :init
