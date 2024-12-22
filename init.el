@@ -103,6 +103,8 @@
   (scroll-bar-mode -1)
   (blink-cursor-mode -1)
   (menu-bar-mode -1)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  ;; (toggle-frame-maximized) ; @todo: Does not work for emacsclient
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -410,7 +412,6 @@
 ;;
 ;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
-  :disabled
   :init
   (setq treesit-language-source-alist
         '(;; official grammers
@@ -439,7 +440,8 @@
   ;; modes. so here we remap the default modes to tree-sitter specific modes.
   (setq major-mode-remap-alist '((c-mode . c-ts-mode)
                                  (c++-mode . c++-ts-mode)
-                                 (c-or-c++-mode . c-or-c++-ts-mode))))
+                                 (c-or-c++-mode . c-or-c++-ts-mode)
+                                 (python-mode python-ts-mode))))
 
 ;; @TODO: Requires c/c++ language server
 ;; (use-package c-ts-mode
@@ -871,7 +873,6 @@
   ("C-c g" . magit-status)
   ("C-c f" . magit-file-dispatch))
 
-
 ;; Adds colors to matching brackets based on level
 ;;
 ;; https://github.com/Fanael/rainbow-delimiters
@@ -1177,12 +1178,6 @@
 
 ;; (use-package simple-httpd
 ;;   :straight t)
-
-(use-package golden-ratio
-  :disabled
-  :straight t
-  :config
-  (golden-ratio-mode 1))
 
 (use-package highlight-indentation
   :disabled
