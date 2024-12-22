@@ -99,12 +99,10 @@
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
 
-  (when (display-graphic-p)
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
-    (blink-cursor-mode -1)
-    (menu-bar-mode -1)
-    )
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (blink-cursor-mode -1)
+  (menu-bar-mode -1)
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -318,7 +316,6 @@
   :hook
   (prog-mode . which-function-mode))
 
-
 (use-package elec-pair
   :config
   (electric-pair-mode 1))
@@ -401,12 +398,12 @@
   :config
   (org-clock-persistence-insinuate))
 
-(use-package gnus
-  :init
-  (setq gnus-select-method '(nntp "news.gmane.io")
-        gnus-thread-hide-subtree t
-        gnus-newsgroup-maximum-articles 50
-        gnus-secondary-select-methods '((nntp "news.tilde.club"))))
+;; (use-package gnus
+;;   :init
+;;   (setq gnus-select-method '(nntp "news.gmane.io")
+;;         gnus-thread-hide-subtree t
+;;         gnus-newsgroup-maximum-articles 50
+;;         gnus-secondary-select-methods '((nntp "news.tilde.club"))))
 
 ;; the `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
@@ -445,11 +442,11 @@
                                  (c-or-c++-mode . c-or-c++-ts-mode))))
 
 ;; @TODO: Requires c/c++ language server
-(use-package c-ts-mode
-  :requires treesit
-  :init
-  (setq c-ts-mode-indent-offset 4
-        c-ts-mode-indent-style 'k&r))
+;; (use-package c-ts-mode
+;;   :requires treesit
+;;   :init
+;;   (setq c-ts-mode-indent-offset 4
+;;         c-ts-mode-indent-style 'k&r))
 
 ;; (const :tag "Documentation on hover" :hoverProvider)
 ;; (const :tag "Code completion" :completionProvider)
@@ -510,6 +507,7 @@
 ;;   (tab-bar-mode 0))
 
 (use-package erc
+  :disabled
   :init
   (setq erc-server "irc.libera.chat"
         erc-nick "zoulhadj"    ; Change this!
@@ -518,6 +516,10 @@
         erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
         erc-kill-buffer-on-part t
         erc-auto-query 'bury))
+
+
+(use-package tramp
+  :config (setq tramp-default-method "ssh"))
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
@@ -941,7 +943,8 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   (doom-themes-neotree-config)
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  (load-theme 'doom-solarized-dark-high-contrast))
 
 (use-package modus-themes
   :straight t
@@ -1086,24 +1089,25 @@
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
   :straight t
+  :defer t
+  :commands (elfeed)
   :config
-  (setq elfeed-feeds '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
-                       ("https://www.kernel.org/feeds/kdist.xml" linux)))
+  (setq elfeed-feeds
+   '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
+     ("https://www.kernel.org/feeds/kdist.xml" linux)
+     ("https://protesilaos.com/codelog.xml" emacs prot)))
   :bind
   (("C-c e" . elfeed))
   )
 
-;; (use-package ace-window
-;;   :straight t
-;;   :config
-;;   (setq
-;;    aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-
-;;   (custom-set-faces
-;;    '(aw-leading-char-face
-;;      ((t (:inherit ace-jump-face-foreground :height 1.0)))))
-;;   :bind
-;;   ("M-o" . ace-window))
+(use-package ace-window
+  :straight t
+  :config
+  (setq
+   aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+   aw-background t)
+  :bind
+  ("M-o" . ace-window))
 
 ;; ;; (use-package centered-window
 ;; ;;   :straight t
@@ -1198,31 +1202,31 @@
   :hook
   (org-mode . org-bullets-mode))
 
-;; @TODO: Maybe do not enable org-roam unless a valid org-roam-directory exists.
-(use-package org-roam
-  :straight t
-  :init
-  (setq org-roam-directory (file-truename "~/Documents/org-roam")
-        org-roam-completion-everywhere t)
-  :config
-  (org-roam-db-autosync-enable)
-  :bind
-  (("C-c n l" . org-roam-buffer-toggle)
-   ("C-c n f" . org-roam-node-find)
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n r" . org-roam-node-random)
-   :map org-mode-map
-   ("C-M-i"   . completion-at-point)))
+;; ;; @TODO: Maybe do not enable org-roam unless a valid org-roam-directory exists.
+;; (use-package org-roam
+;;   :straight t
+;;   :init
+;;   (setq org-roam-directory (file-truename "~/Documents/org-roam")
+;;         org-roam-completion-everywhere t)
+;;   :config
+;;   (org-roam-db-autosync-enable)
+;;   :bind
+;;   (("C-c n l" . org-roam-buffer-toggle)
+;;    ("C-c n f" . org-roam-node-find)
+;;    ("C-c n i" . org-roam-node-insert)
+;;    ("C-c n r" . org-roam-node-random)
+;;    :map org-mode-map
+;;    ("C-M-i"   . completion-at-point)))
 
-(use-package org-roam-ui
-  :straight t
-  :requires org-roam
-  :init
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start t)
-  :diminish)
+;; (use-package org-roam-ui
+;;   :straight t
+;;   :requires org-roam
+;;   :init
+;;   (setq org-roam-ui-sync-theme t
+;;         org-roam-ui-follow t
+;;         org-roam-ui-update-on-save t
+;;         org-roam-ui-open-on-start t)
+;;   :diminish)
 
 
 (provide 'init)
