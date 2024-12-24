@@ -193,6 +193,7 @@
   :config
   (setq text-scale-mode-step 1.2))
 
+;; @TODO: Move this into eglot configuration
 (use-package cc-vars
   :init
   (setq c-default-style "k&r"
@@ -407,41 +408,26 @@
 ;;         gnus-newsgroup-maximum-articles 50
 ;;         gnus-secondary-select-methods '((nntp "news.tilde.club"))))
 
-;; the `treesit' package performs fast syntax parsing for languages and allows
+;; The `treesit' package performs fast syntax parsing for languages and allows
 ;; for other packages to make use of the better context aware functionality.
 ;;
 ;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
   :init
   (setq treesit-language-source-alist
-        '(;; official grammers
-          (c "https://github.com/tree-sitter/tree-sitter-c")
+        '((c "https://github.com/tree-sitter/tree-sitter-c")
           (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
           (rust "https://github.com/tree-sitter/tree-sitter-rust")
-          (python "https://github.com/tree-sitter/tree-sitter-python")
-          (bash "https://github.com/tree-sitter/tree-sitter-bash")
-          (html "https://github.com/tree-sitter/tree-sitter-html")
-          (css "https://github.com/tree-sitter/tree-sitter-css")
-          ;;(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-          (json "https://github.com/tree-sitter/tree-sitter-json")
+          (python "https://github.com/tree-sitter/tree-sitter-python")))
 
-          ;; community grammers
-          (lua "https://github.com/azganoth/tree-sitter-lua")
-          (make "https://github.com/alemuller/tree-sitter-make")
-          (cmake "https://github.com/uyha/tree-sitter-cmake")
-          (common-lisp "https://github.com/thehamsta/tree-sitter-commonlisp")
-          (elisp "https://github.com/wilfred/tree-sitter-elisp")
-          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-          (org "https://github.com/milisims/tree-sitter-org")
-          (glsl "https://github.com/thehamsta/tree-sitter-glsl")
-          (latex "https://github.com/latex-lsp/tree-sitter-latex")))
-  ;; even when tree sitter is installed and the language grammer is configured,
+  ;; Even when tree sitter is installed and the language grammer is configured,
   ;; emacs will not enable it. this is because we must enable the special "ts"
   ;; modes. so here we remap the default modes to tree-sitter specific modes.
-  (setq major-mode-remap-alist '((c-mode . c-ts-mode)
-                                 (c++-mode . c++-ts-mode)
-                                 (c-or-c++-mode . c-or-c++-ts-mode)
-                                 (python-mode python-ts-mode))))
+  (setq major-mode-remap-alist
+        '((c-mode . c-ts-mode)
+          (c++-mode . c++-ts-mode)
+          (c-or-c++-mode . c-or-c++-ts-mode)
+          (python-mode . python-ts-mode))))
 
 ;; @TODO: Requires c/c++ language server
 ;; (use-package c-ts-mode
@@ -478,6 +464,7 @@
                                             :inlayHintProvider)
         eglot-autoshutdown t
         eglot-events-buffer-size 0)
+
   :config
   (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   (add-to-list 'eglot-server-programs
@@ -492,9 +479,18 @@
                     "--pch-storage=memory"
                     "--header-insertion=never"
                     "--header-insertion-decorators=0")))
+
   :custom
   (setq-default eglot-inlay-hints-mode -1)
-  (eldoc-echo-area-use-multiline-p nil))
+  (eldoc-echo-area-use-multiline-p nil)
+
+
+  :bind (:map eglot-mode-map
+              ("C-c C-d" . eldoc)
+              ("C-c C-r" . eglot-rename))
+
+  :hook
+  (python-ts-mode . eglot-ensure))
   ;;:hook
   ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
