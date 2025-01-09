@@ -276,10 +276,10 @@
   :config
   (desktop-save-mode 1))
 
-(use-package pixel-scroll
-  :config
-  ;; @TODO: Disabled for now because it feels laggy.
-  (pixel-scroll-precision-mode 0))
+;; (use-package pixel-scroll
+;;   :config
+;;   ;; @TODO: Disabled for now because it feels laggy.
+;;   (pixel-scroll-precision-mode 0))
 
 (use-package autorevert
   :init
@@ -430,11 +430,11 @@
           (python-mode . python-ts-mode))))
 
 ;; @TODO: Requires c/c++ language server
-;; (use-package c-ts-mode
-;;   :requires treesit
-;;   :init
-;;   (setq c-ts-mode-indent-offset 4
-;;         c-ts-mode-indent-style 'k&r))
+(use-package c-ts-mode
+  :requires treesit
+  :init
+  (setq c-ts-mode-indent-offset 4
+        c-ts-mode-indent-style 'k&r))
 
 ;; (const :tag "Documentation on hover" :hoverProvider)
 ;; (const :tag "Code completion" :completionProvider)
@@ -536,6 +536,14 @@
   :config
   (global-undo-tree-mode)
   :diminish)
+
+(use-package ultra-scroll
+  :straight (ultra-scroll :type git :host github :repo "jdtsmith/ultra-scroll")
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
 
 ;; Note that rust-analyzer is needed for eglot and can be obtained through
 ;; rustup.
@@ -941,7 +949,7 @@
   :config
   (doom-themes-neotree-config)
   (doom-themes-org-config)
-  (load-theme 'doom-solarized-dark-high-contrast))
+  (load-theme 'doom-gruvbox))
 
 (use-package modus-themes
   :straight t
