@@ -21,13 +21,7 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-
 (straight-use-package 'use-package)
-
-;; This is required by org-roam because it requires a specific version of org
-;; and straight uses its own version.
-(straight-use-package 'org)
-
 (setq straight-use-package-by-default nil)
 
 ;; Load private information
@@ -71,7 +65,7 @@
         frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
         echo-keystrokes 0.02
         use-short-answers t
-        frame-title-format '("Emacs - " (:eval (if (buffer-file-name)
+        frame-title-format '("" (:eval (if (buffer-file-name)
                                                    (abbreviate-file-name (buffer-file-name))
                                                  "%b")))
         enable-recursive-minibuffers t
@@ -187,7 +181,7 @@
 
 (use-package hl-line
   :config
-  (global-hl-line-mode 1))
+  (global-hl-line-mode 0))
 
 (use-package face-remap
   :config
@@ -599,26 +593,28 @@
   (which-key-mode)
   :diminish)
 
-(defun my-god-mode-update-cursor-type ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+;; (defun my-god-mode-update-cursor-type ()
+;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+
 (use-package god-mode
   :disabled
   :straight t
-  :init
-  (setq god-exempt-major-modes nil
-        god-exempt-predicates nil)
+  ;; :init
+  ;; (setq god-exempt-major-modes nil
+  ;;       god-exempt-predicates nil)
   :config
   (god-mode)
   :bind
-  ("<escape>" . #'god-mode-all)
+  ("<left-control>" . #'god-local-mode)
   (:map god-local-mode-map
         ("." . repeat)
         ("i" . god-local-mode)
         ("[" . backward-paragraph)
         ("]" . forward-paragraph))
-  :hook
-  (god-mode-enabled . my-god-mode-update-cursor-type)
-  (god-mode-disabled . my-god-mode-update-cursor-type))
+  ;; :hook
+  ;; (god-mode-enabled . my-god-mode-update-cursor-type)
+  ;; (god-mode-disabled . my-god-mode-update-cursor-type)
+  )
 
 (use-package evil
   :disabled
@@ -626,6 +622,15 @@
   :config
   (evil-mode 1))
 
+(use-package evil-escape
+  :disabled
+  :straight t
+  :config
+  (evil-escape-mode)
+  (setq-default evil-escape-key-sequence "jk"
+                evil-escape-delay 0.1)
+
+  )
 (use-package avy
   :straight t
   :init
