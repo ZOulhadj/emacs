@@ -35,11 +35,11 @@
 (use-package diminish
   :straight t)
 
-(use-package gcmh
-  :straight t
-  :config
-  (gcmh-mode 1)
-  :diminish)
+;; (use-package gcmh
+;;   :straight t
+;;   :config
+;;   (gcmh-mode 1)
+;;   :diminish)
 
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
@@ -52,8 +52,6 @@
   :init
   (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
         no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
-
-
 
 (use-package emacs
   :init
@@ -96,26 +94,20 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (blink-cursor-mode -1)
-  (menu-bar-mode -1)
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
-  ;; (toggle-frame-maximized) ; @todo: Does not work for emacsclient
+  (menu-bar-mode 1)
+  (load-theme 'modus-vivendi-tinted)
 
   :config
   (put 'narrow-to-region 'disabled nil)
 
   :bind
-  ("C-x k" . kill-this-buffer)
+  ("C-x k" . kill-current-buffer))
 
-  ;; :hook
-  ;; (after-init . (lambda ()
-  ;;                 (message "Emacs loaded in %s seconds with %d garbage collections"
-  ;;                          (emacs-init-time) gcs-done)))
-  )
-
-(defun custom/load-config ()
+(defun zo/config-load ()
   "Load my Emacs init.el configuration file."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
+
 ;;(global-set-key (kbd "C-c c") 'custom/load-config)
 
 ;; ========== [Core] ==========
@@ -164,7 +156,7 @@
 
 (use-package frame
   :config
-  (toggle-frame-maximized)
+  ;;(toggle-frame-maximized)
   ;;(toggle-frame-fullscreen)
   )
 
@@ -182,6 +174,20 @@
 (use-package hl-line
   :config
   (global-hl-line-mode 0))
+
+;; The package `which-key' displays a popup window showing all the possible key
+;; combinations for the current action. This allows a user to not forget
+;; specific commands.
+(use-package which-key
+  :init
+  (setq which-key-show-early-on-C-h nil
+        which-key-idle-delay 2.0
+        which-key-idle-secondary-delay nil)
+  :config
+  ;;(which-key-enable-god-mode-support)
+  (which-key-setup-side-window-bottom)
+  (which-key-mode)
+  :diminish)
 
 (use-package face-remap
   :config
@@ -379,12 +385,14 @@
 
 (use-package org
   :init
-  (setq org-agenda-files '("~/Documents/org/agenda.org")
+  (setq org-agenda-files (list "~/Documents/org/personal.org"
+                               "~/Documents/org/school.org")
         org-startup-indented nil
         org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-display-custom-times t
         org-return-follows-link t
-        org-hide-emphasis-markers t)
+        org-hide-emphasis-markers t
+        org-export-backends '(html md))
   :hook
   (org-mode . turn-on-auto-fill))
 
@@ -472,7 +480,28 @@
                     "--completion-style=detailed"
                     "--pch-storage=memory"
                     "--header-insertion=never"
-                    "--header-insertion-decorators=0")))
+                    "--header-insertion-decorators=0"))
+               '(zig-mode . (
+                             ;; Use `zls` if it is in your PATH
+                             "zls"
+                             ;; There are two ways to set config options:
+                             ;;   - edit your `zls.json` that applies to any editor that uses ZLS
+                             ;;   - set in-editor config options with the `initializationOptions` field below.
+                             ;;
+                             ;; Further information on how to configure ZLS:
+                             ;; https://zigtools.org/zls/configure/
+                             ;;
+                             ;; Support for `initializationOptions` in Emacs requires at least ZLS `0.14.0-dev.22+a263b8dc6`.
+                             :initializationOptions
+                             (;; Whether to enable build-on-save diagnostics
+                              ;;
+                              ;; Further information about build-on save:
+                              ;; https://zigtools.org/zls/guides/build-on-save/
+                              ;;enable_build_on_save t
+
+                              ;; omit the following line if `zig` is in your PATH
+                              ;;:zig_exe_path "/path/to/zig_executable"
+                              ))))
 
   :custom
   (setq-default eglot-inlay-hints-mode -1)
@@ -484,7 +513,8 @@
               ("C-c C-r" . eglot-rename))
 
   :hook
-  (python-ts-mode . eglot-ensure))
+  (python-ts-mode . eglot-ensure)
+  (zig-mode . eglot-ensure))
   ;;:hook
   ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
@@ -502,8 +532,8 @@
   :disabled
   :init
   (setq erc-server "irc.libera.chat"
-        erc-nick "zoulhadj"    ; Change this!
-        erc-user-full-name "Zakariya Oulhadj"  ; And this!
+        erc-nick "zoulhadj"
+        erc-user-full-name "Zakariya Oulhadj"
         erc-track-shorten-start 8
         erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
         erc-kill-buffer-on-part t
@@ -522,42 +552,22 @@
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 
-(use-package undo-tree
-  :straight t
-  :init
-  (setq undo-tree-history-directory-alist
-      `((".*" . ,temporary-file-directory)))
-  :config
-  (global-undo-tree-mode)
-  :diminish)
+;; (use-package undo-tree
+;;   :straight t
+;;   :init
+;;   (setq undo-tree-history-directory-alist
+;;       `((".*" . ,temporary-file-directory)))
+;;   :config
+;;   (global-undo-tree-mode)
+;;   :diminish)
 
-(use-package ultra-scroll
-  :straight (ultra-scroll :type git :host github :repo "jdtsmith/ultra-scroll")
-  :init
-  (setq scroll-conservatively 101 ; important!
-        scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
-
-;; Note that rust-analyzer is needed for eglot and can be obtained through
-;; rustup.
-(use-package rust-mode
-  :straight t
-  :init
-  (setq rust-mode-treesitter-derive t)
-  :config
-  ;;(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-  :hook
-  (rust-mode . eglot-ensure))
-
-(use-package zig-mode
-  :straight t)
-
-;; Adds support for the Lua programming language.
-;;
-;; https://github.com/immerrr/lua-mode
-(use-package lua-mode
-  :straight t)
+;; (use-package ultra-scroll
+;;   :straight (ultra-scroll :type git :host github :repo "jdtsmith/ultra-scroll")
+;;   :init
+;;   (setq scroll-conservatively 101 ; important!
+;;         scroll-margin 0)
+;;   :config
+;;   (ultra-scroll-mode 1))
 
 ;; ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
 ;; (global-unset-key [mouse-2])
@@ -576,61 +586,45 @@
 ;;   :straight t)
 
 
-;; The package `which-key' displays a popup window showing all the possible key
-;; combinations for the current action. This allows a user to not forget
-;; specific commands.
-;;
-;; https://github.com/justbur/emacs-which-key
-(use-package which-key
-  :straight t
-  :init
-  (setq which-key-show-early-on-C-h nil
-        which-key-idle-delay 1.0
-        which-key-idle-secondary-delay nil)
-  :config
-  (which-key-enable-god-mode-support)
-  (which-key-setup-side-window-bottom)
-  (which-key-mode)
-  :diminish)
 
 ;; (defun my-god-mode-update-cursor-type ()
 ;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
 
-(use-package god-mode
-  :disabled
-  :straight t
-  ;; :init
-  ;; (setq god-exempt-major-modes nil
-  ;;       god-exempt-predicates nil)
-  :config
-  (god-mode)
-  :bind
-  ("<left-control>" . #'god-local-mode)
-  (:map god-local-mode-map
-        ("." . repeat)
-        ("i" . god-local-mode)
-        ("[" . backward-paragraph)
-        ("]" . forward-paragraph))
-  ;; :hook
-  ;; (god-mode-enabled . my-god-mode-update-cursor-type)
-  ;; (god-mode-disabled . my-god-mode-update-cursor-type)
-  )
+;; (use-package god-mode
+;;   :disabled
+;;   :straight t
+;;   ;; :init
+;;   ;; (setq god-exempt-major-modes nil
+;;   ;;       god-exempt-predicates nil)
+;;   :config
+;;   (god-mode)
+;;   :bind
+;;   ("<left-control>" . #'god-local-mode)
+;;   (:map god-local-mode-map
+;;         ("." . repeat)
+;;         ("i" . god-local-mode)
+;;         ("[" . backward-paragraph)
+;;         ("]" . forward-paragraph))
+;;   ;; :hook
+;;   ;; (god-mode-enabled . my-god-mode-update-cursor-type)
+;;   ;; (god-mode-disabled . my-god-mode-update-cursor-type)
+;;   )
 
-(use-package evil
-  :disabled
-  :straight t
-  :config
-  (evil-mode 1))
+;; (use-package evil
+;;   :disabled
+;;   :straight t
+;;   :config
+;;   (evil-mode 1))
 
-(use-package evil-escape
-  :disabled
-  :straight t
-  :config
-  (evil-escape-mode)
-  (setq-default evil-escape-key-sequence "jk"
-                evil-escape-delay 0.1)
+;; (use-package evil-escape
+;;   :disabled
+;;   :straight t
+;;   :config
+;;   (evil-escape-mode)
+;;   (setq-default evil-escape-key-sequence "jk"
+;;                 evil-escape-delay 0.1)
+;;   )
 
-  )
 (use-package avy
   :straight t
   :init
@@ -656,25 +650,25 @@
 ;; recent files and more.
 ;;
 ;; https://github.com/emacs-dashboard/emacs-dashboard
-(use-package dashboard
-  :straight t
-  :init
-  (setq dashboard-banner-logo-title "Welcome to Emacs!"
-        dashboard-footer-messages '("")
-        dashboard-startup-banner 2
-        dashboard-center-content nil
-        dashboard-show-shortcuts t
-        dashboard-set-navigator t
-        dashboard-projects-backend 'project-el
-        dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5))
-        dashboard-week-agenda t
-        )
-        ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
-  :config
-  (dashboard-setup-startup-hook))
+;; (use-package dashboard
+;;   :straight t
+;;   :init
+;;   (setq dashboard-banner-logo-title "Welcome to Emacs!"
+;;         dashboard-footer-messages '("")
+;;         dashboard-startup-banner 2
+;;         dashboard-center-content nil
+;;         dashboard-show-shortcuts t
+;;         dashboard-set-navigator t
+;;         dashboard-projects-backend 'project-el
+;;         dashboard-items '((recents  . 5)
+;;                           (bookmarks . 5)
+;;                           (projects . 5)
+;;                           (agenda . 5))
+;;         dashboard-week-agenda t
+;;         )
+;;         ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
+;;   :config
+;;   (dashboard-setup-startup-hook))
 
 (use-package dumb-jump
   :straight t
@@ -885,55 +879,55 @@
 ;; Adds colors to matching brackets based on level
 ;;
 ;; https://github.com/Fanael/rainbow-delimiters
-(use-package rainbow-delimiters
-  :disabled
-  :straight t
-  :hook
-  (prog-mode . rainbow-delimiters-mode))
+;; (use-package rainbow-delimiters
+;;   :disabled
+;;   :straight t
+;;   :hook
+;;   (prog-mode . rainbow-delimiters-mode))
 
 ;; The package `lsp-mode' is a front-end to LSP which stands for Language Server
 ;; Protocol and allows for language parsing, debugging and navigation.
 ;;
 ;; https://github.com/emacs-lsp/lsp-mode
-(use-package lsp-mode
-  :disabled
-  :straight t
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-        lsp-headerline-breadcrumb-enable nil
-        lsp-enable-symbol-highlighting nil
-        lsp-enable-on-type-formatting nil
-        lsp-enable-links nil
-        lsp-idle-delay 0.1
-        lsp-warn-no-matched-clients nil
-        lsp-signature-render-documentation nil)
+;; (use-package lsp-mode
+;;   :disabled
+;;   :straight t
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l"
+;;         lsp-headerline-breadcrumb-enable nil
+;;         lsp-enable-symbol-highlighting nil
+;;         lsp-enable-on-type-formatting nil
+;;         lsp-enable-links nil
+;;         lsp-idle-delay 0.1
+;;         lsp-warn-no-matched-clients nil
+;;         lsp-signature-render-documentation nil)
 
-  (defun custom/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; Configure flex
-  :custom
-  (lsp-completion-provider :none)
+;;   (defun custom/lsp-mode-setup-completion ()
+;;     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+;;           '(orderless))) ;; Configure flex
+;;   :custom
+;;   (lsp-completion-provider :none)
 
-  :hook
-  (prog-mode . lsp-deferred)
-  (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . custom/lsp-mode-setup-completion)
+;;   :hook
+;;   (prog-mode . lsp-deferred)
+;;   (lsp-mode . lsp-enable-which-key-integration)
+;;   (lsp-completion-mode . custom/lsp-mode-setup-completion)
 
-  :commands
-  (lsp lsp-deferred))
+;;   :commands
+;;   (lsp lsp-deferred))
 
 ;; Allows for lines or regions to be moved.
 ;;
 ;; https://github.com/rejeep/drag-stuff.el
-(use-package drag-stuff
-  :straight t
-  :config
-  (drag-stuff-global-mode 1)
-  ;;(drag-stuff-define-keys)
-  :bind
-  ("M-P" . drag-stuff-up)
-  ("M-N" . drag-stuff-down)
-  :diminish)
+;; (use-package drag-stuff
+;;   :straight t
+;;   :config
+;;   (drag-stuff-global-mode 1)
+;;   ;;(drag-stuff-define-keys)
+;;   :bind
+;;   ("M-P" . drag-stuff-up)
+;;   ("M-N" . drag-stuff-down)
+;;   :diminish)
 
 ;; ;; Adds icon support. Once the package is installed, the actual icons need to be
 ;; ;; installed manually which can be done using the command `all-the-icons-install-fonts'.
@@ -943,59 +937,33 @@
 ;;   :straight t
 ;;   :if (display-graphic-p))
 
-(use-package ef-themes
-  :straight t)
-
-(use-package doom-themes
-  :straight t
-  :init
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  :config
-  (doom-themes-neotree-config)
-  (doom-themes-org-config)
-  (load-theme 'doom-gruvbox))
-
-(use-package modus-themes
-  :straight t
-  )
-
-(use-package gruber-darker-theme
-  :disabled
-  :straight t
-  :config
-  (load-theme 'gruber-darker)
-  )
-
-(use-package naysayer-theme
-  :disabled
-  :straight t
-  :config
-  (load-theme 'naysayer t)
-  )
+;; (use-package naysayer-theme
+;;   :straight t
+;;   :config
+;;   (load-theme 'naysayer t)
+;;   )
 
 ;; Keeps the cursor in centered within a buffer.
 ;;
 ;; https://github.com/emacsmirror/centered-cursor-mode
-(use-package centered-cursor-mode
-  :disabled
-  :straight t
-  :config
-  (global-centered-cursor-mode))
+;; (use-package centered-cursor-mode
+;;   :disabled
+;;   :straight t
+;;   :config
+;;   (global-centered-cursor-mode))
 
-(use-package centered-window
-  :disabled
-  :straight t
-  :init
-  (setq cwm-centered-window-width 120)
-  :hook
-  (prog-mode . centered-window-mode))
+;; (use-package centered-window
+;;   :disabled
+;;   :straight t
+;;   :init
+;;   (setq cwm-centered-window-width 120)
+;;   :hook
+;;   (prog-mode . centered-window-mode))
 
 (use-package dimmer
-  :disabled
   :straight t
   :config
-  (setq dimmer-fraction 0.3
+  (setq dimmer-fraction 0.5
         dimmer-adjustment-mode :foreground
         dimmer-use-colorspace :rgb)
   (dimmer-configure-which-key)
@@ -1017,14 +985,14 @@
 ;; different collections/albums. The music is stored locally on the computer.
 ;;
 ;; https://github.com/emacsmirror/emms
-(use-package emms
-  :disabled
-  :straight t
-  :init
-  (setq emms-source-file-default-directory "~/Music")
-  :config
-  (emms-all)
-  (emms-default-players))
+;; (use-package emms
+;;   :disabled
+;;   :straight t
+;;   :init
+;;   (setq emms-source-file-default-directory "~/Music")
+;;   :config
+;;   (emms-all)
+;;   (emms-default-players))
 
 ;; A Emacs based email client that makes use of mu.
 ;;
@@ -1034,53 +1002,53 @@
 ;; Commands:
 ;; mu init --maildir=MAILDIR --my-address=MYADDRESS
 ;; mu index
-(use-package mu4e
-  :disabled
-  :straight (:local-repo "/usr/share/emacs/site-lisp/mu4e/"
-                         :type built-in)
-  :commands mu4e
-  :init
-  (setq mu4e-maildir "~/Mail"
-        mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
-        mu4e-update-interval 60
-        mu4e-mu-debug nil
-        ;;mu4e-confirm-quit nil
-        ;;mu4e-context-policy 'pick-first
-        mu4e-change-filenames-when-moving t
-        ;;mu4e-headers-fields `((:human-date . 12)
-        ;;                      (:flags . 6)
-        ;;                      (:mailing-list . 10)
-        ;;                      (:from . 22)
-        ;;                      (:subject))
-        mu4e-sent-folder   "/[Gmail].Sent Mail"
-        mu4e-refile-folder "/[Gmail].All Mail"
-        mu4e-drafts-folder "/[Gmail].Drafts"
-        mu4e-trash-folder  "/[Gmail].Trash"
-        mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
-                                 ("/[Gmail].Sent Mail" . ?s)
-                                 ("/[Gmail].All Mail"  . ?a)
-                                 ("/[Gmail].Trash"     . ?t)
-                                 ("/[Gmail].Drafts"    . ?d))
+;; (use-package mu4e
+;;   :disabled
+;;   :straight (:local-repo "/usr/share/emacs/site-lisp/mu4e/"
+;;                          :type built-in)
+;;   :commands mu4e
+;;   :init
+;;   (setq mu4e-maildir "~/Mail"
+;;         mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
+;;         mu4e-update-interval 60
+;;         mu4e-mu-debug nil
+;;         ;;mu4e-confirm-quit nil
+;;         ;;mu4e-context-policy 'pick-first
+;;         mu4e-change-filenames-when-moving t
+;;         ;;mu4e-headers-fields `((:human-date . 12)
+;;         ;;                      (:flags . 6)
+;;         ;;                      (:mailing-list . 10)
+;;         ;;                      (:from . 22)
+;;         ;;                      (:subject))
+;;         mu4e-sent-folder   "/[Gmail].Sent Mail"
+;;         mu4e-refile-folder "/[Gmail].All Mail"
+;;         mu4e-drafts-folder "/[Gmail].Drafts"
+;;         mu4e-trash-folder  "/[Gmail].Trash"
+;;         mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
+;;                                  ("/[Gmail].Sent Mail" . ?s)
+;;                                  ("/[Gmail].All Mail"  . ?a)
+;;                                  ("/[Gmail].Trash"     . ?t)
+;;                                  ("/[Gmail].Drafts"    . ?d))
 
-        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-        smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-        smtpmail-default-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-service 587
-   )
+;;         smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+;;         smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+;;         smtpmail-default-smtp-server "smtp.gmail.com"
+;;         smtpmail-smtp-server "smtp.gmail.com"
+;;         smtpmail-smtp-service 587
+;;    )
 
-   ;;message-kill-buffer-on-exit t)
-   ;;mu4e-headers-date-format "%d/%m/%Y %H:%M"
-                               ;; message-send-mail-function 'smtpmail-send-it
-                               ;; starttls-use-gnutls t
-                               ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-                               ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-                               ;; smtpmail-default-smtp-server "smtp.gmail.com"
-                               ;; smtpmail-smtp-server "smtp.gmail.com"
-                               ;; smtpmail-smtp-service 587
+;;    ;;message-kill-buffer-on-exit t)
+;;    ;;mu4e-headers-date-format "%d/%m/%Y %H:%M"
+;;                                ;; message-send-mail-function 'smtpmail-send-it
+;;                                ;; starttls-use-gnutls t
+;;                                ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+;;                                ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
+;;                                ;; smtpmail-default-smtp-server "smtp.gmail.com"
+;;                                ;; smtpmail-smtp-server "smtp.gmail.com"
+;;                                ;; smtpmail-smtp-service 587
 
-  :bind
-  ("C-c m" . mu4e))
+;;   :bind
+;;   ("C-c m" . mu4e))
 
 ;; (use-package mu4e-alert
 ;;   :straight t
@@ -1097,18 +1065,17 @@
 ;; RSS sources and the package will retrive the latest news.
 ;;
 ;; https://github.com/skeeto/elfeed
-(use-package elfeed
-  :straight t
-  :defer t
-  :commands (elfeed)
-  :config
-  (setq elfeed-feeds
-   '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
-     ("https://www.kernel.org/feeds/kdist.xml" linux)
-     ("https://protesilaos.com/codelog.xml" emacs prot)))
-  :bind
-  (("C-c e" . elfeed))
-  )
+;; (use-package elfeed
+;;   :straight t
+;;   :defer t
+;;   :commands (elfeed)
+;;   :config
+;;   (setq elfeed-feeds
+;;    '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
+;;      ("https://www.kernel.org/feeds/kdist.xml" linux)
+;;      ("https://protesilaos.com/codelog.xml" emacs prot)))
+;;   :bind
+;;   (("C-c e" . elfeed)))
 
 (use-package ace-window
   :straight t
@@ -1126,85 +1093,23 @@
 ;; ;;   :custom
 ;; ;;   (cwm-centered-window-width 110))
 
-;; (use-package mood-line
+;; (use-package highlight-indentation
+;;   :disabled
 ;;   :straight t
-;;   :config (mood-line-mode))
+;;   :config
+;;   (setq highlight-indentation-blank-lines t)
+;;   :custom
+;;   (set-face-background 'highlight-indentation-face "#e3e3d3")
+;;   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
+;;   :hook
+;;   (prog-mode . highlight-indentation-mode)
+;;   :diminish)
 
-(use-package web-mode
-  :straight t
-  :init
-  (setq web-mode-enable-auto-pairing t
-        web-mode-enable-css-colorization t
-        web-mode-enable-current-element-highlight t)
-  :custom
-  (web-mode-markup-indent-offset 4)
-  (web-mode-css-indent-offset 4)
-  (web-mode-code-indent-offset 4)
-  :mode
-  (("\\.html?\\'" . web-mode)
-   ("\\.htm?\\'" . web-mode)))
-
-;; ASTRO
-;; (define-derived-mode astro-mode web-mode "astro")
-;; (setq auto-mode-alist
-;;       (append '((".*\\.astro\\'" . astro-mode))
-;;               auto-mode-alist))
-
-(use-package astro-ts-mode
-  :disabled
-  :straight t
-  :requires treesit
-  :init
-  (setq astro-ts-mode-indent-offset 4))
-
-;; :ensure-system-package unzip
-(use-package nov
-  :disabled
-  :straight t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
-
-;; (use-package emmet-mode
+;; (use-package org-bullets
+;;   :disabled
 ;;   :straight t
-;;   :hook ((web-mode . emmet-mode)
-;;          (sgml-mode . emmet-mode)
-;;          (css-mode . emmet-mode)))
-
-;; ;; (use-package lsp-tailwindcss
-;; ;;   :straight t
-;; ;;   :init
-;; ;;   (setq lsp-tailwindcss-add-on-mode t))
-
-;; (use-package cmake-mode
-;;   :straight t
-;;   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-;;   :hook (cmake-mode . lsp-deferred))
-
-;; (use-package cmake-font-lock
-;;   :straight t
-;;   :after cmake-mode
-;;   :config (cmake-font-lock-activate))
-
-;; (use-package simple-httpd
-;;   :straight t)
-
-(use-package highlight-indentation
-  :disabled
-  :straight t
-  :config
-  (setq highlight-indentation-blank-lines t)
-  :custom
-  (set-face-background 'highlight-indentation-face "#e3e3d3")
-  (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
-  :hook
-  (prog-mode . highlight-indentation-mode)
-  :diminish)
-
-(use-package org-bullets
-  :disabled
-  :straight t
-  :hook
-  (org-mode . org-bullets-mode))
+;;   :hook
+;;   (org-mode . org-bullets-mode))
 
 ;; ;; @TODO: Maybe do not enable org-roam unless a valid org-roam-directory exists.
 ;; (use-package org-roam
@@ -1232,6 +1137,24 @@
 ;;         org-roam-ui-open-on-start t)
 ;;   :diminish)
 
+
+
+;; (use-package zig-mode
+;;   :straight t
+;;   :config
+;;   (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+;;   )
+
+;; (use-package ef-themes
+;;   :disabled
+;;   :straight t
+;;   :config
+;;   (load-theme 'ef-duo-light :no-confirm))
+
+;; (use-package gruber-darker-theme
+;;   :straight t
+;;   :config
+;;   (load-theme 'gruber-darker))
 
 (provide 'init)
 ;;; init.el ends here
