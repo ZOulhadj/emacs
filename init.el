@@ -95,10 +95,12 @@
   (scroll-bar-mode -1)
   (blink-cursor-mode -1)
   (menu-bar-mode 1)
-  (load-theme 'modus-vivendi-tinted)
 
   :config
   (put 'narrow-to-region 'disabled nil)
+
+  :custom
+  (text-mode-ispell-word-completion nil)
 
   :bind
   ("C-x k" . kill-current-buffer))
@@ -109,6 +111,7 @@
   (find-file (concat user-emacs-directory "init.el")))
 
 ;;(global-set-key (kbd "C-c c") 'custom/load-config)
+(global-set-key (kbd "C-c r") 'recompile)
 
 ;; ========== [Core] ==========
 (use-package use-package-core
@@ -219,7 +222,8 @@
   ;;               (message "No Compilation Errors!")))))
   :bind
   ("<f5>" . recompile)
-  ("C-c c" . recompile))
+  ;;("C-c c" . recompile)
+  )
 
 (use-package comint
   :init
@@ -232,7 +236,7 @@
 
 (use-package calendar
   :init
-  (setq calendar-date-style "european"
+  (setq calendar-date-style "iso"
         calendar-week-start-day 1))
 
 (use-package vc-hooks
@@ -385,16 +389,28 @@
 
 (use-package org
   :init
+  ;(setq-default org-display-custom-times t)
   (setq org-agenda-files (list "~/Documents/org/personal.org"
                                "~/Documents/org/school.org")
         org-startup-indented nil
-        org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
-        org-display-custom-times t
+        org-startup-with-inline-images t
+        org-display-remote-inline-images t
+        ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
         org-return-follows-link t
         org-hide-emphasis-markers t
-        org-export-backends '(html md))
+        ;;org-export-backends '(html md))
+        )
   :hook
   (org-mode . turn-on-auto-fill))
+
+(use-package org-capture
+  :init
+  (setq org-default-notes-file "~/Documents/org/personal.org"
+        org-capture-templates '(("t" "TODO" entry (file+headline "~/Documents/org/todo.org" "TODO")
+                                 "* TODO %?\n  %i\n  %a")
+                                ("d" "Diary" entry (file+datetree "~/Documents/org/diary.org")
+                                 "* %?\nEntered on %U\n  %i\n  %a")))
+  :bind (("C-c c" . org-capture)))
 
 (use-package org-clock
   :init
@@ -462,13 +478,13 @@
 ;; (const :tag "Inlay hints" :inlayHintProvider)
 (use-package eglot
   :init
-  (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
-                                            :inlayHintProvider)
-        eglot-autoshutdown t
-        eglot-events-buffer-size 0)
+  ;; (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
+  ;;                                           :inlayHintProvider)
+  ;;       eglot-autoshutdown t
+  ;;       eglot-events-buffer-size 0)
 
   :config
-  (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
+  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   (add-to-list 'eglot-server-programs
                '((c-ts-mode c++-ts-mode c-mode c++-mode)
                  . ("clangd"
@@ -503,18 +519,19 @@
                               ;;:zig_exe_path "/path/to/zig_executable"
                               ))))
 
-  :custom
-  (setq-default eglot-inlay-hints-mode -1)
-  (eldoc-echo-area-use-multiline-p nil)
+  ;; :custom
+  ;; (setq-default eglot-inlay-hints-mode -1)
+  ;; (eldoc-echo-area-use-multiline-p nil)
 
 
-  :bind (:map eglot-mode-map
-              ("C-c C-d" . eldoc)
-              ("C-c C-r" . eglot-rename))
+  ;; :bind (:map eglot-mode-map
+  ;;             ("C-c C-d" . eldoc)
+  ;;             ("C-c C-r" . eglot-rename))
 
-  :hook
-  (python-ts-mode . eglot-ensure)
-  (zig-mode . eglot-ensure))
+  ;;:hook
+  ;; (python-ts-mode . eglot-ensure)
+  ;; (zig-mode . eglot-ensure)
+  )
   ;;:hook
   ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
@@ -591,15 +608,14 @@
 ;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
 
 ;; (use-package god-mode
-;;   :disabled
 ;;   :straight t
-;;   ;; :init
-;;   ;; (setq god-exempt-major-modes nil
-;;   ;;       god-exempt-predicates nil)
+;;   :init
+;;   (setq god-exempt-major-modes nil
+;;         god-exempt-predicates nil)
 ;;   :config
 ;;   (god-mode)
 ;;   :bind
-;;   ("<left-control>" . #'god-local-mode)
+;;   ("<escape>" . #'god-local-mode)
 ;;   (:map god-local-mode-map
 ;;         ("." . repeat)
 ;;         ("i" . god-local-mode)
@@ -610,14 +626,13 @@
 ;;   ;; (god-mode-disabled . my-god-mode-update-cursor-type)
 ;;   )
 
+
 ;; (use-package evil
-;;   :disabled
 ;;   :straight t
 ;;   :config
 ;;   (evil-mode 1))
 
 ;; (use-package evil-escape
-;;   :disabled
 ;;   :straight t
 ;;   :config
 ;;   (evil-escape-mode)
@@ -739,25 +754,6 @@
   (:map corfu-map
         ("RET" . nil)))
 
-(use-package company
-  :disabled
-  :straight t
-  :diminish
-  :config
-  (setq company-global-modes '(not text-mode term-mode markdown-mode gfm-mode)
-        company-selection-wrap-around t
-        company-show-numbers nil
-        company-tooltip-align-annotations t
-        company-idle-delay 0.0
-        company-require-match nil
-        company-minimum-prefix-length 2)
-  :bind
-  (:map company-active-map
-        ("C-n" . company-select-next)
-        ("C-p" . company-select-previous)
-        ("<tab>" . company-complete-selection))
-  :hook (prog-mode . company-mode))
-
 ;; This package changes how completion candidates are displayed within a
 ;; completion window such as `corfu' or `company'.
 ;;
@@ -876,46 +872,6 @@
   ("C-c g" . magit-status)
   ("C-c f" . magit-file-dispatch))
 
-;; Adds colors to matching brackets based on level
-;;
-;; https://github.com/Fanael/rainbow-delimiters
-;; (use-package rainbow-delimiters
-;;   :disabled
-;;   :straight t
-;;   :hook
-;;   (prog-mode . rainbow-delimiters-mode))
-
-;; The package `lsp-mode' is a front-end to LSP which stands for Language Server
-;; Protocol and allows for language parsing, debugging and navigation.
-;;
-;; https://github.com/emacs-lsp/lsp-mode
-;; (use-package lsp-mode
-;;   :disabled
-;;   :straight t
-;;   :init
-;;   (setq lsp-keymap-prefix "C-c l"
-;;         lsp-headerline-breadcrumb-enable nil
-;;         lsp-enable-symbol-highlighting nil
-;;         lsp-enable-on-type-formatting nil
-;;         lsp-enable-links nil
-;;         lsp-idle-delay 0.1
-;;         lsp-warn-no-matched-clients nil
-;;         lsp-signature-render-documentation nil)
-
-;;   (defun custom/lsp-mode-setup-completion ()
-;;     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-;;           '(orderless))) ;; Configure flex
-;;   :custom
-;;   (lsp-completion-provider :none)
-
-;;   :hook
-;;   (prog-mode . lsp-deferred)
-;;   (lsp-mode . lsp-enable-which-key-integration)
-;;   (lsp-completion-mode . custom/lsp-mode-setup-completion)
-
-;;   :commands
-;;   (lsp lsp-deferred))
-
 ;; Allows for lines or regions to be moved.
 ;;
 ;; https://github.com/rejeep/drag-stuff.el
@@ -928,71 +884,6 @@
 ;;   ("M-P" . drag-stuff-up)
 ;;   ("M-N" . drag-stuff-down)
 ;;   :diminish)
-
-;; ;; Adds icon support. Once the package is installed, the actual icons need to be
-;; ;; installed manually which can be done using the command `all-the-icons-install-fonts'.
-;; ;;
-;; ;; https://github.com/iyefrat/all-the-icons.el
-;; (use-package all-the-icons
-;;   :straight t
-;;   :if (display-graphic-p))
-
-;; (use-package naysayer-theme
-;;   :straight t
-;;   :config
-;;   (load-theme 'naysayer t)
-;;   )
-
-;; Keeps the cursor in centered within a buffer.
-;;
-;; https://github.com/emacsmirror/centered-cursor-mode
-;; (use-package centered-cursor-mode
-;;   :disabled
-;;   :straight t
-;;   :config
-;;   (global-centered-cursor-mode))
-
-;; (use-package centered-window
-;;   :disabled
-;;   :straight t
-;;   :init
-;;   (setq cwm-centered-window-width 120)
-;;   :hook
-;;   (prog-mode . centered-window-mode))
-
-(use-package dimmer
-  :straight t
-  :config
-  (setq dimmer-fraction 0.5
-        dimmer-adjustment-mode :foreground
-        dimmer-use-colorspace :rgb)
-  (dimmer-configure-which-key)
-  (dimmer-mode t))
-
-;; ;; Adds SVG icons to the `corfu' item dropdown menu. Requires Emacs to be
-;; ;; compiled with SVG support (--with-rsvg).
-;; ;;
-;; ;; https://github.com/jdtsmith/kind-icon
-;; ;; (use-package kind-icon
-;; ;;   :straight t
-;; ;;   :after corfu
-;; ;;   :custom
-;; ;;   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
-;; ;;   :config
-;; ;;   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-
-;; Emacs multimedia system that allows for playing and organising music into
-;; different collections/albums. The music is stored locally on the computer.
-;;
-;; https://github.com/emacsmirror/emms
-;; (use-package emms
-;;   :disabled
-;;   :straight t
-;;   :init
-;;   (setq emms-source-file-default-directory "~/Music")
-;;   :config
-;;   (emms-all)
-;;   (emms-default-players))
 
 ;; A Emacs based email client that makes use of mu.
 ;;
@@ -1086,25 +977,6 @@
   :bind
   ("M-o" . ace-window))
 
-;; ;; (use-package centered-window
-;; ;;   :straight t
-;; ;;   :config
-;; ;;   (centered-window-mode 1)
-;; ;;   :custom
-;; ;;   (cwm-centered-window-width 110))
-
-;; (use-package highlight-indentation
-;;   :disabled
-;;   :straight t
-;;   :config
-;;   (setq highlight-indentation-blank-lines t)
-;;   :custom
-;;   (set-face-background 'highlight-indentation-face "#e3e3d3")
-;;   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
-;;   :hook
-;;   (prog-mode . highlight-indentation-mode)
-;;   :diminish)
-
 ;; (use-package org-bullets
 ;;   :disabled
 ;;   :straight t
@@ -1138,23 +1010,42 @@
 ;;   :diminish)
 
 
+(use-package zig-mode
+  :straight t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+  )
 
-;; (use-package zig-mode
-;;   :straight t
-;;   :config
-;;   (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
-;;   )
+(use-package vterm
+  :straight t)
 
-;; (use-package ef-themes
-;;   :disabled
-;;   :straight t
-;;   :config
-;;   (load-theme 'ef-duo-light :no-confirm))
+(use-package ox-hugo
+  :straight t
+  :after ox)
 
-;; (use-package gruber-darker-theme
-;;   :straight t
-;;   :config
-;;   (load-theme 'gruber-darker))
+(use-package naysayer-theme
+  :straight t
+  :config
+  (load-theme 'naysayer))
+
 
 (provide 'init)
 ;;; init.el ends here
+
+(defun zo/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let* ((name (buffer-name))
+        (filename (buffer-file-name))
+        (basename (file-name-nondirectory filename)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " (file-name-directory filename) basename nil basename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists!" new-name)
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (message "File '%s' successfully renamed to '%s'"
+                   name (file-name-nondirectory new-name)))))))
