@@ -249,7 +249,7 @@
         make-backup-files nil
         require-final-newline t
         delete-old-versions t
-        confirm-kill-emacs 'y-or-n-p))
+        confirm-kill-emacs nil))
 
 (use-package delsel
   :config
@@ -325,7 +325,7 @@
 
 (use-package elec-pair
   :config
-  (electric-pair-mode 1))
+  (electric-pair-mode 0))
 
 (use-package paren
   :init
@@ -558,7 +558,11 @@
 
 
 (use-package tramp
-  :config (setq tramp-default-method "ssh"))
+  :config (setq tramp-default-method "ssh"
+                vc-ignore-dir-regexp
+                (format "\\(%s\\)\\|\\(%s\\)"
+                        vc-ignore-dir-regexp
+                        tramp-file-name-regexp)))
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
@@ -627,18 +631,20 @@
 ;;   )
 
 
-;; (use-package evil
-;;   :straight t
-;;   :config
-;;   (evil-mode 1))
+(use-package evil
+  :disabled
+  :straight t
+  :config
+  (evil-mode 1))
 
-;; (use-package evil-escape
-;;   :straight t
-;;   :config
-;;   (evil-escape-mode)
-;;   (setq-default evil-escape-key-sequence "jk"
-;;                 evil-escape-delay 0.1)
-;;   )
+(use-package evil-escape
+  :disabled
+  :straight t
+  :config
+  (evil-escape-mode)
+  (setq-default evil-escape-key-sequence "jk"
+                evil-escape-delay 0.1)
+  )
 
 (use-package avy
   :straight t
@@ -956,17 +962,17 @@
 ;; RSS sources and the package will retrive the latest news.
 ;;
 ;; https://github.com/skeeto/elfeed
-;; (use-package elfeed
-;;   :straight t
-;;   :defer t
-;;   :commands (elfeed)
-;;   :config
-;;   (setq elfeed-feeds
-;;    '(("https://www.reddit.com/r/emacs.rss" reddit emacs)
-;;      ("https://www.kernel.org/feeds/kdist.xml" linux)
-;;      ("https://protesilaos.com/codelog.xml" emacs prot)))
-;;   :bind
-;;   (("C-c e" . elfeed)))
+(use-package elfeed
+  :straight t
+  :defer t
+  :commands (elfeed)
+  :config
+  (setq elfeed-feeds
+   '(("https://www.kernel.org/feeds/kdist.xml" linux)
+     ("https://protesilaos.com/codelog.xml" emacs prot)
+     ("https://ziglang.org/devlog/index.xml" zig)))
+  :bind
+  (("C-c e" . elfeed)))
 
 (use-package ace-window
   :straight t
@@ -1024,6 +1030,7 @@
   :after ox)
 
 (use-package naysayer-theme
+  :disabled
   :straight t
   :config
   (load-theme 'naysayer))
