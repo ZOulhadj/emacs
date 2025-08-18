@@ -225,6 +225,9 @@
   ;;("C-c c" . recompile)
   )
 
+(use-package ansi-color
+  :hook (compilation-filter . ansi-color-compilation-filter))
+
 (use-package comint
   :init
   (setq comint-input-ignoredups t
@@ -478,17 +481,17 @@
 ;; (const :tag "Inlay hints" :inlayHintProvider)
 (use-package eglot
   :init
-  ;; (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
-  ;;                                           :inlayHintProvider)
-  ;;       eglot-autoshutdown t
-  ;;       eglot-events-buffer-size 0)
+  (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
+                                            :inlayHintProvider)
+        eglot-autoshutdown t
+        eglot-events-buffer-size 0)
 
   :config
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   (add-to-list 'eglot-server-programs
                '((c-ts-mode c++-ts-mode c-mode c++-mode)
                  . ("clangd"
-                    "-j=8"
+                    "-j=16"
                     ;; "--log=error"
                     "--malloc-trim"
                     "--background-index"
@@ -528,9 +531,8 @@
   ;;             ("C-c C-d" . eldoc)
   ;;             ("C-c C-r" . eglot-rename))
 
-  ;;:hook
-  ;; (python-ts-mode . eglot-ensure)
-  ;; (zig-mode . eglot-ensure)
+  :hook
+  (prog-mode . eglot-ensure)
   )
   ;;:hook
   ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
@@ -555,14 +557,6 @@
         erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
         erc-kill-buffer-on-part t
         erc-auto-query 'bury))
-
-
-(use-package tramp
-  :config (setq tramp-default-method "ssh"
-                vc-ignore-dir-regexp
-                (format "\\(%s\\)\\|\\(%s\\)"
-                        vc-ignore-dir-regexp
-                        tramp-file-name-regexp)))
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
@@ -1035,6 +1029,11 @@
   :config
   (load-theme 'naysayer))
 
+(use-package doom-themes
+  :straight t
+  :config
+  (load-theme 'doom-gruvbox-light))
+
 
 (provide 'init)
 ;;; init.el ends here
@@ -1056,3 +1055,33 @@
           (set-buffer-modified-p nil)
           (message "File '%s' successfully renamed to '%s'"
                    name (file-name-nondirectory new-name)))))))
+
+;; Below fixes copy and pasting to/from emacs-wayland.
+
+(setq wl-copy-process nil)
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :command '("wl-copy" "-f" "-n")
+                                      :connection-type 'pipe
+                                      :noquery t))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+      (shell-command-to-string "wl-paste -n | tr -d \r")))
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
+
+
+
+
+(setq remote-file-name-inhibit-locks t
+      tramp-use-scp-direct-remote-copying t
+      remote-file-name-inhibit-auto-save-visited t)
+
+(setq safe-local-variable-directories '(
+                                        "/home/zakariya/dev/game/"
+                                        "/home/zakariya/dev/emacs/"
+                                        ))
