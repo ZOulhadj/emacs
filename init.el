@@ -492,7 +492,7 @@
                '((c-ts-mode c++-ts-mode c-mode c++-mode)
                  . ("clangd"
                     "-j=16"
-                    ;; "--log=error"
+                    "--log=info"
                     "--malloc-trim"
                     "--background-index"
                     ;; "--clang-tidy"
@@ -500,27 +500,12 @@
                     "--pch-storage=memory"
                     "--header-insertion=never"
                     "--header-insertion-decorators=0"))
-               '(zig-mode . (
-                             ;; Use `zls` if it is in your PATH
-                             "zls"
-                             ;; There are two ways to set config options:
-                             ;;   - edit your `zls.json` that applies to any editor that uses ZLS
-                             ;;   - set in-editor config options with the `initializationOptions` field below.
-                             ;;
-                             ;; Further information on how to configure ZLS:
-                             ;; https://zigtools.org/zls/configure/
-                             ;;
-                             ;; Support for `initializationOptions` in Emacs requires at least ZLS `0.14.0-dev.22+a263b8dc6`.
-                             :initializationOptions
-                             (;; Whether to enable build-on-save diagnostics
-                              ;;
-                              ;; Further information about build-on save:
-                              ;; https://zigtools.org/zls/guides/build-on-save/
-                              ;;enable_build_on_save t
-
-                              ;; omit the following line if `zig` is in your PATH
-                              ;;:zig_exe_path "/path/to/zig_executable"
-                              ))))
+               '(zig-mode
+                 . ("zls"
+                    :initializationOptions
+                    (;;enable_build_on_save t
+                     )))
+               )
 
   ;; :custom
   ;; (setq-default eglot-inlay-hints-mode -1)
@@ -1030,9 +1015,7 @@
   (load-theme 'naysayer))
 
 (use-package doom-themes
-  :straight t
-  :config
-  (load-theme 'doom-gruvbox-light))
+  :straight t)
 
 
 (provide 'init)
