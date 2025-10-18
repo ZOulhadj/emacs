@@ -22,7 +22,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 (straight-use-package 'use-package)
-(setq straight-use-package-by-default nil)
+
+(setopt straight-use-package-by-default nil)
 
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
@@ -50,40 +51,42 @@
 (use-package no-littering
   :straight t
   :init
-  (setq no-littering-etc-directory (expand-file-name "tmp/config/" user-emacs-directory)
-        no-littering-var-directory (expand-file-name "tmp/data/" user-emacs-directory)))
+  (setopt
+   no-littering-etc-directory (expand-file-name "data/etc/" user-emacs-directory)
+   no-littering-var-directory (expand-file-name "data/var/" user-emacs-directory)))
 
 (use-package emacs
   :init
-  (setq create-lockfiles nil
-        history-length 1000
-        history-delete-duplicates t
-        use-dialog-box nil
-        ring-bell-function 'ignore
-        frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
-        echo-keystrokes 0.02
-        use-short-answers t
-        frame-title-format '("" (:eval (if (buffer-file-name)
-                                                   (abbreviate-file-name (buffer-file-name))
-                                                 "%b")))
-        enable-recursive-minibuffers t
-        initial-scratch-message nil
-        inhibit-startup-echo-area-message user-login-name
-        inhibit-startup-screen t
-        ;;inhibit-splash-screen t
-        ;;inhibit-startup-message t
+  (setopt
+   create-lockfiles nil
+   history-length 1000
+   history-delete-duplicates t
+   use-dialog-box nil
+   ring-bell-function 'ignore
+   frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
+   echo-keystrokes 0.02
+   use-short-answers t
+   frame-title-format '("" (:eval (if (buffer-file-name)
+                                      (abbreviate-file-name (buffer-file-name))
+                                    "%b")))
+   enable-recursive-minibuffers t
+   initial-scratch-message nil
+   inhibit-startup-echo-area-message user-login-name
+   inhibit-startup-screen t
+   ;;inhibit-splash-screen t
+   ;;inhibit-startup-message t
 
-        tab-always-indent 'complete
-        delete-by-moving-to-trash t
-        user-full-name "Zakariya Oulhadj"
-        user-mail-address "zakariyaoulhadj01@gmail.com"
+   tab-always-indent 'complete
+   delete-by-moving-to-trash t
+   user-full-name "Zakariya Oulhadj"
+   user-mail-address "zakariyaoulhadj01@gmail.com"
 
-        ;; scroll-conservatively most-positive-fixnum
-        sentence-end-double-space nil
-        )
+   ;; scroll-conservatively most-positive-fixnum
+   sentence-end-double-space nil)
 
-  (setq-default tab-width 8
-                fill-column 80)
+  (setq-default
+   tab-width 8
+   fill-column 80)
 
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
@@ -116,15 +119,19 @@
 ;; ========== [Core] ==========
 (use-package use-package-core
   :init
-  (setq use-package-verbose t))
+  (setopt
+   use-package-verbose t
+   use-package-compute-statistics t))
 
 (use-package comp
   :init
-  (setq native-comp-async-report-warnings-errors 'silent))
+  (setopt
+   native-comp-async-report-warnings-errors 'silent))
 
 (use-package custom
   :init
-  (setq custom-safe-themes t))
+  (setopt
+   custom-safe-themes t))
 
 ;; ========== [User Interface] ==========
 
@@ -134,14 +141,10 @@
   (other-window -1))
 
 (use-package window
-  :init
-  (setq switch-to-buffer-obey-display-actions nil)
-  :config
-  (global-set-key (kbd "C-x o") 'other-window)
-
   :bind
   ("C-," . prev-window)
   ("C-." . other-window)
+  ("C-x o" . other-window)
 
   ("C-1" . delete-other-windows)
   ("C-2" . split-window-below)
@@ -153,9 +156,7 @@
   ("C-x C-1" . delete-other-windows)
   ("C-x C-2" . split-window-below)
   ("C-x C-3" . split-window-right)
-  ("C-x C-0" . delete-window)
-
-  )
+  ("C-x C-0" . delete-window))
 
 (use-package frame
   :config
@@ -176,16 +177,17 @@
 
 (use-package hl-line
   :config
-  (global-hl-line-mode 0))
+  (global-hl-line-mode 1))
 
 ;; The package `which-key' displays a popup window showing all the possible key
 ;; combinations for the current action. This allows a user to not forget
 ;; specific commands.
 (use-package which-key
   :init
-  (setq which-key-show-early-on-C-h nil
-        which-key-idle-delay 2.0
-        which-key-idle-secondary-delay nil)
+  (setopt
+   which-key-show-early-on-C-h nil
+   which-key-idle-delay 2.0
+   which-key-idle-secondary-delay nil)
   :config
   ;;(which-key-enable-god-mode-support)
   (which-key-setup-side-window-bottom)
@@ -194,13 +196,15 @@
 
 (use-package face-remap
   :config
-  (setq text-scale-mode-step 1.2))
+  (setopt
+   text-scale-mode-step 1.2))
 
 ;; @TODO: Move this into eglot configuration
 (use-package cc-vars
   :init
-  (setq c-default-style "k&r"
-        c-basic-offset 4))
+  (setopt
+   c-default-style "k&r"
+   c-basic-offset 4))
 
 (use-package subword
   :config
@@ -208,8 +212,9 @@
 
 (use-package compile
   :init
-  (setq compilation-scroll-output nil
-        compilation-ask-about-save nil)
+  (setopt
+   compilation-scroll-output nil
+   compilation-ask-about-save nil)
   ;; Make the compilation window automatically disappear - from enberg on #emacs
   ;; (setq compilation-finish-functions
   ;;       (lambda (buf str)
@@ -221,17 +226,17 @@
   ;;                (get-buffer-create "*compilation*"))
   ;;               (message "No Compilation Errors!")))))
   :bind
-  ("<f5>" . recompile)
-  ;;("C-c c" . recompile)
-  )
+  ("<f5>" . recompile)) ;;("C-c c" . recompile)
 
 (use-package ansi-color
-  :hook (compilation-filter . ansi-color-compilation-filter))
+  :hook
+  (compilation-filter . ansi-color-compilation-filter))
 
 (use-package comint
   :init
-  (setq comint-input-ignoredups t
-        comint-process-echoes t))
+  (setopt
+   comint-input-ignoredups t
+   comint-process-echoes t))
 
 (use-package whitespace
   :hook
@@ -239,20 +244,23 @@
 
 (use-package calendar
   :init
-  (setq calendar-date-style "iso"
-        calendar-week-start-day 1))
+  (setopt
+   calendar-date-style "iso"
+   calendar-week-start-day 1))
 
 (use-package vc-hooks
   :init
-  (setq vc-follow-symlinks t))
+  (setopt
+   vc-follow-symlinks t))
 
 (use-package files
   :init
-  (setq large-file-warning-threshold 100000000 ; warn when opening files bigger than 100MB
-        make-backup-files nil
-        require-final-newline t
-        delete-old-versions t
-        confirm-kill-emacs nil))
+  (setopt
+   large-file-warning-threshold 100000000 ; 100 MB
+   make-backup-files nil
+   require-final-newline t
+   delete-old-versions t
+   confirm-kill-emacs nil))
 
 (use-package delsel
   :config
@@ -260,23 +268,24 @@
 
 (use-package saveplace
   :init
-  (setq save-place-limit 500)
+  (setopt
+   save-place-limit 500)
   :config
   (save-place-mode 1))
 
 (use-package savehist
   :init
-  (setq savehist-additional-variables
-        '(search-ring regexp-search-ring)
-        savehist-autosave-interval 60)
+  (setopt
+   savehist-additional-variables '(search-ring regexp-search-ring)
+   savehist-autosave-interval 60)
   :config
   (savehist-mode +1))
 
 (use-package desktop
   :disabled ;; todo: messes up the previously loaded theme.
   :init
-  (setq
-   ;; @TODO: For some reason dirname is not set?
+  ;; @TODO: For some reason dirname is not set?
+  (setopt
    desktop-dirname (expand-file-name "tmp/data/desktop/" user-emacs-directory)
    desktop-load-locked-desktop t
    desktop-auto-save-timeout 30)
@@ -290,17 +299,20 @@
 
 (use-package autorevert
   :init
-  (setq global-auto-revert-non-file-buffers t)
+  (setopt
+   global-auto-revert-non-file-buffers t)
   :config
   (global-auto-revert-mode t))
 
 (use-package simple
   :init
-  (setq read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
-        column-number-mode t
-        next-line-add-newlines t
-        kill-do-not-save-duplicates t)
-  (setq-default indent-tabs-mode nil)
+  (setopt
+   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
+   column-number-mode t
+   next-line-add-newlines t
+   kill-do-not-save-duplicates t)
+  (setq-default
+   indent-tabs-mode nil)
   :config
   (visual-line-mode -1)
   (size-indication-mode -1)
@@ -308,7 +320,8 @@
 
 (use-package time
   :init
-  (setq display-time-24hr-format t)
+  (setopt
+   display-time-24hr-format t)
   :config
   (display-time-mode -1)
   :custom
@@ -316,11 +329,10 @@
 
 (use-package display-line-numbers
   :init
-  (setq display-line-numbers-type 'visual)
-  ;;:hook
-  ;;(prog-mode . display-line-numbers-mode)
-  ;;(org-mode . display-line-numbers-mode)
-  )
+  (setopt
+   display-line-numbers-type 'visual)
+  :config
+  (global-display-line-numbers-mode 1))
 
 (use-package which-func
   :hook
@@ -332,27 +344,25 @@
 
 (use-package paren
   :init
-  (setq show-paren-delay 0.0)
+  (setopt
+   show-paren-delay 0.0)
   :config
   (show-paren-mode 1))
 
 (use-package recentf
   :init
-  (setq recentf-max-saved-items 500
-        recentf-max-menu-items 15
-        ;; disable recentf-cleanup on emacs start, because it can cause
-        ;; problems with remote files (prelude)
-        recentf-auto-cleanup 'never)
-
+  (setopt
+   recentf-max-saved-items 500
+   recentf-max-menu-items 15
+   ;; disable recentf-cleanup on emacs start, because it can cause
+   ;; problems with remote files (prelude)
+   recentf-auto-cleanup 'never)
   :config
   (recentf-mode 1)
-
   :custom
   ;; exclude all of files in the no-littering directories from recentf.
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-var-directory))
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-etc-directory)))
+  (add-to-list 'recentf-exclude (recentf-expand-file-name no-littering-var-directory))
+  (add-to-list 'recentf-exclude (recentf-expand-file-name no-littering-etc-directory)))
 
 (use-package windmove
   :config
@@ -363,62 +373,66 @@
 (use-package flyspell
   :disabled ;; @TODO: C-, conflicts with prev-window
   :init
-  (setq ispell-program-name "aspell"
-        ispell-extra-args '("--sug-mode=ultra"))
+  (setopt
+   ispell-program-name "aspell"
+   ispell-extra-args '("--sug-mode=ultra"))
   :hook
   (prog-mode . flyspell-prog-mode))
 
 (use-package isearch
   :config
-  (setq isearch-wrap-pause t
-        isearch-lazy-count t
-        isearch-allow-scroll 'unlimited)
-  :bind (:map isearch-mode-map
-              ("<backspace>" . isearch-del-char)))
+  (setopt
+   isearch-wrap-pause t
+   isearch-lazy-count t
+   isearch-allow-scroll 'unlimited)
+  :bind
+  (:map isearch-mode-map ("<backspace>" . isearch-del-char)))
 
 (use-package dired
   :init
-  (setq dired-kill-when-opening-new-dired-buffer t
-        dired-hide-details-hide-symlink-targets nil
-        dired-dwim-target t)
+  (setopt
+   dired-kill-when-opening-new-dired-buffer t
+   dired-hide-details-hide-symlink-targets nil
+   dired-dwim-target t)
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
-  (setq-default dired-listing-switches "-l --all --no-group --human-readable --group-directories-first --time-style=long-iso")
+  (setq-default
+   dired-listing-switches "-l --all --no-group --human-readable --group-directories-first --time-style=long-iso")
   :config
-  (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
+  (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file))
   ;; :hook
   ;; (dired-mode . dired-hide-details-mode)
-  )
 
 (use-package org
   :init
   ;(setq-default org-display-custom-times t)
-  (setq org-agenda-files (list "~/Documents/org/personal.org"
-                               "~/Documents/org/school.org")
-        org-startup-indented nil
-        org-startup-with-inline-images t
-        org-display-remote-inline-images t
-        ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
-        org-return-follows-link t
-        org-hide-emphasis-markers t
-        ;;org-export-backends '(html md))
-        )
+  (setopt
+   org-directory "~/org"
+   org-agenda-files '("personal.org")
+   org-agenda-start-with-log-mode t
+   org-log-done 'time
+   org-log-into-drawer t
+   org-startup-indented nil
+   org-startup-with-inline-images t
+   org-display-remote-inline-images 'download
+   ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
+   org-return-follows-link t
+   org-hide-emphasis-markers t)
+   ;;org-export-backends '(html md))
   :hook
   (org-mode . turn-on-auto-fill))
 
 (use-package org-capture
   :init
-  (setq org-default-notes-file "~/Documents/org/personal.org"
-        org-capture-templates '(("t" "TODO" entry (file+headline "~/Documents/org/todo.org" "TODO")
-                                 "* TODO %?\n  %i\n  %a")
-                                ("d" "Diary" entry (file+datetree "~/Documents/org/diary.org")
-                                 "* %?\nEntered on %U\n  %i\n  %a")))
+  (setopt
+   org-default-notes-file "~/org/personal.org")
   :bind (("C-c c" . org-capture)))
 
 (use-package org-clock
   :init
-  (setq org-clock-persist 'history
-        org-clock-idle-time 15)
+  (setopt
+   org-clock-persist 'history
+   org-clock-idle-time 15)
   :config
   (org-clock-persistence-insinuate))
 
@@ -429,33 +443,30 @@
 ;;         gnus-newsgroup-maximum-articles 50
 ;;         gnus-secondary-select-methods '((nntp "news.tilde.club"))))
 
-;; The `treesit' package performs fast syntax parsing for languages and allows
-;; for other packages to make use of the better context aware functionality.
-;;
-;; https://github.com/tree-sitter/tree-sitter
 (use-package treesit
   :init
-  (setq treesit-language-source-alist
-        '((c "https://github.com/tree-sitter/tree-sitter-c")
-          (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-          (rust "https://github.com/tree-sitter/tree-sitter-rust")
-          (python "https://github.com/tree-sitter/tree-sitter-python")))
+  (setopt
+   treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
+                                   (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
+   major-mode-remap-alist '((c-mode . c-ts-mode)
+                            (c++-mode . c++-ts-mode)
+                            (c-or-c++-mode . c-or-c++-ts-mode))))
 
-  ;; Even when tree sitter is installed and the language grammer is configured,
-  ;; emacs will not enable it. this is because we must enable the special "ts"
-  ;; modes. so here we remap the default modes to tree-sitter specific modes.
-  (setq major-mode-remap-alist
-        '((c-mode . c-ts-mode)
-          (c++-mode . c++-ts-mode)
-          (c-or-c++-mode . c-or-c++-ts-mode)
-          (python-mode . python-ts-mode))))
-
-;; @TODO: Requires c/c++ language server
-(use-package c-ts-mode
-  :requires treesit
-  :init
-  (setq c-ts-mode-indent-offset 4
-        c-ts-mode-indent-style 'k&r))
+;; (use-package treesit-auto
+;;   :straight t
+;;   :init
+;;   (setq treesit-language-source-alist
+;;       '((bash   . ("https://github.com/tree-sitter/tree-sitter-bash" "v0.23.3"))
+;;         (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6"))
+;;         (c      . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.4"))
+;;         (cpp    . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
+;;         (rust   . ("https://github.com/tree-sitter/tree-sitter-rust" "v0.23.2"))
+;;         (nu     . ("https://github.com/nushell/tree-sitter-nu" "v0.23.0"))))
+;;   :custom
+;;   (treesit-auto-install 'prompt)
+;;   :config
+;;   (treesit-auto-add-to-auto-mode-alist 'all)
+;;   (global-treesit-auto-mode))
 
 ;; (const :tag "Documentation on hover" :hoverProvider)
 ;; (const :tag "Code completion" :completionProvider)
@@ -479,46 +490,53 @@
 ;; (const :tag "Fold regions of buffer" :foldingRangeProvider)
 ;; (const :tag "Execute custom commands" :executeCommandProvider)
 ;; (const :tag "Inlay hints" :inlayHintProvider)
+
 (use-package eglot
-  :init
-  (setq eglot-ignored-server-capabilities '(:documentHighlightProvider
-                                            :inlayHintProvider)
-        eglot-autoshutdown t
-        eglot-events-buffer-size 0)
-
-  :config
-  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
-  (add-to-list 'eglot-server-programs
-               '((c-ts-mode c++-ts-mode c-mode c++-mode)
-                 . ("clangd"
-                    "-j=16"
-                    "--log=info"
-                    "--malloc-trim"
-                    "--background-index"
-                    ;; "--clang-tidy"
-                    "--completion-style=detailed"
-                    "--pch-storage=memory"
-                    "--header-insertion=never"
-                    "--header-insertion-decorators=0"))
-               '(zig-mode
-                 . ("zls"
-                    :initializationOptions
-                    (;;enable_build_on_save t
-                     )))
-               )
-
-  ;; :custom
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-size 0)
+  (eglot-extend-to-xref nil)
+  (eglot-ignored-server-capabilities
+   '(:hoverProvider
+     :documentHighlightProvider
+     :documentFormattingProvider
+     :documentRangeFormattingProvider
+     :documentOnTypeFormattingProvider
+     :colorProvider
+     :foldingRangeProvider
+     :inlayHintProvider))
   ;; (setq-default eglot-inlay-hints-mode -1)
   ;; (eldoc-echo-area-use-multiline-p nil)
-
-
+  :init
+  (setopt
+   eglot-autoshutdown t)
+  ;;:config
+  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
+  ;; (add-to-list 'eglot-server-programs
+  ;;              '((c-ts-mode c++-ts-mode c-mode c++-mode)
+  ;;                . ("clangd"
+  ;;                   "-j=16"
+  ;;                   "--log=info"
+  ;;                   "--malloc-trim"
+  ;;                   "--background-index"
+  ;;                   ;; "--clang-tidy"
+  ;;                   "--completion-style=detailed"
+  ;;                   "--pch-storage=memory"
+  ;;                   "--header-insertion=never"
+  ;;                   "--header-insertion-decorators=0"))
+  ;;              '(zig-mode
+  ;;                . ("zls"
+  ;;                   :initializationOptions
+  ;;                   (;;enable_build_on_save t
+  ;;                    )))
+  ;;              )
   ;; :bind (:map eglot-mode-map
   ;;             ("C-c C-d" . eldoc)
   ;;             ("C-c C-r" . eglot-rename))
 
   :hook
-  (prog-mode . eglot-ensure)
-  )
+  ((c-ts-mode . eglot-ensure)
+   (c++-ts-mode . eglot-ensure)))
   ;;:hook
   ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
@@ -535,13 +553,14 @@
 (use-package erc
   :disabled
   :init
-  (setq erc-server "irc.libera.chat"
-        erc-nick "zoulhadj"
-        erc-user-full-name "Zakariya Oulhadj"
-        erc-track-shorten-start 8
-        erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
-        erc-kill-buffer-on-part t
-        erc-auto-query 'bury))
+  (setopt
+   erc-server "irc.libera.chat"
+   erc-nick "zoulhadj"
+   erc-user-full-name "Zakariya Oulhadj"
+   erc-track-shorten-start 8
+   erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
+   erc-kill-buffer-on-part t
+   erc-auto-query 'bury))
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
@@ -621,16 +640,17 @@
   :straight t
   :config
   (evil-escape-mode)
-  (setq-default evil-escape-key-sequence "jk"
-                evil-escape-delay 0.1)
-  )
+  (setq-default
+   evil-escape-key-sequence "jk"
+   evil-escape-delay 0.1))
 
 (use-package avy
   :straight t
   :init
-  (setq avy-timeout-seconds 0.40)
-  :config
-  (global-set-key (kbd "M-j") 'avy-goto-char-timer))
+  (setopt
+   avy-timeout-seconds 0.40)
+  :bind
+  ("M-j" . avy-goto-char-timer))
 
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
@@ -673,8 +693,10 @@
 (use-package dumb-jump
   :straight t
   :init
-  (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+  (setopt
+   xref-show-definitions-function #'xref-show-definitions-completing-read)
+  :hook
+  (xref-backend-functions . dumb-jump-xref-activate))
 
 ;; The package `flycheck' shows syntactic highlighting in code that displays
 ;; logs, warnings and errors.
@@ -683,7 +705,8 @@
 (use-package flycheck
   :disabled
   :straight t
-  :init (global-flycheck-mode)
+  :init
+  (global-flycheck-mode)
   :diminish)
 
 
@@ -694,12 +717,13 @@
 (use-package vertico
   :straight t
   :init
-  (setq vertico-cycle t
-        vertico-resize nil
-        vertico-count 10
-        vertico-multiform-commands '((consult-imenu buffer indexed))
-        vertico-multiform-categories '((file grid)
-                                       (consult-grep buffer)))
+  (setopt
+   vertico-cycle t
+   vertico-resize nil
+   vertico-count 10
+   vertico-multiform-commands '((consult-imenu buffer indexed))
+   vertico-multiform-categories '((file grid)
+                                  (consult-grep buffer)))
   :config
   (vertico-mode)
   (vertico-multiform-mode))
@@ -723,21 +747,21 @@
 (use-package corfu
   :straight t
   :init
-  (setq corfu-cycle t
-        corfu-auto t
-        corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
-        corfu-separator ?\s
-        corfu-quit-at-boundary 'separator
-        corfu-quit-no-match t
-        corfu-preview-current nil
-        corfu-preselect 'valid
-        corfu-on-exact-match 'insert
-        corfu-scroll-margin 1)
+  (setopt
+   corfu-cycle t
+   corfu-auto t
+   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+   corfu-separator ?\s
+   corfu-quit-at-boundary 'separator
+   corfu-quit-no-match t
+   corfu-preview-current nil
+   corfu-preselect 'valid
+   corfu-on-exact-match 'insert
+   corfu-scroll-margin 1)
   :config
   (global-corfu-mode)
   :bind
-  (:map corfu-map
-        ("RET" . nil)))
+  (:map corfu-map ("RET" . nil)))
 
 ;; This package changes how completion candidates are displayed within a
 ;; completion window such as `corfu' or `company'.
@@ -746,9 +770,10 @@
 (use-package orderless
   :straight t
   :init
-  (setq completion-styles '(orderless partial-completion basic)
-        completion-category-defaults nil
-        completion-category-overrides nil))
+  (setopt
+   completion-styles '(orderless partial-completion basic)
+   completion-category-defaults nil
+   completion-category-overrides nil))
 
 (use-package embark
   :disabled
@@ -760,14 +785,16 @@
 (use-package consult
   :straight t
   :init
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+  (setopt
+   register-preview-delay 0.5
+   register-preview-function #'consult-register-format)
 
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+  (setopt
+   xref-show-xrefs-function #'consult-xref
+   xref-show-definitions-function #'consult-xref)
 
   :config
   (consult-customize
@@ -779,57 +806,61 @@
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
-  (setq consult-narrow-key "<")
+  (setopt
+   consult-narrow-key "<")
+
   ;; Hide buffers that start with a * and only shown them if SPC is pressed
   (add-to-list 'consult-buffer-filter "^\\*")
 
-  :bind (("C-c M-x" . consult-mode-command)
-         ("C-c h" . consult-history)
-         ("C-c k" . consult-kmacro)
-         ("C-c m" . consult-man)
-         ("C-c i" . consult-info)
-         ([remap Info-search] . consult-info)
-         ;; C-x bindings in `ctl-x-map'
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ;; M-g bindings in `goto-map'
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ("M-g t" . consult-theme)
-         ;; M-s bindings in `search-map'
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ;("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-         ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-  :hook (completion-list-mode . consult-preview-at-point-mode))
+  :bind
+  (("C-c M-x" . consult-mode-command)
+   ("C-c h" . consult-history)
+   ("C-c k" . consult-kmacro)
+   ("C-c m" . consult-man)
+   ("C-c i" . consult-info)
+   ([remap Info-search] . consult-info)
+   ;; C-x bindings in `ctl-x-map'
+   ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+   ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+   ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+   ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+   ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+   ;; Other custom bindings
+   ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+   ;; M-g bindings in `goto-map'
+   ("M-g e" . consult-compile-error)
+   ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
+   ("M-g g" . consult-goto-line)             ;; orig. goto-line
+   ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+   ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+   ("M-g m" . consult-mark)
+   ("M-g k" . consult-global-mark)
+   ("M-g i" . consult-imenu)
+   ("M-g I" . consult-imenu-multi)
+   ("M-g t" . consult-theme)
+   ;; M-s bindings in `search-map'
+   ("M-s d" . consult-find)
+   ("M-s D" . consult-locate)
+                                        ;("M-s g" . consult-grep)
+   ("M-s G" . consult-git-grep)
+   ("M-s r" . consult-ripgrep)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi)
+   ("M-s k" . consult-keep-lines)
+   ("M-s u" . consult-focus-lines)
+   ;; Isearch integration
+   ("M-s e" . consult-isearch-history)
+   :map isearch-mode-map
+   ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+   ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+   ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+   ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+   ;; Minibuffer history
+   :map minibuffer-local-map
+   ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+   ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  :hook
+  (completion-list-mode . consult-preview-at-point-mode))
 
 ;; Consult users will also want the embark-consult package.
 ;;
@@ -854,8 +885,8 @@
   :config
   (magit-auto-revert-mode 1)
   :bind
-  ("C-c g" . magit-status)
-  ("C-c f" . magit-file-dispatch))
+  (("C-c g" . magit-status)
+   ("C-c f" . magit-file-dispatch)))
 
 ;; Allows for lines or regions to be moved.
 ;;
@@ -946,17 +977,17 @@
   :defer t
   :commands (elfeed)
   :config
-  (setq elfeed-feeds
-   '(("https://www.kernel.org/feeds/kdist.xml" linux)
-     ("https://protesilaos.com/codelog.xml" emacs prot)
-     ("https://ziglang.org/devlog/index.xml" zig)))
+  (setopt
+   elfeed-feeds '(("https://www.kernel.org/feeds/kdist.xml" linux)
+                  ("https://protesilaos.com/codelog.xml" emacs prot)
+                  ("https://ziglang.org/devlog/index.xml" zig)))
   :bind
-  (("C-c e" . elfeed)))
+  ("C-c e" . elfeed))
 
 (use-package ace-window
   :straight t
   :config
-  (setq
+  (setopt
    aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
    aw-background t)
   :bind
@@ -998,8 +1029,7 @@
 (use-package zig-mode
   :straight t
   :config
-  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
-  )
+  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode)))
 
 (use-package vterm
   :straight t)
@@ -1017,8 +1047,7 @@
 (use-package doom-themes
   :straight t
   :config
-  (load-theme 'doom-pine))
-
+  (load-theme 'doom-oceanic-next))
 
 (provide 'init)
 ;;; init.el ends here
@@ -1059,14 +1088,10 @@
 ;; (setq interprogram-cut-function 'wl-copy)
 ;; (setq interprogram-paste-function 'wl-paste)
 
+(setopt
+ remote-file-name-inhibit-locks t
+ tramp-use-scp-direct-remote-copying t
+ remote-file-name-inhibit-auto-save-visited t)
 
-
-
-(setq remote-file-name-inhibit-locks t
-      tramp-use-scp-direct-remote-copying t
-      remote-file-name-inhibit-auto-save-visited t)
-
-(setq safe-local-variable-directories '(
-                                        "/home/zakariya/dev/game/"
-                                        "/home/zakariya/dev/emacs/"
-                                        ))
+(setopt
+ safe-local-variable-directories '("/home/zakariya/code/engine"))
