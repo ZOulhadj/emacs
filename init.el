@@ -286,7 +286,7 @@
   :init
   ;; @TODO: For some reason dirname is not set?
   (setopt
-   desktop-dirname (expand-file-name "tmp/data/desktop/" user-emacs-directory)
+   desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
    desktop-load-locked-desktop t
    desktop-auto-save-timeout 30)
   :config
@@ -422,6 +422,10 @@
   :hook
   (org-mode . turn-on-auto-fill))
 
+(use-package org-agenda
+  :bind
+  ("C-c a" . org-agenda))
+
 (use-package org-capture
   :init
   (setopt
@@ -447,10 +451,12 @@
   :init
   (setopt
    treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
-                                   (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
+                                   (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
+                                   (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
    major-mode-remap-alist '((c-mode . c-ts-mode)
                             (c++-mode . c++-ts-mode)
-                            (c-or-c++-mode . c-or-c++-ts-mode))))
+                            (c-or-c++-mode . c-or-c++-ts-mode)
+                            (python-mode . python-ts-mode))))
 
 ;; (use-package treesit-auto
 ;;   :straight t
@@ -507,9 +513,7 @@
      :inlayHintProvider))
   ;; (setq-default eglot-inlay-hints-mode -1)
   ;; (eldoc-echo-area-use-multiline-p nil)
-  :init
-  (setopt
-   eglot-autoshutdown t)
+  ;; :init
   ;;:config
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
   ;; (add-to-list 'eglot-server-programs
@@ -536,19 +540,8 @@
 
   :hook
   ((c-ts-mode . eglot-ensure)
-   (c++-ts-mode . eglot-ensure)))
-  ;;:hook
-  ;;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
-
-;; (use-package tab-bar
-;;   :init
-;;   (setq
-;;    tab-bar-show t
-;;    tab-bar-new-tab-to 'rightmost
-;;    ;;tab-bar-new-tab-choice "*dashboard*"
-;;    )
-;;   :config
-;;   (tab-bar-mode 0))
+   (c++-ts-mode . eglot-ensure)
+   (python-ts-mode . eglot-ensure)))
 
 (use-package erc
   :disabled
