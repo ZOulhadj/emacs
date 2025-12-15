@@ -25,6 +25,8 @@
 
 (setopt straight-use-package-by-default nil)
 
+(setopt use-package-hook-name-suffix nil)
+
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
 
@@ -82,7 +84,9 @@
    user-mail-address "zakariyaoulhadj01@gmail.com"
 
    ;; scroll-conservatively most-positive-fixnum
-   sentence-end-double-space nil)
+   sentence-end-double-space nil
+
+   scroll-preserve-screen-position t)
 
   (setq-default
    tab-width 8
@@ -102,6 +106,9 @@
   :config
   (put 'narrow-to-region 'disabled nil)
 
+  (set-face-attribute 'font-lock-comment-face nil
+                      :foreground "#49503d"
+                      :slant 'italic)
   :custom
   (text-mode-ispell-word-completion nil)
 
@@ -173,7 +180,7 @@
 
 (use-package fringe
   :config
-  (fringe-mode nil))
+  (fringe-mode 1))
 
 (use-package hl-line
   :config
@@ -230,7 +237,7 @@
 
 (use-package ansi-color
   :hook
-  (compilation-filter . ansi-color-compilation-filter))
+  (compilation-filter-hook . ansi-color-compilation-filter))
 
 (use-package comint
   :init
@@ -240,7 +247,7 @@
 
 (use-package whitespace
   :hook
-  (before-save . whitespace-cleanup))
+  (before-save-hook . whitespace-cleanup))
 
 (use-package calendar
   :init
@@ -331,12 +338,12 @@
   :init
   (setopt
    display-line-numbers-type 'visual)
-  :config
-  (global-display-line-numbers-mode 1))
+  :hook
+  (prog-mode-hook . display-line-numbers-mode))
 
 (use-package which-func
   :hook
-  (prog-mode . which-function-mode))
+  (prog-mode-hook . which-function-mode))
 
 (use-package elec-pair
   :config
@@ -377,7 +384,7 @@
    ispell-program-name "aspell"
    ispell-extra-args '("--sug-mode=ultra"))
   :hook
-  (prog-mode . flyspell-prog-mode))
+  (prog-mode-hook . flyspell-prog-mode))
 
 (use-package isearch
   :config
@@ -420,17 +427,24 @@
    org-hide-emphasis-markers t)
    ;;org-export-backends '(html md))
   :hook
-  (org-mode . turn-on-auto-fill))
+  (org-mode-hook . turn-on-auto-fill))
+
+(use-package org-capture
+  :init
+  (setopt
+   org-default-notes-file "~/org/personal.org"
+   org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/org/personal.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/org/personal.org")
+           "* %?\nEntered on %U\n  %i\n  %a")))
+  :bind (("C-c c" . org-capture)))
 
 (use-package org-agenda
   :bind
   ("C-c a" . org-agenda))
 
-(use-package org-capture
-  :init
-  (setopt
-   org-default-notes-file "~/org/personal.org")
-  :bind (("C-c c" . org-capture)))
+
 
 (use-package org-clock
   :init
@@ -539,9 +553,9 @@
   ;;             ("C-c C-r" . eglot-rename))
 
   :hook
-  ((c-ts-mode . eglot-ensure)
-   (c++-ts-mode . eglot-ensure)
-   (python-ts-mode . eglot-ensure)))
+  ((c-ts-mode-hook . eglot-ensure)
+   (c++-ts-mode-hook . eglot-ensure)
+   (python-ts-mode-hook . eglot-ensure)))
 
 (use-package erc
   :disabled
@@ -563,6 +577,11 @@
   :config
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
+
+(use-package multiple-cursors
+  :straight t
+  :bind
+  ("C-c l" . 'mc/edit-lines))
 
 ;; (use-package undo-tree
 ;;   :straight t
@@ -689,7 +708,7 @@
   (setopt
    xref-show-definitions-function #'xref-show-definitions-completing-read)
   :hook
-  (xref-backend-functions . dumb-jump-xref-activate))
+  (xref-backend-functions-hook . dumb-jump-xref-activate))
 
 ;; The package `flycheck' shows syntactic highlighting in code that displays
 ;; logs, warnings and errors.
@@ -853,7 +872,7 @@
    ("M-s" . consult-history)                 ;; orig. next-matching-history-element
    ("M-r" . consult-history))                ;; orig. previous-matching-history-element
   :hook
-  (completion-list-mode . consult-preview-at-point-mode))
+  (completion-list-mode-hook . consult-preview-at-point-mode))
 
 ;; Consult users will also want the embark-consult package.
 ;;
@@ -862,7 +881,7 @@
   :straight t
   :requires (embark consult)
   :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+  (embark-collect-mode-hook . consult-preview-at-point-mode))
 
 (use-package consult-flycheck
   :disabled
@@ -1040,7 +1059,12 @@
 (use-package doom-themes
   :straight t
   :config
-  (load-theme 'doom-oceanic-next))
+  (load-theme 'doom-pine))
+
+
+(use-package ox-hugo
+  :straight t
+  :after ox)
 
 (provide 'init)
 ;;; init.el ends here
