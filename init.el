@@ -232,6 +232,8 @@
   ;;                "1 sec" nil 'delete-windows-on
   ;;                (get-buffer-create "*compilation*"))
   ;;               (message "No Compilation Errors!")))))
+  :hook
+  (compilation-mode-hook . visual-line-mode)
   :bind
   ("<f5>" . recompile)) ;;("C-c c" . recompile)
 
@@ -515,7 +517,7 @@
   :custom
   (eglot-autoshutdown t)
   (eglot-events-buffer-size 0)
-  (eglot-extend-to-xref nil)
+  (eglot-extend-to-xref t)
   (eglot-ignored-server-capabilities
    '(:hoverProvider
      :documentHighlightProvider

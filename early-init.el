@@ -3,7 +3,7 @@
 ;; (setq gc-cons-threshold most-positive-fixnum
 ;;       read-process-output-max (* 16 1024 1024))
 
-(setq-default default-font "Cascadia Code")
+(setq-default default-font "IBM Plex Mono Medium")
 (set-face-attribute 'default nil :family default-font :height 140)
 
 (setq package-enable-at-startup nil)
