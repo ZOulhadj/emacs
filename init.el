@@ -101,7 +101,7 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (blink-cursor-mode -1)
-  (menu-bar-mode 1)
+  (menu-bar-mode -1)
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -184,7 +184,7 @@
 
 (use-package hl-line
   :config
-  (global-hl-line-mode 1))
+  (global-hl-line-mode 0))
 
 ;; The package `which-key' displays a popup window showing all the possible key
 ;; combinations for the current action. This allows a user to not forget
@@ -220,8 +220,10 @@
 (use-package compile
   :init
   (setopt
-   compilation-scroll-output nil
-   compilation-ask-about-save nil)
+   compilation-always-kill t
+   compilation-scroll-output t
+   compilation-ask-about-save nil
+   )
   ;; Make the compilation window automatically disappear - from enberg on #emacs
   ;; (setq compilation-finish-functions
   ;;       (lambda (buf str)
@@ -343,7 +345,10 @@
   :hook
   (prog-mode-hook . display-line-numbers-mode))
 
+;; @TODO: For some reason which-function considerably slows down Emacs when
+;; opening files.
 (use-package which-func
+  :disabled
   :hook
   (prog-mode-hook . which-function-mode))
 
@@ -416,7 +421,7 @@
   :init
   ;(setq-default org-display-custom-times t)
   (setopt
-   org-directory "~/org"
+   org-directory "~/notes"
    org-agenda-files '("personal.org")
    org-agenda-start-with-log-mode t
    org-log-done 'time
@@ -434,11 +439,11 @@
 (use-package org-capture
   :init
   (setopt
-   org-default-notes-file "~/org/personal.org"
+   org-default-notes-file "~/notes/personal.org"
    org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/personal.org" "Tasks")
+        '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
            "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/org/personal.org")
+          ("j" "Journal" entry (file+datetree "~/notes/personal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
   :bind (("C-c c" . org-capture)))
 
@@ -524,9 +529,10 @@
      :documentFormattingProvider
      :documentRangeFormattingProvider
      :documentOnTypeFormattingProvider
-     :colorProvider
+     ;;:colorProvider
      :foldingRangeProvider
-     :inlayHintProvider))
+     :inlayHintProvider
+     ))
   ;; (setq-default eglot-inlay-hints-mode -1)
   ;; (eldoc-echo-area-use-multiline-p nil)
   ;; :init
@@ -557,7 +563,8 @@
   :hook
   ((c-ts-mode-hook . eglot-ensure)
    (c++-ts-mode-hook . eglot-ensure)
-   (python-ts-mode-hook . eglot-ensure)))
+   (python-ts-mode-hook . eglot-ensure)
+   (zig-mode-hook . eglot-ensure)))
 
 (use-package erc
   :disabled
@@ -896,6 +903,8 @@
 ;; https://github.com/magit/magit
 (use-package magit
   :straight t
+  :init
+  (setq magit-show-long-lines-warning nil)
   :config
   (magit-auto-revert-mode 1)
   :bind
@@ -1039,18 +1048,38 @@
 ;;         org-roam-ui-open-on-start t)
 ;;   :diminish)
 
+(use-package glsl-mode
+  :straight t)
 
 (use-package zig-mode
   :straight t
   :config
   (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode)))
 
-(use-package vterm
-  :straight t)
+(use-package rust-mode
+  :straight t
+  :config
+  (setq rust-format-on-save t
+        rust-mode-treesitter-derive t)
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+
+(use-package slang-mode
+  :straight (:host github :repo "k1ngst0m/slang-mode")
+  :mode (("\\.slang\\'" . slang-mode)
+         ("\\.sl\\'" . slang-mode)
+         ("\\.slangh\\'" . slang-mode))
+  :config
+  ;; Optional: Enable LSP support
+  (require 'slang-lsp)
+  (slang-lsp-initialize))
+
 
 (use-package ox-hugo
   :straight t
   :after ox)
+
+(use-package vterm
+  :straight t)
 
 (use-package naysayer-theme
   :disabled
@@ -1061,12 +1090,10 @@
 (use-package doom-themes
   :straight t
   :config
-  (load-theme 'doom-pine))
+  (load-theme 'doom-tomorrow-night))
 
-
-(use-package ox-hugo
-  :straight t
-  :after ox)
+(use-package gruber-darker-theme
+  :straight t)
 
 (provide 'init)
 ;;; init.el ends here
