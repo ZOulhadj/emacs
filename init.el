@@ -23,9 +23,14 @@
   (load bootstrap-file nil 'nomessage))
 (straight-use-package 'use-package)
 
-(setopt straight-use-package-by-default nil)
 
-(setopt use-package-hook-name-suffix nil)
+
+(use-package straight
+  :custom
+  (straight-use-package-by-default nil))
+
+(setopt use-package-hook-name-suffix nil
+        use-package-always-demand t)
 
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
@@ -53,41 +58,38 @@
 (use-package no-littering
   :straight t
   :init
-  (setopt
-   no-littering-etc-directory (expand-file-name "data/etc/" user-emacs-directory)
-   no-littering-var-directory (expand-file-name "data/var/" user-emacs-directory)))
+  (setopt no-littering-etc-directory (expand-file-name "data/etc/" user-emacs-directory)
+          no-littering-var-directory (expand-file-name "data/var/" user-emacs-directory)))
 
 (use-package emacs
   :init
-  (setopt
-   create-lockfiles nil
-   history-length 1000
-   history-delete-duplicates t
-   use-dialog-box nil
-   ring-bell-function 'ignore
-   frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
-   echo-keystrokes 0.02
-   use-short-answers t
-   frame-title-format '("" (:eval (if (buffer-file-name)
-                                      (abbreviate-file-name (buffer-file-name))
-                                    "%b")))
-   enable-recursive-minibuffers t
-   initial-scratch-message nil
-   inhibit-startup-echo-area-message user-login-name
-   inhibit-startup-screen t
-   ;;inhibit-splash-screen t
-   ;;inhibit-startup-message t
+  (setopt create-lockfiles nil
+          history-length 1000
+          history-delete-duplicates t
+          use-dialog-box nil
+          ring-bell-function 'ignore
+          frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
+          echo-keystrokes 0.02
+          use-short-answers t
+          frame-title-format '("" (:eval (if (buffer-file-name)
+                                             (abbreviate-file-name (buffer-file-name))
+                                           "%b")))
+          enable-recursive-minibuffers t
+          initial-scratch-message nil
+          inhibit-startup-echo-area-message user-login-name
+          inhibit-startup-screen t
+          ;;inhibit-splash-screen t
+          ;;inhibit-startup-message t
 
-   tab-always-indent 'complete
-   delete-by-moving-to-trash t
-   user-full-name "Zakariya Oulhadj"
-   user-mail-address "zakariyaoulhadj01@gmail.com"
+          tab-always-indent 'complete
+          delete-by-moving-to-trash t
+          user-full-name "Zakariya Oulhadj"
+          user-mail-address "zakariyaoulhadj01@gmail.com"
 
-   ;; scroll-conservatively most-positive-fixnum
-   sentence-end-double-space nil
+          ;; scroll-conservatively most-positive-fixnum
+          sentence-end-double-space nil
 
-   scroll-preserve-screen-position t)
-
+          scroll-preserve-screen-position t)
   (setq-default
    tab-width 8
    fill-column 80)
@@ -126,19 +128,16 @@
 ;; ========== [Core] ==========
 (use-package use-package-core
   :init
-  (setopt
-   use-package-verbose t
-   use-package-compute-statistics t))
+  (setopt use-package-verbose t
+          use-package-compute-statistics t))
 
 (use-package comp
   :init
-  (setopt
-   native-comp-async-report-warnings-errors 'silent))
+  (setopt native-comp-async-report-warnings-errors 'silent))
 
 (use-package custom
   :init
-  (setopt
-   custom-safe-themes t))
+  (setopt custom-safe-themes t))
 
 ;; ========== [User Interface] ==========
 
@@ -191,10 +190,9 @@
 ;; specific commands.
 (use-package which-key
   :init
-  (setopt
-   which-key-show-early-on-C-h nil
-   which-key-idle-delay 2.0
-   which-key-idle-secondary-delay nil)
+  (setopt which-key-show-early-on-C-h nil
+          which-key-idle-delay 2.0
+          which-key-idle-secondary-delay nil)
   :config
   ;;(which-key-enable-god-mode-support)
   (which-key-setup-side-window-bottom)
@@ -203,27 +201,23 @@
 
 (use-package face-remap
   :config
-  (setopt
-   text-scale-mode-step 1.2))
+  (setopt text-scale-mode-step 1.2))
 
 ;; @TODO: Move this into eglot configuration
 (use-package cc-vars
   :init
-  (setopt
-   c-default-style "k&r"
-   c-basic-offset 4))
+  (setopt c-default-style "k&r"
+          c-basic-offset 4))
 
 (use-package subword
-  :config
-  (global-subword-mode 1))
+  :hook
+  (prog-mode . subword-mode))
 
 (use-package compile
   :init
-  (setopt
-   compilation-always-kill t
-   compilation-scroll-output t
-   compilation-ask-about-save nil
-   )
+  (setopt compilation-always-kill t
+          compilation-scroll-output t
+          compilation-ask-about-save nil)
   ;; Make the compilation window automatically disappear - from enberg on #emacs
   ;; (setq compilation-finish-functions
   ;;       (lambda (buf str)
@@ -245,9 +239,8 @@
 
 (use-package comint
   :init
-  (setopt
-   comint-input-ignoredups t
-   comint-process-echoes t))
+  (setopt comint-input-ignoredups t
+          comint-process-echoes t))
 
 (use-package whitespace
   :hook
@@ -255,23 +248,20 @@
 
 (use-package calendar
   :init
-  (setopt
-   calendar-date-style "iso"
-   calendar-week-start-day 1))
+  (setopt calendar-date-style "iso"
+          calendar-week-start-day 1))
 
 (use-package vc-hooks
   :init
-  (setopt
-   vc-follow-symlinks t))
+  (setopt vc-follow-symlinks t))
 
 (use-package files
   :init
-  (setopt
-   large-file-warning-threshold 100000000 ; 100 MB
-   make-backup-files nil
-   require-final-newline t
-   delete-old-versions t
-   confirm-kill-emacs nil))
+  (setopt large-file-warning-threshold 100000000 ; 100 MB
+          make-backup-files nil
+          require-final-newline t
+          delete-old-versions t
+          confirm-kill-emacs nil))
 
 (use-package delsel
   :config
@@ -279,16 +269,14 @@
 
 (use-package saveplace
   :init
-  (setopt
-   save-place-limit 500)
+  (setopt save-place-limit 500)
   :config
   (save-place-mode 1))
 
 (use-package savehist
   :init
-  (setopt
-   savehist-additional-variables '(search-ring regexp-search-ring)
-   savehist-autosave-interval 60)
+  (setopt savehist-additional-variables '(search-ring regexp-search-ring)
+          savehist-autosave-interval 60)
   :config
   (savehist-mode +1))
 
@@ -296,10 +284,9 @@
   :disabled ;; todo: messes up the previously loaded theme.
   :init
   ;; @TODO: For some reason dirname is not set?
-  (setopt
-   desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
-   desktop-load-locked-desktop t
-   desktop-auto-save-timeout 30)
+  (setopt desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
+          desktop-load-locked-desktop t
+          desktop-auto-save-timeout 30)
   :config
   (desktop-save-mode 1))
 
@@ -310,20 +297,17 @@
 
 (use-package autorevert
   :init
-  (setopt
-   global-auto-revert-non-file-buffers t)
+  (setopt global-auto-revert-non-file-buffers t)
   :config
   (global-auto-revert-mode t))
 
 (use-package simple
   :init
-  (setopt
-   read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
-   column-number-mode t
-   next-line-add-newlines t
-   kill-do-not-save-duplicates t)
-  (setq-default
-   indent-tabs-mode nil)
+  (setopt read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
+          column-number-mode t
+          next-line-add-newlines t
+          kill-do-not-save-duplicates t)
+  (setq-default indent-tabs-mode nil)
   :config
   (visual-line-mode -1)
   (size-indication-mode -1)
@@ -331,8 +315,7 @@
 
 (use-package time
   :init
-  (setopt
-   display-time-24hr-format t)
+  (setopt display-time-24hr-format t)
   :config
   (display-time-mode -1)
   :custom
@@ -340,10 +323,10 @@
 
 (use-package display-line-numbers
   :init
-  (setopt
-   display-line-numbers-type 'visual)
-  :hook
-  (prog-mode-hook . display-line-numbers-mode))
+  (setopt display-line-numbers-type 'visual)
+  ;; :hook
+  ;; (prog-mode-hook . display-line-numbers-mode)
+  )
 
 ;; @TODO: For some reason which-function considerably slows down Emacs when
 ;; opening files.
@@ -358,16 +341,14 @@
 
 (use-package paren
   :init
-  (setopt
-   show-paren-delay 0.0)
+  (setopt show-paren-delay 0.0)
   :config
   (show-paren-mode 1))
 
 (use-package recentf
   :init
-  (setopt
-   recentf-max-saved-items 500
-   recentf-max-menu-items 15
+  (setopt recentf-max-saved-items 500
+          recentf-max-menu-items 15
    ;; disable recentf-cleanup on emacs start, because it can cause
    ;; problems with remote files (prelude)
    recentf-auto-cleanup 'never)
@@ -387,27 +368,24 @@
 (use-package flyspell
   :disabled ;; @TODO: C-, conflicts with prev-window
   :init
-  (setopt
-   ispell-program-name "aspell"
-   ispell-extra-args '("--sug-mode=ultra"))
+  (setopt ispell-program-name "aspell"
+          ispell-extra-args '("--sug-mode=ultra"))
   :hook
   (prog-mode-hook . flyspell-prog-mode))
 
 (use-package isearch
   :config
-  (setopt
-   isearch-wrap-pause t
-   isearch-lazy-count t
-   isearch-allow-scroll 'unlimited)
+  (setopt isearch-wrap-pause t
+          isearch-lazy-count t
+          isearch-allow-scroll 'unlimited)
   :bind
   (:map isearch-mode-map ("<backspace>" . isearch-del-char)))
 
 (use-package dired
   :init
-  (setopt
-   dired-kill-when-opening-new-dired-buffer t
-   dired-hide-details-hide-symlink-targets nil
-   dired-dwim-target t)
+  (setopt dired-kill-when-opening-new-dired-buffer t
+          dired-hide-details-hide-symlink-targets nil
+          dired-dwim-target t)
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
   (setq-default
@@ -438,13 +416,12 @@
 
 (use-package org-capture
   :init
-  (setopt
-   org-default-notes-file "~/notes/personal.org"
-   org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/notes/personal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
+  (setopt org-default-notes-file "~/notes/personal.org"
+          org-capture-templates
+          '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
+             "* TODO %?\n  %i\n  %a")
+            ("j" "Journal" entry (file+datetree "~/notes/personal.org")
+             "* %?\nEntered on %U\n  %i\n  %a")))
   :bind (("C-c c" . org-capture)))
 
 (use-package org-agenda
@@ -470,10 +447,9 @@
 
 (use-package treesit
   :init
-  (setopt
-   treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
-                                   (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
-                                   (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
+  (setopt treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
+                                          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
+                                          (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
    major-mode-remap-alist '((c-mode . c-ts-mode)
                             (c++-mode . c++-ts-mode)
                             (c-or-c++-mode . c-or-c++-ts-mode)
@@ -544,14 +520,13 @@
 (use-package erc
   :disabled
   :init
-  (setopt
-   erc-server "irc.libera.chat"
-   erc-nick "zoulhadj"
-   erc-user-full-name "Zakariya Oulhadj"
-   erc-track-shorten-start 8
-   erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
-   erc-kill-buffer-on-part t
-   erc-auto-query 'bury))
+  (setopt erc-server "irc.libera.chat"
+          erc-nick "zoulhadj"
+          erc-user-full-name "Zakariya Oulhadj"
+          erc-track-shorten-start 8
+          erc-autojoin-channels-alist '(("irc.libera.chat" "#linux" "#emacs"))
+          erc-kill-buffer-on-part t
+          erc-auto-query 'bury))
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
@@ -643,8 +618,7 @@
 (use-package avy
   :straight t
   :init
-  (setopt
-   avy-timeout-seconds 0.40)
+  (setopt avy-timeout-seconds 0.40)
   :bind
   ("M-j" . avy-goto-char-timer))
 
@@ -689,8 +663,7 @@
 (use-package dumb-jump
   :straight t
   :init
-  (setopt
-   xref-show-definitions-function #'xref-show-definitions-completing-read)
+  (setopt xref-show-definitions-function #'xref-show-definitions-completing-read)
   :hook
   (xref-backend-functions-hook . dumb-jump-xref-activate))
 
@@ -713,13 +686,12 @@
 (use-package vertico
   :straight t
   :init
-  (setopt
-   vertico-cycle t
-   vertico-resize nil
-   vertico-count 10
-   vertico-multiform-commands '((consult-imenu buffer indexed))
-   vertico-multiform-categories '((file grid)
-                                  (consult-grep buffer)))
+  (setopt vertico-cycle t
+          vertico-resize nil
+          vertico-count 10
+          vertico-multiform-commands '((consult-imenu buffer indexed))
+          vertico-multiform-categories '((file grid)
+                                         (consult-grep buffer)))
   :config
   (vertico-mode)
   (vertico-multiform-mode))
@@ -743,17 +715,16 @@
 (use-package corfu
   :straight t
   :init
-  (setopt
-   corfu-cycle t
-   corfu-auto t
-   corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
-   corfu-separator ?\s
-   corfu-quit-at-boundary 'separator
-   corfu-quit-no-match t
-   corfu-preview-current nil
-   corfu-preselect 'valid
-   corfu-on-exact-match 'insert
-   corfu-scroll-margin 1)
+  (setopt corfu-cycle t
+          corfu-auto t
+          corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+          corfu-separator ?\s
+          corfu-quit-at-boundary 'separator
+          corfu-quit-no-match t
+          corfu-preview-current nil
+          corfu-preselect 'valid
+          corfu-on-exact-match 'insert
+          corfu-scroll-margin 1)
   :config
   (global-corfu-mode)
   :bind
@@ -766,10 +737,9 @@
 (use-package orderless
   :straight t
   :init
-  (setopt
-   completion-styles '(orderless partial-completion basic)
-   completion-category-defaults nil
-   completion-category-overrides nil))
+  (setopt completion-styles '(orderless partial-completion basic)
+          completion-category-defaults nil
+          completion-category-overrides nil))
 
 (use-package embark
   :disabled
@@ -781,16 +751,14 @@
 (use-package consult
   :straight t
   :init
-  (setopt
-   register-preview-delay 0.5
-   register-preview-function #'consult-register-format)
+  (setopt register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
 
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Use Consult to select xref locations with preview
-  (setopt
-   xref-show-xrefs-function #'consult-xref
-   xref-show-definitions-function #'consult-xref)
+  (setopt xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
 
   :config
   (consult-customize
@@ -802,8 +770,7 @@
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
-  (setopt
-   consult-narrow-key "<")
+  (setopt consult-narrow-key "<")
 
   ;; Hide buffers that start with a * and only shown them if SPC is pressed
   (add-to-list 'consult-buffer-filter "^\\*")
@@ -899,95 +866,27 @@
 ;;   ("M-N" . drag-stuff-down)
 ;;   :diminish)
 
-;; A Emacs based email client that makes use of mu.
-;;
-;; https://github.com/djcb/mu
-;; todo: only enable if mu (maildir-utils) is installed
-;; maybe we can use :ensure-system-package
-;; Commands:
-;; mu init --maildir=MAILDIR --my-address=MYADDRESS
-;; mu index
-;; (use-package mu4e
-;;   :disabled
-;;   :straight (:local-repo "/usr/share/emacs/site-lisp/mu4e/"
-;;                          :type built-in)
-;;   :commands mu4e
-;;   :init
-;;   (setq mu4e-maildir "~/Mail"
-;;         mu4e-get-mail-command "mbsync -c ~/.dotfiles/mbsync/.mbsyncrc -a"
-;;         mu4e-update-interval 60
-;;         mu4e-mu-debug nil
-;;         ;;mu4e-confirm-quit nil
-;;         ;;mu4e-context-policy 'pick-first
-;;         mu4e-change-filenames-when-moving t
-;;         ;;mu4e-headers-fields `((:human-date . 12)
-;;         ;;                      (:flags . 6)
-;;         ;;                      (:mailing-list . 10)
-;;         ;;                      (:from . 22)
-;;         ;;                      (:subject))
-;;         mu4e-sent-folder   "/[Gmail].Sent Mail"
-;;         mu4e-refile-folder "/[Gmail].All Mail"
-;;         mu4e-drafts-folder "/[Gmail].Drafts"
-;;         mu4e-trash-folder  "/[Gmail].Trash"
-;;         mu4e-maildir-shortcuts '(("/Inbox"             . ?i)
-;;                                  ("/[Gmail].Sent Mail" . ?s)
-;;                                  ("/[Gmail].All Mail"  . ?a)
-;;                                  ("/[Gmail].Trash"     . ?t)
-;;                                  ("/[Gmail].Drafts"    . ?d))
-
-;;         smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-;;         smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-;;         smtpmail-default-smtp-server "smtp.gmail.com"
-;;         smtpmail-smtp-server "smtp.gmail.com"
-;;         smtpmail-smtp-service 587
-;;    )
-
-;;    ;;message-kill-buffer-on-exit t)
-;;    ;;mu4e-headers-date-format "%d/%m/%Y %H:%M"
-;;                                ;; message-send-mail-function 'smtpmail-send-it
-;;                                ;; starttls-use-gnutls t
-;;                                ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-;;                                ;; smtpmail-auth-credentials '(("smtp.gmail.com" 587 "zakariyaoulhadj01@gmail.com" nil))
-;;                                ;; smtpmail-default-smtp-server "smtp.gmail.com"
-;;                                ;; smtpmail-smtp-server "smtp.gmail.com"
-;;                                ;; smtpmail-smtp-service 587
-
-;;   :bind
-;;   ("C-c m" . mu4e))
-
-;; (use-package mu4e-alert
-;;   :straight t
-;;   :requires mu4e
-;;   :config
-;;   (mu4e-alert-enable-mode-line-display))
-
-;; (use-package mu4e-marker-icons
-;;   :requires all-the-icons
-;;   :straight t
-;;   :init (mu4e-marker-icons-mode 1))
-
 ;; The package `elfeed' is an RSS client that allows a user to provide a list of
 ;; RSS sources and the package will retrive the latest news.
 ;;
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
+  :disabled
   :straight t
   :defer t
   :commands (elfeed)
   :config
-  (setopt
-   elfeed-feeds '(("https://www.kernel.org/feeds/kdist.xml" linux)
-                  ("https://protesilaos.com/codelog.xml" emacs prot)
-                  ("https://ziglang.org/devlog/index.xml" zig)))
+  (setopt elfeed-feeds '(("https://www.kernel.org/feeds/kdist.xml" linux)
+                         ("https://protesilaos.com/codelog.xml" emacs prot)
+                         ("https://ziglang.org/devlog/index.xml" zig)))
   :bind
   ("C-c e" . elfeed))
 
 (use-package ace-window
   :straight t
   :config
-  (setopt
-   aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-   aw-background t)
+  (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+          aw-background t)
   :bind
   ("M-o" . ace-window))
 
@@ -1113,10 +1012,8 @@
 ;; (setq interprogram-cut-function 'wl-copy)
 ;; (setq interprogram-paste-function 'wl-paste)
 
-(setopt
- remote-file-name-inhibit-locks t
- tramp-use-scp-direct-remote-copying t
- remote-file-name-inhibit-auto-save-visited t)
+(setopt remote-file-name-inhibit-locks t
+        tramp-use-scp-direct-remote-copying t
+        remote-file-name-inhibit-auto-save-visited t)
 
-(setopt
- safe-local-variable-directories '("/home/zakariya/code/engine"))
+(setopt safe-local-variable-directories '("/home/zakariya/code/engine/"))
