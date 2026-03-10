@@ -535,31 +535,6 @@
      ))
   ;; (setq-default eglot-inlay-hints-mode -1)
   ;; (eldoc-echo-area-use-multiline-p nil)
-  ;; :init
-  ;;:config
-  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1)))
-  ;; (add-to-list 'eglot-server-programs
-  ;;              '((c-ts-mode c++-ts-mode c-mode c++-mode)
-  ;;                . ("clangd"
-  ;;                   "-j=16"
-  ;;                   "--log=info"
-  ;;                   "--malloc-trim"
-  ;;                   "--background-index"
-  ;;                   ;; "--clang-tidy"
-  ;;                   "--completion-style=detailed"
-  ;;                   "--pch-storage=memory"
-  ;;                   "--header-insertion=never"
-  ;;                   "--header-insertion-decorators=0"))
-  ;;              '(zig-mode
-  ;;                . ("zls"
-  ;;                   :initializationOptions
-  ;;                   (;;enable_build_on_save t
-  ;;                    )))
-  ;;              )
-  ;; :bind (:map eglot-mode-map
-  ;;             ("C-c C-d" . eldoc)
-  ;;             ("C-c C-r" . eglot-rename))
-
   :hook
   ((c-ts-mode-hook . eglot-ensure)
    (c++-ts-mode-hook . eglot-ensure)
@@ -1054,7 +1029,11 @@
 (use-package zig-mode
   :straight t
   :config
-  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode)))
+  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+  :bind (:map zig-mode-map
+              ("C-c b" . zig-compile)
+              ("C-c r" . zig-run)
+              ("C-c t" . zig-test)))
 
 (use-package rust-mode
   :straight t
