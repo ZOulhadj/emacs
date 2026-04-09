@@ -24,13 +24,16 @@
 (straight-use-package 'use-package)
 
 
-
 (use-package straight
   :custom
   (straight-use-package-by-default nil))
 
-(setopt use-package-hook-name-suffix nil
-        use-package-always-demand t)
+(use-package use-package-core
+  :init
+  (setopt use-package-verbose t
+          use-package-compute-statistics t
+          use-package-hook-name-suffix nil
+          use-package-always-demand t))
 
 ;; Load private information
 ;;(load-file (concat user-emacs-directory "secret.el"))
@@ -42,12 +45,6 @@
 ;; https://github.com/emacsmirror/diminish
 (use-package diminish
   :straight t)
-
-;; (use-package gcmh
-;;   :straight t
-;;   :config
-;;   (gcmh-mode 1)
-;;   :diminish)
 
 ;; The package `no-littering' ensures that the `user-emacs-directory' location
 ;; is kept "clean" by moving the various different files that get created into
@@ -94,6 +91,16 @@
    tab-width 8
    fill-column 80)
 
+  (setq-default mode-line-format
+                '("%e" mode-line-front-space
+                  (:propertize
+                   ("" mode-line-mule-info mode-line-client mode-line-modified
+                    mode-line-remote)
+                   display (min-width (5.0)))
+                  mode-line-frame-identification mode-line-buffer-identification "   "
+                  mode-line-position (vc-mode vc-mode) "  " mode-line-modes
+                  mode-line-misc-info mode-line-end-spaces))
+
   ;; Disable bindings for suspending Emacs in graphical mode since it's super
   ;; annoying.
   (when (display-graphic-p)
@@ -115,21 +122,17 @@
   (text-mode-ispell-word-completion nil)
 
   :bind
-  ("C-x k" . kill-current-buffer))
+  ("<mouse-2>" . nil)
+  ("<mouse-3>" . nil)
+  ("C-x k" . kill-current-buffer)
+  ("C-c r" . recompile))
 
 (defun zo/config-load ()
-  "Load my Emacs init.el configuration file."
+  "Load my Emacs configuration."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
 
-;;(global-set-key (kbd "C-c c") 'custom/load-config)
-(global-set-key (kbd "C-c r") 'recompile)
-
 ;; ========== [Core] ==========
-(use-package use-package-core
-  :init
-  (setopt use-package-verbose t
-          use-package-compute-statistics t))
 
 (use-package comp
   :init
@@ -179,7 +182,7 @@
 
 (use-package fringe
   :config
-  (fringe-mode 1))
+  (fringe-mode 8))
 
 (use-package hl-line
   :config
@@ -324,8 +327,8 @@
 (use-package display-line-numbers
   :init
   (setopt display-line-numbers-type 'visual)
-  ;; :hook
-  ;; (prog-mode-hook . display-line-numbers-mode)
+  :hook
+  (prog-mode-hook . display-line-numbers-mode)
   )
 
 ;; @TODO: For some reason which-function considerably slows down Emacs when
@@ -400,8 +403,8 @@
   ;(setq-default org-display-custom-times t)
   (setopt
    org-directory "~/notes"
-   org-agenda-files '("personal.org")
-   org-agenda-start-with-log-mode t
+   org-agenda-files '("~/notes/personal.org")
+   org-agenda-start-with-log-mode '(closed clock)
    org-log-done 'time
    org-log-into-drawer t
    org-startup-indented nil
@@ -410,18 +413,19 @@
    ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
    org-return-follows-link t
    org-hide-emphasis-markers t)
+   ;org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
    ;;org-export-backends '(html md))
   :hook
   (org-mode-hook . turn-on-auto-fill))
 
 (use-package org-capture
   :init
-  (setopt org-default-notes-file "~/notes/personal.org"
-          org-capture-templates
-          '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
-             "* TODO %?\n  %i\n  %a")
-            ("j" "Journal" entry (file+datetree "~/notes/personal.org")
-             "* %?\nEntered on %U\n  %i\n  %a")))
+  (setq org-default-notes-file "~/notes/personal.org")
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/notes/personal.org")
+           "* %?\nEntered on %U\n  %i\n  %a")))
   :bind (("C-c c" . org-capture)))
 
 (use-package org-agenda
@@ -722,13 +726,17 @@
           corfu-quit-at-boundary 'separator
           corfu-quit-no-match t
           corfu-preview-current nil
-          corfu-preselect 'valid
-          corfu-on-exact-match 'insert
+          corfu-preselect 'prompt
+          corfu-on-exact-match nil
           corfu-scroll-margin 1)
   :config
   (global-corfu-mode)
   :bind
-  (:map corfu-map ("RET" . nil)))
+  (:map corfu-map
+        ("RET" . nil)
+        ("<return>" . nil)
+        ("TAB" . corfu-complete)
+        ("<tab>" . corfu-complete)))
 
 ;; This package changes how completion candidates are displayed within a
 ;; completion window such as `corfu' or `company'.
@@ -846,7 +854,7 @@
 (use-package magit
   :straight t
   :init
-  (setq magit-show-long-lines-warning nil)
+  (setopt magit-show-long-lines-warning nil)
   :config
   (magit-auto-revert-mode 1)
   :bind
@@ -886,7 +894,8 @@
   :straight t
   :config
   (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-          aw-background t)
+          aw-background nil
+          aw-scope 'frame)
   :bind
   ("M-o" . ace-window))
 
@@ -937,8 +946,8 @@
 (use-package rust-mode
   :straight t
   :config
-  (setq rust-format-on-save t
-        rust-mode-treesitter-derive t)
+  (setopt rust-format-on-save t
+          rust-mode-treesitter-derive t)
   (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
 
 (use-package slang-mode
@@ -948,8 +957,10 @@
          ("\\.slangh\\'" . slang-mode))
   :config
   ;; Optional: Enable LSP support
-  (require 'slang-lsp)
-  (slang-lsp-initialize))
+  ;; (require 'slang-lsp)
+  ;; (slang-lsp-initialize)
+
+  )
 
 
 (use-package ox-hugo
@@ -1017,3 +1028,5 @@
         remote-file-name-inhibit-auto-save-visited t)
 
 (setopt safe-local-variable-directories '("/home/zakariya/code/engine/"))
+
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
