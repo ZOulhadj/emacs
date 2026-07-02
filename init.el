@@ -87,10 +87,8 @@
           sentence-end-double-space nil
 
           scroll-preserve-screen-position t)
-  (setq-default
-   tab-width 8
-   fill-column 80)
-
+  (setq-default tab-width 8
+                fill-column 80)
   (setq-default mode-line-format
                 '("%e" mode-line-front-space
                   (:propertize
@@ -101,8 +99,7 @@
                   mode-line-position (vc-mode vc-mode) "  " mode-line-modes
                   mode-line-misc-info mode-line-end-spaces))
 
-  ;; Disable bindings for suspending Emacs in graphical mode since it's super
-  ;; annoying.
+  ;; Disable bindings for suspending Emacs in graphical mode
   (when (display-graphic-p)
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z")))
@@ -110,8 +107,7 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (blink-cursor-mode -1)
-  (menu-bar-mode -1)
-
+  (menu-bar-mode 1)
   :config
   (put 'narrow-to-region 'disabled nil)
 
@@ -175,10 +171,9 @@
 
 (use-package display-fill-column-indicator
   :config
-  (set-face-attribute 'fill-column-indicator nil :foreground "grey14")
-  ;; :hook
-  ;; (prog-mode . display-fill-column-indicator-mode)
-  )
+  (setq-default display-fill-column-indicator-column 80
+                display-fill-column-indicator-character ?\u2502)
+  (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode))
 
 (use-package fringe
   :config
@@ -186,7 +181,7 @@
 
 (use-package hl-line
   :config
-  (global-hl-line-mode 0))
+  (global-hl-line-mode 1))
 
 ;; The package `which-key' displays a popup window showing all the possible key
 ;; combinations for the current action. This allows a user to not forget
@@ -220,17 +215,15 @@
   :init
   (setopt compilation-always-kill t
           compilation-scroll-output t
-          compilation-ask-about-save nil)
-  ;; Make the compilation window automatically disappear - from enberg on #emacs
-  ;; (setq compilation-finish-functions
-  ;;       (lambda (buf str)
-  ;;         (if (null (string-match ".*exited abnormally.*" str))
-  ;;             ;;no errors, make the compilation window go away in a few seconds
-  ;;             (progn
-  ;;               (run-at-time
-  ;;                "1 sec" nil 'delete-windows-on
-  ;;                (get-buffer-create "*compilation*"))
-  ;;               (message "No Compilation Errors!")))))
+          compilation-ask-about-save nil
+          compilation-auto-jump-to-first-error t
+          compilation-max-output-line-length nil)
+
+  ;; Auto-close compilation buffer when there are no errors.
+  (setq compilation-finish-functions
+      (list (lambda (buf status)
+              (when (string-match-p "finished" status)
+                (run-at-time 1 nil #'delete-windows-on buf)))))
   :hook
   (compilation-mode-hook . visual-line-mode)
   :bind
@@ -442,12 +435,13 @@
   :config
   (org-clock-persistence-insinuate))
 
-;; (use-package gnus
-;;   :init
-;;   (setq gnus-select-method '(nntp "news.gmane.io")
-;;         gnus-thread-hide-subtree t
-;;         gnus-newsgroup-maximum-articles 50
-;;         gnus-secondary-select-methods '((nntp "news.tilde.club"))))
+(use-package gnus
+  :init
+  (setq gnus-select-method '(nnnil "")
+        gnus-secondary-select-methods '((nnml ""))
+        gnus-summary-display-arrow nil
+        gnus-auto-select-first nil
+        gnus-thread-hide-subtree t))
 
 (use-package treesit
   :init
@@ -515,6 +509,19 @@
      ))
   ;; (setq-default eglot-inlay-hints-mode -1)
   ;; (eldoc-echo-area-use-multiline-p nil)
+
+  :config
+  (add-to-list 'eglot-server-programs
+               `(zig-mode . ("~/.local/bin/zls")))
+  (setq-default eglot-workspace-configuration
+                '((:zls . (:enable_autofix t))))
+  (add-hook 'zig-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook
+                        (lambda ()
+                          (when (eglot-managed-p)
+                            (eglot-code-actions nil nil "source.fixAll" t)))
+                        nil t)))
   :hook
   ((c-ts-mode-hook . eglot-ensure)
    (c++-ts-mode-hook . eglot-ensure)
@@ -682,6 +689,12 @@
   (global-flycheck-mode)
   :diminish)
 
+(use-package idle-highlight-mode
+  :straight t
+  :config (setq idle-highlight-idle-time 0.35)
+
+  :hook ((prog-mode text-mode) . idle-highlight-mode))
+
 
 ;; The package `vertico' provides vertical interactive completion similar to
 ;; `smex' or the built-in package `ido'.
@@ -721,12 +734,12 @@
   :init
   (setopt corfu-cycle t
           corfu-auto t
-          corfu-auto-delay 0.2 ; Should not use lower values as this can cause issues
+          corfu-auto-delay 0.1
           corfu-separator ?\s
           corfu-quit-at-boundary 'separator
           corfu-quit-no-match t
           corfu-preview-current nil
-          corfu-preselect 'prompt
+          corfu-preselect 'first
           corfu-on-exact-match nil
           corfu-scroll-margin 1)
   :config
@@ -937,11 +950,12 @@
 (use-package zig-mode
   :straight t
   :config
-  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
-  :bind (:map zig-mode-map
-              ("C-c b" . zig-compile)
-              ("C-c r" . zig-run)
-              ("C-c t" . zig-test)))
+  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode)))
+  ;; :bind (:map zig-mode-map
+  ;;             ("C-c b" . zig-compile)
+  ;;             ("C-c r" . zig-run)
+  ;;             ("C-c t" . zig-test))
+
 
 (use-package rust-mode
   :straight t
@@ -967,22 +981,86 @@
   :straight t
   :after ox)
 
-(use-package vterm
-  :straight t)
+(use-package ghostel
+  :straight (ghostel :type git :host github :repo "dakra/ghostel")
+  :custom (ghostel-module-auto-install 'download)
+  :bind (("C-x m" . ghostel)
+         :map ghostel-semi-char-mode-map
+         ("C-s"  . consult-line)
+         ("C-k"  . my/ghostel-send-C-k-and-kill)
+         ;; ;; I'm used to go up/down the shell history with M-n/p from eshell
+         ;; ;; Simulate this behavior in ghostel by sending C-p and C-n
+         ("M-p" . (lambda () (interactive) (ghostel-send-key "p" "ctrl")))
+         ("M-n" . (lambda () (interactive) (ghostel-send-key "n" "ctrl")))
+         :map project-prefix-map
+         ("m" . ghostel-project)
+         ("M" . ghostel-project-list-buffers))
+  :config
+  (defun my/ghostel-send-C-k-and-kill ()
+    "Send `C-k' to ghostel. Like normal Emacs `C-k'. Kill to end of line and
+put content in kill-ring."
+    (interactive)
+    (kill-ring-save (point) (line-end-position))
+    (ghostel-send-key "k" "ctrl"))
+
+  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
+  (add-to-list 'project-switch-commands '(ghostel-project-list-buffers "Ghostel buffers") t)
+  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer)))
+
+(use-package ghostel-eshell
+  :hook (eshell-load . ghostel-eshell-visual-command-mode))
+
+;; Replaces compilation mode buffers with ghostel buffers instead that utilizes
+;; libghostty-vt behind the scenes.
+(use-package ghostel-compile
+  :hook (after-init . ghostel-compile-global-mode)
+  :config (ghostel-compile-global-mode t))
+
+(use-package ghostel-comint
+  :hook (after-init . ghostel-comint-global-mode))
 
 (use-package naysayer-theme
-  :disabled
-  :straight t
-  :config
-  (load-theme 'naysayer))
+  :straight t)
+
+(use-package vscode-dark-plus-theme
+  :straight t)
+
+(use-package handmade-theme
+  :straight (handmade-theme :type git :host github :repo "npavlinek/handmade-theme")
+  :init
+  (add-to-list 'custom-theme-load-path (straight--repos-dir "handmade-theme")))
 
 (use-package doom-themes
-  :straight t
-  :config
-  (load-theme 'doom-tomorrow-night))
+  :straight t)
 
 (use-package gruber-darker-theme
   :straight t)
+
+(use-package ligature
+  :straight t
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
 
 (provide 'init)
 ;;; init.el ends here
