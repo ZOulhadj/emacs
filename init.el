@@ -214,16 +214,19 @@
 (use-package compile
   :init
   (setopt compilation-always-kill t
-          compilation-scroll-output t
+          compilation-scroll-output 'first-error ;; t
           compilation-ask-about-save nil
           compilation-auto-jump-to-first-error t
-          compilation-max-output-line-length nil)
-
-  ;; Auto-close compilation buffer when there are no errors.
-  (setq compilation-finish-functions
-      (list (lambda (buf status)
-              (when (string-match-p "finished" status)
-                (run-at-time 1 nil #'delete-windows-on buf)))))
+          compilation-max-output-line-length nil
+          compilation-finish-functions
+          (list (lambda (buf status)
+                  (when (string-match-p "finished" status)
+                    (run-at-time 0.5 nil
+                                 (lambda (b)
+                                   (let ((win (get-buffer-window b)))
+                                     (when win
+                                       (quit-window nil win))))
+                                 buf)))))
   :hook
   (compilation-mode-hook . visual-line-mode)
   :bind
@@ -243,9 +246,9 @@
   (before-save-hook . whitespace-cleanup))
 
 (use-package calendar
-  :init
-  (setopt calendar-date-style "iso"
-          calendar-week-start-day 1))
+  :custom
+  (calendar-week-start-day 1)
+  (calendar-date-style 'european))
 
 (use-package vc-hooks
   :init
@@ -371,9 +374,11 @@
 
 (use-package isearch
   :config
-  (setopt isearch-wrap-pause t
+  (setopt isearch-wrap-pause 'no-ding
           isearch-lazy-count t
-          isearch-allow-scroll 'unlimited)
+          isearch-allow-scroll 'unlimited
+          lazy-highlight-cleanup t
+          lazy-highlight-buffer t)
   :bind
   (:map isearch-mode-map ("<backspace>" . isearch-del-char)))
 
@@ -513,15 +518,15 @@
   :config
   (add-to-list 'eglot-server-programs
                `(zig-mode . ("~/.local/bin/zls")))
-  (setq-default eglot-workspace-configuration
-                '((:zls . (:enable_autofix t))))
-  (add-hook 'zig-mode-hook
-            (lambda ()
-              (add-hook 'before-save-hook
-                        (lambda ()
-                          (when (eglot-managed-p)
-                            (eglot-code-actions nil nil "source.fixAll" t)))
-                        nil t)))
+  ;; (setq-default eglot-workspace-configuration
+  ;;               '((:zls . (:enable_autofix t))))
+  ;; (add-hook 'zig-mode-hook
+  ;;           (lambda ()
+  ;;             (add-hook 'before-save-hook
+  ;;                       (lambda ()
+  ;;                         (when (eglot-managed-p)
+  ;;                           (eglot-code-actions nil nil "source.fixAll" t)))
+  ;;                       nil t)))
   :hook
   ((c-ts-mode-hook . eglot-ensure)
    (c++-ts-mode-hook . eglot-ensure)
@@ -691,7 +696,7 @@
 
 (use-package idle-highlight-mode
   :straight t
-  :config (setq idle-highlight-idle-time 0.35)
+  :config (setopt idle-highlight-idle-time 0.35)
 
   :hook ((prog-mode text-mode) . idle-highlight-mode))
 
@@ -947,10 +952,22 @@
 (use-package glsl-mode
   :straight t)
 
+(use-package markdown-mode
+  :straight t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setopt markdown-command "multimarkdown")
+  :bind (:map markdown-mode-map
+         ("C-c C-e" . markdown-do)))
+
 (use-package zig-mode
   :straight t
   :config
-  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode)))
+  (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+  (add-hook 'zig-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook
+                        (lambda ()
+                          (eglot-code-actions nil nil "source.fixAll" t))))))
   ;; :bind (:map zig-mode-map
   ;;             ("C-c b" . zig-compile)
   ;;             ("C-c r" . zig-run)
@@ -1018,6 +1035,25 @@ put content in kill-ring."
 
 (use-package ghostel-comint
   :hook (after-init . ghostel-comint-global-mode))
+
+(use-package auto-dark
+  :straight t
+  :custom
+  (auto-dark-themes '((doom-tomorrow-night) (doom-tomorrow-day)))
+  (auto-dark-polling-interval-seconds 5)
+  (auto-dark-allow-osascript nil)
+  (auto-dark-allow-powershell nil)
+  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+        ;; something to execute when dark mode is detected
+        ))
+  (auto-dark-light-mode
+   . (lambda ()
+        ;; something to execute when light mode is detected
+        ))
+  :init (auto-dark-mode))
 
 (use-package naysayer-theme
   :straight t)
