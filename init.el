@@ -418,7 +418,7 @@
 
 (use-package org-capture
   :init
-  (setq org-default-notes-file "~/notes/personal.org")
+  (setopt org-default-notes-file "~/notes/personal.org")
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
            "* TODO %?\n  %i\n  %a")
@@ -442,7 +442,7 @@
 
 (use-package gnus
   :init
-  (setq gnus-select-method '(nnnil "")
+  (setopt gnus-select-method '(nnnil "")
         gnus-secondary-select-methods '((nnml ""))
         gnus-summary-display-arrow nil
         gnus-auto-select-first nil
@@ -897,14 +897,10 @@
 ;;
 ;; https://github.com/skeeto/elfeed
 (use-package elfeed
-  :disabled
   :straight t
-  :defer t
   :commands (elfeed)
   :config
-  (setopt elfeed-feeds '(("https://www.kernel.org/feeds/kdist.xml" linux)
-                         ("https://protesilaos.com/codelog.xml" emacs prot)
-                         ("https://ziglang.org/devlog/index.xml" zig)))
+  (setopt elfeed-feeds '(("https://ziglang.org/devlog/index.xml" zig)))
   :bind
   ("C-c e" . elfeed))
 
@@ -1036,25 +1032,6 @@ put content in kill-ring."
 (use-package ghostel-comint
   :hook (after-init . ghostel-comint-global-mode))
 
-(use-package auto-dark
-  :straight t
-  :custom
-  (auto-dark-themes '((doom-tomorrow-night) (doom-tomorrow-day)))
-  (auto-dark-polling-interval-seconds 5)
-  (auto-dark-allow-osascript nil)
-  (auto-dark-allow-powershell nil)
-  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-        ;; something to execute when dark mode is detected
-        ))
-  (auto-dark-light-mode
-   . (lambda ()
-        ;; something to execute when light mode is detected
-        ))
-  :init (auto-dark-mode))
-
 (use-package naysayer-theme
   :straight t)
 
@@ -1071,6 +1048,27 @@ put content in kill-ring."
 
 (use-package gruber-darker-theme
   :straight t)
+
+
+(use-package auto-dark
+  :straight t
+  :custom
+  (auto-dark-themes '((doom-tomorrow-night) ()))
+  (auto-dark-polling-interval-seconds 5)
+  (auto-dark-allow-osascript nil)
+  (auto-dark-allow-powershell nil)
+  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+        ;; something to execute when dark mode is detected
+        ))
+  (auto-dark-light-mode
+   . (lambda ()
+        ;; something to execute when light mode is detected
+        ))
+  :init (auto-dark-mode)
+  :diminish)
 
 (use-package ligature
   :straight t
@@ -1144,3 +1142,16 @@ put content in kill-ring."
 (setopt safe-local-variable-directories '("/home/zakariya/code/engine/"))
 
 (org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-vc-selected-packages
+   '((modus-alabaster :url "https://github.com/dpassen/modus-alabaster"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

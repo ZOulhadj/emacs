@@ -4,7 +4,8 @@
 ;;       read-process-output-max (* 16 1024 1024))
 
 (setq-default default-font "Casacdia Mono")
-(set-face-attribute 'default nil :family default-font :height 120)
+;;(setq-default default-font "Maple Mono")
+(set-face-attribute 'default nil :family default-font :height 130)
 
 (setq package-enable-at-startup nil)
 
