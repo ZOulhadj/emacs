@@ -4,11 +4,11 @@
 ;;
 ;;; Code:
 
-;; Use `straight.el' instead of the built-in `package.el' for downloading external
-;; packages.  As we are completely replacing `package.el' we need to download
-;; `straight.el' without using it.  We first create a bootstrap file that will
-;; contain the install script and is installed the very first time we launch
-;; Emacs.
+;; Use `straight.el' instead of the built-in `package.el' for downloading
+;; external packages. As we are completely replacing `package.el' we need to
+;; download `straight.el' without using it. We first create a bootstrap file
+;; that will contain the install script and is installed the very first time we
+;; launch Emacs.
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -23,7 +23,6 @@
   (load bootstrap-file nil 'nomessage))
 (straight-use-package 'use-package)
 
-
 (use-package straight
   :custom
   (straight-use-package-by-default nil))
@@ -34,9 +33,6 @@
           use-package-compute-statistics t
           use-package-hook-name-suffix nil
           use-package-always-demand t))
-
-;; Load private information
-;;(load-file (concat user-emacs-directory "secret.el"))
 
 ;; The package `diminish' introduces the `:diminish' keyword which can be used
 ;; together with `use-package' to hide minor modes from the modeline. This
@@ -321,6 +317,7 @@
   (display-time-default-load-average nil))
 
 (use-package display-line-numbers
+  :disabled
   :init
   (setopt display-line-numbers-type 'visual)
   :hook
@@ -746,7 +743,8 @@
           corfu-preview-current nil
           corfu-preselect 'first
           corfu-on-exact-match nil
-          corfu-scroll-margin 1)
+          corfu-scroll-margin 1
+          corfu-count 5)
   :config
   (global-corfu-mode)
   :bind
@@ -1044,6 +1042,8 @@ put content in kill-ring."
   (add-to-list 'custom-theme-load-path (straight--repos-dir "handmade-theme")))
 
 (use-package doom-themes
+  :config
+  (load-theme 'doom-pine)
   :straight t)
 
 (use-package gruber-darker-theme
@@ -1051,9 +1051,10 @@ put content in kill-ring."
 
 
 (use-package auto-dark
+  :disabled
   :straight t
   :custom
-  (auto-dark-themes '((doom-tomorrow-night) ()))
+  (auto-dark-themes '(() ()))
   (auto-dark-polling-interval-seconds 5)
   (auto-dark-allow-osascript nil)
   (auto-dark-allow-powershell nil)
@@ -1069,32 +1070,6 @@ put content in kill-ring."
         ))
   :init (auto-dark-mode)
   :diminish)
-
-(use-package ligature
-  :straight t
-  :config
-  ;; Enable the "www" ligature in every possible major mode
-  (ligature-set-ligatures 't '("www"))
-  ;; Enable traditional ligature support in eww-mode, if the
-  ;; `variable-pitch' face supports it
-  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-  ;; Enable all Cascadia Code ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\\\" "://"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
 
 (provide 'init)
 ;;; init.el ends here
@@ -1142,16 +1117,3 @@ put content in kill-ring."
 (setopt safe-local-variable-directories '("/home/zakariya/code/engine/"))
 
 (org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-vc-selected-packages
-   '((modus-alabaster :url "https://github.com/dpassen/modus-alabaster"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
