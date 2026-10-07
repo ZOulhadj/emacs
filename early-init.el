@@ -3,8 +3,8 @@
 ;; (setq gc-cons-threshold most-positive-fixnum
 ;;       read-process-output-max (* 16 1024 1024))
 
-;;(setq-default default-font "Casacdia Mono")
-(setq-default default-font "Martian Mono Std Rg")
+(setq-default default-font "Cascadia Code")
+;;(setq-default default-font "Martian Mono Std Rg")
 ;;(setq-default default-font "Maple Mono")
 (set-face-attribute 'default nil :family default-font :height 130)
 
