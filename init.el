@@ -55,6 +55,11 @@
           no-littering-var-directory (expand-file-name "data/var/" user-emacs-directory)))
 
 (use-package emacs
+  :bind
+  ("<mouse-2>" . nil)
+  ("<mouse-3>" . nil)
+  ("C-x k" . kill-current-buffer)
+  ("C-c r" . recompile)
   :init
   (setopt create-lockfiles nil
           history-length 1000
@@ -112,13 +117,7 @@
                       :slant 'italic)
   (load-theme 'modus-vivendi)
   :custom
-  (text-mode-ispell-word-completion nil)
-
-  :bind
-  ("<mouse-2>" . nil)
-  ("<mouse-3>" . nil)
-  ("C-x k" . kill-current-buffer)
-  ("C-c r" . recompile))
+  (text-mode-ispell-word-completion nil))
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
@@ -193,6 +192,10 @@
   (prog-mode . subword-mode))
 
 (use-package compile
+  :bind
+  ("<f5>" . recompile)
+  :hook
+  (compilation-mode-hook . visual-line-mode)
   :init
   (setopt compilation-always-kill t
           compilation-scroll-output 'first-error ;; t
@@ -207,11 +210,7 @@
                                    (let ((win (get-buffer-window b)))
                                      (when win
                                        (quit-window nil win))))
-                                 buf)))))
-  :hook
-  (compilation-mode-hook . visual-line-mode)
-  :bind
-  ("<f5>" . recompile)) ;;("C-c c" . recompile)
+                                 buf))))))
 
 (use-package ansi-color
   :hook
@@ -350,18 +349,19 @@
   (prog-mode-hook . flyspell-prog-mode))
 
 (use-package isearch
+  :bind
+  (:map isearch-mode-map ("<backspace>" . isearch-del-char))
   :config
   (setopt isearch-wrap-pause 'no-ding
           isearch-lazy-count t
           isearch-allow-scroll 'unlimited
           lazy-highlight-cleanup t
-          lazy-highlight-buffer t)
-  :bind
-  (:map isearch-mode-map ("<backspace>" . isearch-del-char)))
+          lazy-highlight-buffer t))
 
 (use-package dired
+  :bind (:map dired-mode-map
+              ([mouse-2] . dired-mouse-find-file))
   :init
-  (setopt )
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
   (setq-default
@@ -369,8 +369,6 @@
   :hook
   ((dired-mode . dired-hide-details-mode)
    (dired-mode . hl-line-mode))
-  :bind (:map dired-mode-map
-         ([mouse-2] . dired-mouse-find-file))
   :config
   (setopt dired-recursive-copies 'always
           dired-recursive-deletes 'always
@@ -404,20 +402,18 @@
   (org-mode-hook . turn-on-auto-fill))
 
 (use-package org-capture
+  :bind (("C-c c" . org-capture))
   :init
   (setopt org-default-notes-file "~/notes/personal.org")
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline "~/notes/personal.org" "Tasks")
            "* TODO %?\n  %i\n  %a")
           ("j" "Journal" entry (file+datetree "~/notes/personal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
-  :bind (("C-c c" . org-capture)))
+           "* %?\nEntered on %U\n  %i\n  %a"))))
 
 (use-package org-agenda
   :bind
   ("C-c a" . org-agenda))
-
-
 
 (use-package org-clock
   :init
@@ -641,10 +637,10 @@
 
 (use-package avy
   :straight t
-  :init
-  (setopt avy-timeout-seconds 0.40)
   :bind
-  ("M-j" . avy-goto-char-timer))
+  ("M-j" . avy-goto-char-timer)
+  :init
+  (setopt avy-timeout-seconds 0.40))
 
 ;; ;; The package `exec-path-from-shell' ensures all environment variables are
 ;; ;; present within Emacs. By default, Emacs only uses a small subset of
@@ -736,6 +732,12 @@
 
 (use-package corfu
   :straight t
+  :bind
+  (:map corfu-map
+        ("RET" . nil)
+        ("<return>" . nil)
+        ("TAB" . corfu-complete)
+        ("<tab>" . corfu-complete))
   :init
   (setopt corfu-cycle t
           corfu-auto nil
@@ -755,13 +757,7 @@
   (corfu-popupinfo-mode 1)
   (with-eval-after-load 'savehist
     (corfu-history-mode 1)
-    (add-to-list 'savehist-additional-variables 'corfu-history))
-  :bind
-  (:map corfu-map
-        ("RET" . nil)
-        ("<return>" . nil)
-        ("TAB" . corfu-complete)
-        ("<tab>" . corfu-complete)))
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
 
 (use-package orderless
   :straight t
@@ -776,31 +772,6 @@
 
 (use-package consult
   :straight t
-  :init
-  (setopt register-preview-delay 0.5
-          register-preview-function #'consult-register-format)
-
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Use Consult to select xref locations with preview
-  (setopt xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
-
-  :config
-  (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
-   :preview-key '(:debounce 0.4 any))
-
-  (setopt consult-narrow-key "<")
-
-  ;; Hide buffers that start with a * and only shown them if SPC is pressed
-  (add-to-list 'consult-buffer-filter "^\\*")
-
   :bind
   (("C-c M-x" . consult-mode-command)
    ("C-c h" . consult-history)
@@ -848,11 +819,35 @@
    :map minibuffer-local-map
    ("M-s" . consult-history)                 ;; orig. next-matching-history-element
    ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  :init
+  (setopt register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
+
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setopt xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+  :config
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  (setopt consult-narrow-key "<")
+
+  ;; Hide buffers that start with a * and only shown them if SPC is pressed
+  (add-to-list 'consult-buffer-filter "^\\*")
   :hook
   (completion-list-mode-hook . consult-preview-at-point-mode))
 
 (use-package embark-consult
-  :straight t
+  :straight tnnn
   :requires (embark consult)
   :hook
   (embark-collect-mode-hook . consult-preview-at-point-mode))
@@ -958,10 +953,10 @@
 
 (use-package markdown-mode
   :straight t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setopt markdown-command "multimarkdown")
   :bind (:map markdown-mode-map
-         ("C-c C-e" . markdown-do)))
+         ("C-c C-e" . markdown-do))
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setopt markdown-command "multimarkdown"))
 
 (use-package zig-mode
   :straight t
@@ -1004,7 +999,6 @@
 
 (use-package ghostel
   :straight (ghostel :type git :host github :repo "dakra/ghostel")
-  :custom (ghostel-module-auto-install 'download)
   :bind (("C-x m" . ghostel)
          :map ghostel-semi-char-mode-map
          ("C-s"  . consult-line)
@@ -1016,6 +1010,7 @@
          :map project-prefix-map
          ("m" . ghostel-project)
          ("M" . ghostel-project-list-buffers))
+  :custom (ghostel-module-auto-install 'download)
   :config
   (defun my/ghostel-send-C-k-and-kill ()
     "Send `C-k' to ghostel. Like normal Emacs `C-k'. Kill to end of line and
