@@ -1,0 +1,4 @@
+#+TITLE: README
+
+* Dependencies
+- rg (RipGrep)
