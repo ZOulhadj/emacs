@@ -1030,46 +1030,10 @@ put content in kill-ring."
 (use-package ghostel-comint
   :hook (after-init . ghostel-comint-global-mode))
 
-(use-package naysayer-theme
-  :straight t)
-
-(use-package vscode-dark-plus-theme
-  :straight t)
-
-(use-package handmade-theme
-  :straight (handmade-theme :type git :host github :repo "npavlinek/handmade-theme")
-  :init
-  (add-to-list 'custom-theme-load-path (straight--repos-dir "handmade-theme")))
-
 (use-package doom-themes
   :config
   (load-theme 'doom-pine)
   :straight t)
-
-(use-package gruber-darker-theme
-  :straight t)
-
-
-(use-package auto-dark
-  :disabled
-  :straight t
-  :custom
-  (auto-dark-themes '(() ()))
-  (auto-dark-polling-interval-seconds 5)
-  (auto-dark-allow-osascript nil)
-  (auto-dark-allow-powershell nil)
-  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-        ;; something to execute when dark mode is detected
-        ))
-  (auto-dark-light-mode
-   . (lambda ()
-        ;; something to execute when light mode is detected
-        ))
-  :init (auto-dark-mode)
-  :diminish)
 
 (provide 'init)
 ;;; init.el ends here
