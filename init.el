@@ -110,6 +110,7 @@
   (set-face-attribute 'font-lock-comment-face nil
                       :foreground "#49503d"
                       :slant 'italic)
+  (load-theme 'modus-vivendi)
   :custom
   (text-mode-ispell-word-completion nil)
 
@@ -1040,6 +1041,7 @@ put content in kill-ring."
   :hook (after-init . ghostel-comint-global-mode))
 
 (use-package doom-themes
+  :disabled
   :config
   (load-theme 'doom-badger)
   :straight t)
