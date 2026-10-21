@@ -119,12 +119,13 @@
   ("C-x k" . kill-current-buffer)
   ("C-c r" . recompile))
 
+(setq custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file :no-error-if-file-is-missing)
+
 (defun zo/config-load ()
   "Load my Emacs configuration."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
-
-;; ========== [Core] ==========
 
 (use-package comp
   :init
@@ -133,9 +134,6 @@
 (use-package custom
   :init
   (setopt custom-safe-themes t))
-
-;; ========== [User Interface] ==========
-
 
 (defun prev-window ()
   (interactive)
@@ -165,12 +163,6 @@
   ;;(toggle-frame-fullscreen)
   )
 
-(use-package display-fill-column-indicator
-  :config
-  (setq-default display-fill-column-indicator-column 80
-                display-fill-column-indicator-character ?\u2502)
-  (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode))
-
 (use-package fringe
   :config
   (fringe-mode 8))
@@ -179,23 +171,15 @@
   :config
   (global-hl-line-mode 1))
 
-;; The package `which-key' displays a popup window showing all the possible key
-;; combinations for the current action. This allows a user to not forget
-;; specific commands.
 (use-package which-key
   :init
   (setopt which-key-show-early-on-C-h nil
-          which-key-idle-delay 2.0
+          which-key-idle-delay 1.0
           which-key-idle-secondary-delay nil)
   :config
-  ;;(which-key-enable-god-mode-support)
   (which-key-setup-side-window-bottom)
   (which-key-mode)
   :diminish)
-
-(use-package face-remap
-  :config
-  (setopt text-scale-mode-step 1.2))
 
 ;; @TODO: Move this into eglot configuration
 (use-package cc-vars
@@ -317,27 +301,22 @@
   (display-time-default-load-average nil))
 
 (use-package display-line-numbers
-  :disabled
   :init
   (setopt display-line-numbers-type 'visual)
   :hook
-  (prog-mode-hook . display-line-numbers-mode)
-  )
+  (prog-mode-hook . display-line-numbers-mode))
 
-;; @TODO: For some reason which-function considerably slows down Emacs when
-;; opening files.
 (use-package which-func
-  :disabled
   :hook
   (prog-mode-hook . which-function-mode))
 
 (use-package elec-pair
   :config
-  (electric-pair-mode 0))
+  (electric-pair-mode 1))
 
 (use-package paren
   :init
-  (setopt show-paren-delay 0.0)
+  (setopt show-paren-delay 0.125)
   :config
   (show-paren-mode 1))
 
@@ -381,17 +360,27 @@
 
 (use-package dired
   :init
-  (setopt dired-kill-when-opening-new-dired-buffer t
-          dired-hide-details-hide-symlink-targets nil
-          dired-dwim-target t)
+  (setopt )
   ;; @TODO: on macOS --group-directories-first is not supported.
   ;; See: https://github.com/d12frosted/homebrew-emacs-plus/issues/383#issuecomment-899157143
   (setq-default
    dired-listing-switches "-l --all --no-group --human-readable --group-directories-first --time-style=long-iso")
+  :hook
+  ((dired-mode . dired-hide-details-mode)
+   (dired-mode . hl-line-mode))
+  :bind (:map dired-mode-map
+         ([mouse-2] . dired-mouse-find-file))
   :config
-  (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file))
-  ;; :hook
-  ;; (dired-mode . dired-hide-details-mode)
+  (setopt dired-recursive-copies 'always
+          dired-recursive-deletes 'always
+          dired-kill-when-opening-new-dired-buffer t
+          dired-hide-details-hide-symlink-targets nil
+          dired-dwim-target t))
+
+;; (use-package browse-url
+;;   :config
+;;   (setopt browse-url-browser-function 'browse-url-generic
+;;           browse-url-generic-program "xdg-open"))
 
 (use-package org
   :init
@@ -549,6 +538,27 @@
   :config
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
+
+(use-package dired-subtree
+  :straight t
+  :after dired
+  :bind
+  ( :map dired-mode-map
+    ("<tab>" . dired-subtree-toggle)
+    ("TAB" . dired-subtree-toggle)
+    ("<backtab>" . dired-subtree-remove)
+    ("S-TAB" . dired-subtree-remove))
+  :config
+  (setopt dired-subtree-use-backgrounds nil))
+
+(use-package trashed
+  :straight t
+  :config
+  (setq trashed-action-confirmer 'y-or-n-p)
+  (setq trashed-use-header-line t)
+  (setq trashed-sort-key '("Date deleted" . t))
+  (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
+
 
 (use-package multiple-cursors
   :straight t
@@ -715,27 +725,19 @@
   (vertico-mode)
   (vertico-multiform-mode))
 
-;; Adds a small description to each item within the minibuffer completion list.
-;;
-;; https://github.com/minad/marginalia
 (use-package marginalia
-  :straight t
+  :straight (
   :after vertico
   :config
   (marginalia-mode)
   :custom
-  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))))
 
-;; The package `corfu' display a window for autocomplete candidates when writing
-;; text. It is a simpler alternative to the highly popular `company'
-;; package. This is because it uses the Emacs buit-in completion system.
-;;
-;; https://github.com/minad/corfu
 (use-package corfu
   :straight t
   :init
   (setopt corfu-cycle t
-          corfu-auto t
+          corfu-auto nil
           corfu-auto-delay 0.1
           corfu-separator ?\s
           corfu-quit-at-boundary 'separator
@@ -743,10 +745,16 @@
           corfu-preview-current nil
           corfu-preselect 'first
           corfu-on-exact-match nil
-          corfu-scroll-margin 1
-          corfu-count 5)
+          corfu-scroll-margin 2
+          corfu-count 5
+          corfu-min-width 20
+          corfu-popupinfo-delay '(1.25 . 0.5))
   :config
   (global-corfu-mode)
+  (corfu-popupinfo-mode 1)
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history))
   :bind
   (:map corfu-map
         ("RET" . nil)
@@ -754,10 +762,6 @@
         ("TAB" . corfu-complete)
         ("<tab>" . corfu-complete)))
 
-;; This package changes how completion candidates are displayed within a
-;; completion window such as `corfu' or `company'.
-;;
-;; https://github.com/oantolin/orderless
 (use-package orderless
   :straight t
   :init
@@ -769,9 +773,6 @@
   :disabled
   :straight t)
 
-;; Provides search and navigation commands
-;;
-;; https://github.com/minad/consult
 (use-package consult
   :straight t
   :init
@@ -849,9 +850,6 @@
   :hook
   (completion-list-mode-hook . consult-preview-at-point-mode))
 
-;; Consult users will also want the embark-consult package.
-;;
-;;
 (use-package embark-consult
   :straight t
   :requires (embark consult)
@@ -864,18 +862,34 @@
   :after (consult flycheck)
   :straight t)
 
-;; A Git client that can be used within Emacs.
-;;
-;; https://github.com/magit/magit
+(use-package nerd-icons
+  :straight t)
+
+(use-package nerd-icons-completion
+  :straight t
+  :after marginalia
+  :config
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-corfu
+  :straight t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(use-package nerd-icons-dired
+  :straight t
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
+
 (use-package magit
   :straight t
-  :init
-  (setopt magit-show-long-lines-warning nil)
-  :config
-  (magit-auto-revert-mode 1)
   :bind
   (("C-c g" . magit-status)
-   ("C-c f" . magit-file-dispatch)))
+   ("C-c f" . magit-file-dispatch))
+  :config
+  (setopt magit-show-long-lines-warning nil)
+  (magit-auto-revert-mode 1))
 
 ;; Allows for lines or regions to be moved.
 ;;
@@ -890,26 +904,21 @@
 ;;   ("M-N" . drag-stuff-down)
 ;;   :diminish)
 
-;; The package `elfeed' is an RSS client that allows a user to provide a list of
-;; RSS sources and the package will retrive the latest news.
-;;
-;; https://github.com/skeeto/elfeed
 (use-package elfeed
   :straight t
-  :commands (elfeed)
-  :config
-  (setopt elfeed-feeds '(("https://ziglang.org/devlog/index.xml" zig)))
   :bind
-  ("C-c e" . elfeed))
+  ("C-c e" . elfee)
+  :config
+  (setopt elfeed-feeds '(("https://ziglang.org/devlog/index.xml" zig))))
 
 (use-package ace-window
   :straight t
+  :bind
+  ("M-o" . ace-window)
   :config
   (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
           aw-background nil
-          aw-scope 'frame)
-  :bind
-  ("M-o" . ace-window))
+          aw-scope 'frame))
 
 ;; (use-package org-bullets
 ;;   :disabled
@@ -1032,8 +1041,9 @@ put content in kill-ring."
 
 (use-package doom-themes
   :config
-  (load-theme 'doom-pine)
+  (load-theme 'doom-badger)
   :straight t)
+
 
 (provide 'init)
 ;;; init.el ends here

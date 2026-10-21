@@ -1,12 +1,10 @@
 ;;; early-init.el --- Early Init File -*- lexical-binding: t -*-
 
-;; (setq gc-cons-threshold most-positive-fixnum
-;;       read-process-output-max (* 16 1024 1024))
-
-(setq-default default-font "Cascadia Code")
-;;(setq-default default-font "Martian Mono Std Rg")
-;;(setq-default default-font "Maple Mono")
-(set-face-attribute 'default nil :family default-font :height 130)
+(let ((mono-spaced-font "Cascadia Mono")
+      (proportionately-spaced-font "Sans"))
+  (set-face-attribute 'default nil :family mono-spaced-font :height 140)
+  (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
+  (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.0))
 
 (setq package-enable-at-startup nil)
 
