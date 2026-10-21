@@ -5,3 +5,4 @@ custom.el
 !straight/versions/
 elpa/
 tree-sitter/
+data/

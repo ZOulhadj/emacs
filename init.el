@@ -700,11 +700,6 @@
 
   :hook ((prog-mode text-mode) . idle-highlight-mode))
 
-
-;; The package `vertico' provides vertical interactive completion similar to
-;; `smex' or the built-in package `ido'.
-;;
-;; https://github.com/minad/vertico
 (use-package vertico
   :straight t
   :init
@@ -843,7 +838,7 @@
   (completion-list-mode-hook . consult-preview-at-point-mode))
 
 (use-package embark-consult
-  :straight tnnn
+  :straight t
   :requires (embark consult)
   :hook
   (embark-collect-mode-hook . consult-preview-at-point-mode))
