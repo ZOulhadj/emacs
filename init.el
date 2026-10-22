@@ -1026,11 +1026,9 @@
   :hook (after-init . ghostel-comint-global-mode))
 
 (use-package doom-themes
-  :disabled
   :config
   (load-theme 'doom-badger)
   :straight t)
-
 
 (provide 'init)
 ;;; init.el ends here
