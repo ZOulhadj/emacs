@@ -83,9 +83,8 @@
           ;; scroll-conservatively most-positive-fixnum
           sentence-end-double-space nil
 
-          scroll-preserve-screen-position t)
-  (setq-default tab-width 8
-                fill-column 80)
+          scroll-preserve-screen-position t
+          fill-column 80)
   (setq-default mode-line-format
                 '("%e" mode-line-front-space
                   (:propertize
@@ -177,12 +176,6 @@
   (which-key-mode)
   :diminish)
 
-;; @TODO: Move this into eglot configuration
-(use-package cc-vars
-  :init
-  (setopt c-default-style "k&r"
-          c-basic-offset 4))
-
 (use-package subword
   :hook
   (prog-mode . subword-mode))
@@ -217,9 +210,8 @@
   (setopt comint-input-ignoredups t
           comint-process-echoes t))
 
-(use-package whitespace
-  :hook
-  (before-save-hook . whitespace-cleanup))
+(use-package editorconfig
+  :config (editorconfig-mode 1))
 
 (use-package calendar
   :custom
@@ -265,11 +257,6 @@
   :config
   (desktop-save-mode 1))
 
-;; (use-package pixel-scroll
-;;   :config
-;;   ;; @TODO: Disabled for now because it feels laggy.
-;;   (pixel-scroll-precision-mode 0))
-
 (use-package autorevert
   :init
   (setopt global-auto-revert-non-file-buffers t)
@@ -277,15 +264,20 @@
   (global-auto-revert-mode t))
 
 (use-package simple
+  :bind (:map global-map
+              ("RET" . newline-and-indent))
   :init
   (setopt read-extended-command-predicate #'command-completion-default-include-p ; hide commands (M-x) that are not supported in the current mode)
           column-number-mode t
-          next-line-add-newlines t
+          next-line-add-newlines nil
           kill-do-not-save-duplicates t)
-  (setq-default indent-tabs-mode nil)
+  (setq-default indent-tabs-mode nil
+                tab-width 4
+                standard-indent 4
+                indent-line-function #'indent-relative-first-indent-point)
   :config
   (visual-line-mode -1)
-  (size-indication-mode -1)
+  (size-indication-mode 1)
   (set-default 'truncate-lines t))
 
 (use-package time
@@ -296,11 +288,11 @@
   :custom
   (display-time-default-load-average nil))
 
-(use-package display-line-numbers
-  :init
-  (setopt display-line-numbers-type 'visual)
-  :hook
-  (prog-mode-hook . display-line-numbers-mode))
+;; (use-package display-line-numbers
+;;   :init
+;;   (setopt display-line-numbers-type 'visual)
+;;   :hook
+;;   (prog-mode-hook . display-line-numbers-mode))
 
 (use-package which-func
   :hook
@@ -320,9 +312,9 @@
   :init
   (setopt recentf-max-saved-items 500
           recentf-max-menu-items 15
-   ;; disable recentf-cleanup on emacs start, because it can cause
-   ;; problems with remote files (prelude)
-   recentf-auto-cleanup 'never)
+          ;; disable recentf-cleanup on emacs start, because it can cause
+          ;; problems with remote files (prelude)
+          recentf-auto-cleanup 'never)
   :config
   (recentf-mode 1)
   :custom
@@ -379,7 +371,7 @@
 
 (use-package org
   :init
-  ;(setq-default org-display-custom-times t)
+                                        ;(setq-default org-display-custom-times t)
   (setopt
    org-directory "~/notes"
    org-agenda-files '("~/notes/personal.org")
@@ -389,11 +381,11 @@
    org-startup-indented nil
    org-startup-with-inline-images t
    org-display-remote-inline-images 'download
-   ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
+                                        ;org-time-stamp-custom-formats '("<%d/%m/%y %a>" . "<%d/%m/%y %a %h:%m>")
    org-return-follows-link t
    org-hide-emphasis-markers t)
-   ;org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-   ;;org-export-backends '(html md))
+                                        ;org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  ;;org-export-backends '(html md))
   :hook
   (org-mode-hook . turn-on-auto-fill))
 
@@ -422,20 +414,20 @@
 (use-package gnus
   :init
   (setopt gnus-select-method '(nnnil "")
-        gnus-secondary-select-methods '((nnml ""))
-        gnus-summary-display-arrow nil
-        gnus-auto-select-first nil
-        gnus-thread-hide-subtree t))
+          gnus-secondary-select-methods '((nnml ""))
+          gnus-summary-display-arrow nil
+          gnus-auto-select-first nil
+          gnus-thread-hide-subtree t))
 
 (use-package treesit
   :init
   (setopt treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
                                           (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
                                           (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
-   major-mode-remap-alist '((c-mode . c-ts-mode)
-                            (c++-mode . c++-ts-mode)
-                            (c-or-c++-mode . c-or-c++-ts-mode)
-                            (python-mode . python-ts-mode))))
+          major-mode-remap-alist '((c-mode . c-ts-mode)
+                                   (c++-mode . c++-ts-mode)
+                                   (c-or-c++-mode . c-or-c++-ts-mode)
+                                   (python-mode . python-ts-mode))))
 
 ;; (use-package treesit-auto
 ;;   :straight t
@@ -715,11 +707,11 @@
 
 (use-package marginalia
   :straight (
-  :after vertico
-  :config
-  (marginalia-mode)
-  :custom
-  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))))
+             :after vertico
+             :config
+             (marginalia-mode)
+             :custom
+             (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))))
 
 (use-package corfu
   :straight t
@@ -761,81 +753,108 @@
   :disabled
   :straight t)
 
+;; Example configuration for Consult
 (use-package consult
   :straight t
-  :bind
-  (("C-c M-x" . consult-mode-command)
-   ("C-c h" . consult-history)
-   ("C-c k" . consult-kmacro)
-   ("C-c m" . consult-man)
-   ("C-c i" . consult-info)
-   ([remap Info-search] . consult-info)
-   ;; C-x bindings in `ctl-x-map'
-   ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-   ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-   ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-   ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-   ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-   ;; Other custom bindings
-   ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-   ;; M-g bindings in `goto-map'
-   ("M-g e" . consult-compile-error)
-   ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
-   ("M-g g" . consult-goto-line)             ;; orig. goto-line
-   ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-   ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-   ("M-g m" . consult-mark)
-   ("M-g k" . consult-global-mark)
-   ("M-g i" . consult-imenu)
-   ("M-g I" . consult-imenu-multi)
-   ("M-g t" . consult-theme)
-   ;; M-s bindings in `search-map'
-   ("M-s d" . consult-find)
-   ("M-s D" . consult-locate)
-                                        ;("M-s g" . consult-grep)
-   ("M-s G" . consult-git-grep)
-   ("M-s r" . consult-ripgrep)
-   ("M-s l" . consult-line)
-   ("M-s L" . consult-line-multi)
-   ("M-s k" . consult-keep-lines)
-   ("M-s u" . consult-focus-lines)
-   ;; Isearch integration
-   ("M-s e" . consult-isearch-history)
-   :map isearch-mode-map
-   ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-   ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-   ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-   ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-   ;; Minibuffer history
-   :map minibuffer-local-map
-   ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-   ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-  :init
-  (setopt register-preview-delay 0.5
-          register-preview-function #'consult-register-format)
+  ;; Replace bindings. Lazily loaded by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("M-g t" . consult-theme)
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g r" . consult-grep-match)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Tweak the register preview for `consult-register-load',
+  ;; `consult-register-store' and the built-in commands.  This improves the
+  ;; register formatting, adds thin separator lines, register sorting and hides
+  ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
 
   ;; Use Consult to select xref locations with preview
-  (setopt xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
 
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
   :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
+   consult-ripgrep consult-git-grep consult-grep consult-man
    consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
+   consult-source-bookmark consult-source-file-register
+   consult-source-recent-file consult-source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
-  (setopt consult-narrow-key "<")
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
 
-  ;; Hide buffers that start with a * and only shown them if SPC is pressed
-  (add-to-list 'consult-buffer-filter "^\\*")
-  :hook
-  (completion-list-mode-hook . consult-preview-at-point-mode))
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+)
+
 
 (use-package embark-consult
   :straight t
@@ -907,6 +926,11 @@
           aw-background nil
           aw-scope 'frame))
 
+(use-package dtrt-indent
+  :straight t
+  :diminish
+  :config (dtrt-indent-global-mode))
+
 ;; (use-package org-bullets
 ;;   :disabled
 ;;   :straight t
@@ -939,13 +963,14 @@
 ;;         org-roam-ui-open-on-start t)
 ;;   :diminish)
 
+
 (use-package glsl-mode
   :straight t)
 
 (use-package markdown-mode
   :straight t
   :bind (:map markdown-mode-map
-         ("C-c C-e" . markdown-do))
+              ("C-c C-e" . markdown-do))
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setopt markdown-command "multimarkdown"))
 
@@ -958,10 +983,10 @@
               (add-hook 'before-save-hook
                         (lambda ()
                           (eglot-code-actions nil nil "source.fixAll" t))))))
-  ;; :bind (:map zig-mode-map
-  ;;             ("C-c b" . zig-compile)
-  ;;             ("C-c r" . zig-run)
-  ;;             ("C-c t" . zig-test))
+;; :bind (:map zig-mode-map
+;;             ("C-c b" . zig-compile)
+;;             ("C-c r" . zig-run)
+;;             ("C-c t" . zig-test))
 
 
 (use-package rust-mode
@@ -1037,8 +1062,8 @@
   "Renames current buffer and file it is visiting."
   (interactive)
   (let* ((name (buffer-name))
-        (filename (buffer-file-name))
-        (basename (file-name-nondirectory filename)))
+         (filename (buffer-file-name))
+         (basename (file-name-nondirectory filename)))
     (if (not (and filename (file-exists-p filename)))
         (error "Buffer '%s' is not visiting a file!" name)
       (let ((new-name (read-file-name "New name: " (file-name-directory filename) basename nil basename)))
