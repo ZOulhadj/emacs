@@ -258,7 +258,8 @@
 
 (use-package autorevert
   :init
-  (setopt global-auto-revert-non-file-buffers t)
+  (setopt global-auto-revert-non-file-buffers t
+          auto-revert-verbose nil)
   :config
   (global-auto-revert-mode t))
 
@@ -361,7 +362,8 @@
           dired-recursive-deletes 'always
           dired-kill-when-opening-new-dired-buffer t
           dired-hide-details-hide-symlink-targets nil
-          dired-dwim-target t))
+          dired-dwim-target t
+          dired-auto-revert-buffer t))
 
 ;; (use-package browse-url
 ;;   :config
