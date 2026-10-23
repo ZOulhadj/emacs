@@ -417,31 +417,10 @@
           gnus-auto-select-first nil
           gnus-thread-hide-subtree t))
 
-(use-package treesit
-  :init
-  (setopt treesit-language-source-alist '((c   . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.6"))
-                                          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
-                                          (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
-          major-mode-remap-alist '((c-mode . c-ts-mode)
-                                   (c++-mode . c++-ts-mode)
-                                   (c-or-c++-mode . c-or-c++-ts-mode)
-                                   (python-mode . python-ts-mode))))
-
-;; (use-package treesit-auto
-;;   :straight t
-;;   :init
-;;   (setq treesit-language-source-alist
-;;       '((bash   . ("https://github.com/tree-sitter/tree-sitter-bash" "v0.23.3"))
-;;         (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.23.6"))
-;;         (c      . ("https://github.com/tree-sitter/tree-sitter-c" "v0.23.4"))
-;;         (cpp    . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4"))
-;;         (rust   . ("https://github.com/tree-sitter/tree-sitter-rust" "v0.23.2"))
-;;         (nu     . ("https://github.com/nushell/tree-sitter-nu" "v0.23.0"))))
-;;   :custom
-;;   (treesit-auto-install 'prompt)
-;;   :config
-;;   (treesit-auto-add-to-auto-mode-alist 'all)
-;;   (global-treesit-auto-mode))
+(use-package treesit-auto
+  :straight t
+  :config
+  (global-treesit-auto-mode))
 
 ;; (const :tag "Documentation on hover" :hoverProvider)
 ;; (const :tag "Code completion" :completionProvider)
@@ -628,19 +607,10 @@
   :init
   (setopt avy-timeout-seconds 0.40))
 
-;; ;; The package `exec-path-from-shell' ensures all environment variables are
-;; ;; present within Emacs. By default, Emacs only uses a small subset of
-;; ;; variables. However, this package works by copying all enviornment variables
-;; ;; from the system into Emacs so that all commands are accessible.
-
-;; ;; todo: Take a closer look how this package behaves on Windows since its not
-;; ;; Unix based.
-;; ;;
-;; ;; https://github.com/purcell/exec-path-from-shell
-;; (use-package exec-path-from-shell
-;;   :straight t
-;;   :config
-;;   (exec-path-from-shell-initialize))
+(use-package exec-path-from-shell
+  :straight t
+  :config
+  (exec-path-from-shell-initialize))
 
 ;; Provides a dashboard/home screen when starting Emacs that lists projects,
 ;; recent files and more.
