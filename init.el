@@ -365,11 +365,6 @@
           dired-dwim-target t
           dired-auto-revert-buffer t))
 
-;; (use-package browse-url
-;;   :config
-;;   (setopt browse-url-browser-function 'browse-url-generic
-;;           browse-url-generic-program "xdg-open"))
-
 (use-package org
   :init
                                         ;(setq-default org-display-custom-times t)
