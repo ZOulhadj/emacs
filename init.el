@@ -159,7 +159,7 @@
 
 (use-package fringe
   :config
-  (fringe-mode 8))
+  (fringe-mode 10))
 
 (use-package hl-line
   :config
@@ -251,7 +251,8 @@
   ;; @TODO: For some reason dirname is not set?
   (setopt desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
           desktop-load-locked-desktop t
-          desktop-auto-save-timeout 30)
+          desktop-auto-save-timeout 30
+          desktop-save t)
   :config
   (desktop-save-mode 1))
 
@@ -527,27 +528,6 @@
   :bind
   ("C-c l" . 'mc/edit-lines))
 
-;; (use-package undo-tree
-;;   :straight t
-;;   :init
-;;   (setq undo-tree-history-directory-alist
-;;       `((".*" . ,temporary-file-directory)))
-;;   :config
-;;   (global-undo-tree-mode)
-;;   :diminish)
-
-;; (use-package ultra-scroll
-;;   :straight (ultra-scroll :type git :host github :repo "jdtsmith/ultra-scroll")
-;;   :init
-;;   (setq scroll-conservatively 101 ; important!
-;;         scroll-margin 0)
-;;   :config
-;;   (ultra-scroll-mode 1))
-
-;; ;;(add-hook 'help-fns-describe-function-functions #'shortdoc-help-fns-examples-function)
-;; (global-unset-key [mouse-2])
-
-
 ;; (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 ;; (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
 ;;       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
@@ -559,8 +539,6 @@
 ;; https://github.com/emacsmirror/dired-plus/tree/master
 ;; (use-package dired+
 ;;   :straight t)
-
-
 
 ;; (defun my-god-mode-update-cursor-type ()
 ;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
@@ -583,7 +561,6 @@
 ;;   ;; (god-mode-enabled . my-god-mode-update-cursor-type)
 ;;   ;; (god-mode-disabled . my-god-mode-update-cursor-type)
 ;;   )
-
 
 (use-package evil
   :disabled
@@ -864,6 +841,14 @@
   :config
   (setopt magit-show-long-lines-warning nil)
   (magit-auto-revert-mode 1))
+
+(use-package diff-hl
+  :straight t
+  :config
+  (global-diff-hl-mode)
+  
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
 ;; Allows for lines or regions to be moved.
 ;;
