@@ -110,7 +110,6 @@
   (set-face-attribute 'font-lock-comment-face nil
                       :foreground "#49503d"
                       :slant 'italic)
-  (load-theme 'modus-vivendi)
   :custom
   (text-mode-ispell-word-completion nil))
 
@@ -248,7 +247,6 @@
   (savehist-mode +1))
 
 (use-package desktop
-  :disabled ;; todo: messes up the previously loaded theme.
   :init
   ;; @TODO: For some reason dirname is not set?
   (setopt desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
@@ -488,7 +486,7 @@
 
   :config
   (add-to-list 'eglot-server-programs
-               `(zig-mode . ("~/.local/bin/zls")))
+               `(zig-mode . ("zls")))
   ;; (setq-default eglot-workspace-configuration
   ;;               '((:zls . (:enable_autofix t))))
   ;; (add-hook 'zig-mode-hook
