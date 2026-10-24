@@ -6,7 +6,7 @@
   (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
   (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.0))
 
-(setq package-enable-at-startup nil)
+(setopt package-enable-at-startup nil)
 
 ;; Move all eln-cache into the no-littering directory.
 (when (fboundp 'startup-redirect-eln-cache)
