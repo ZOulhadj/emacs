@@ -159,7 +159,7 @@
 
 (use-package fringe
   :config
-  (fringe-mode 10))
+  (fringe-mode '(8 . 0)))
 
 (use-package hl-line
   :config
@@ -203,6 +203,10 @@
 (use-package ansi-color
   :hook
   (compilation-filter-hook . ansi-color-compilation-filter))
+
+(use-package flymake
+  :config
+  (setopt flymake-fringe-indicator-position nil))
 
 (use-package comint
   :init
