@@ -991,12 +991,4 @@
 ;; (setq interprogram-cut-function 'wl-copy)
 ;; (setq interprogram-paste-function 'wl-paste)
 
-(setopt remote-file-name-inhibit-locks t
-        tramp-use-scp-direct-remote-copying t
-        remote-file-name-inhibit-auto-save-visited t)
-
-(setopt safe-local-variable-directories '("/home/zakariya/code/engine/"))
-
-(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
-
 (load "work.el" :no-error-if-file-is-missing)
