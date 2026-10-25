@@ -130,9 +130,7 @@
 (use-package window
   :bind
   ("C-," . prev-window)
-  ("C-." . other-window)
   ("C-x o" . other-window)
-
   ("C-1" . delete-other-windows)
   ("C-2" . split-window-below)
   ("C-3" . split-window-right)
@@ -567,6 +565,7 @@
 (use-package evil-escape
   :disabled
   :straight t
+  :after evil
   :config
   (evil-escape-mode)
   (setq-default
@@ -585,30 +584,6 @@
   :config
   (exec-path-from-shell-initialize))
 
-;; Provides a dashboard/home screen when starting Emacs that lists projects,
-;; recent files and more.
-;;
-;; https://github.com/emacs-dashboard/emacs-dashboard
-;; (use-package dashboard
-;;   :straight t
-;;   :init
-;;   (setq dashboard-banner-logo-title "Welcome to Emacs!"
-;;         dashboard-footer-messages '("")
-;;         dashboard-startup-banner 2
-;;         dashboard-center-content nil
-;;         dashboard-show-shortcuts t
-;;         dashboard-set-navigator t
-;;         dashboard-projects-backend 'project-el
-;;         dashboard-items '((recents  . 5)
-;;                           (bookmarks . 5)
-;;                           (projects . 5)
-;;                           (agenda . 5))
-;;         dashboard-week-agenda t
-;;         )
-;;         ;; dashboard-filter-agenda-entry 'dashboard-no-filter-agenda
-;;   :config
-;;   (dashboard-setup-startup-hook))
-
 (use-package dumb-jump
   :straight t
   :init
@@ -616,43 +591,11 @@
   :hook
   (xref-backend-functions-hook . dumb-jump-xref-activate))
 
-;; The package `flycheck' shows syntactic highlighting in code that displays
-;; logs, warnings and errors.
-;;
-;; https://github.com/flycheck/flycheck
-(use-package flycheck
-  :disabled
-  :straight t
-  :init
-  (global-flycheck-mode)
-  :diminish)
-
 (use-package idle-highlight-mode
   :straight t
   :config (setopt idle-highlight-idle-time 0.35)
 
   :hook ((prog-mode text-mode) . idle-highlight-mode))
-
-(use-package vertico
-  :straight t
-  :init
-  (setopt vertico-cycle t
-          vertico-resize nil
-          vertico-count 10
-          vertico-multiform-commands '((consult-imenu buffer indexed))
-          vertico-multiform-categories '((file grid)
-                                         (consult-grep buffer)))
-  :config
-  (vertico-mode)
-  (vertico-multiform-mode))
-
-(use-package marginalia
-  :straight (
-             :after vertico
-             :config
-             (marginalia-mode)
-             :custom
-             (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))))
 
 (use-package corfu
   :straight t
@@ -683,23 +626,18 @@
     (corfu-history-mode 1)
     (add-to-list 'savehist-additional-variables 'corfu-history)))
 
-(use-package orderless
-  :straight t
-  :init
-  (setopt completion-styles '(orderless partial-completion basic)
-          completion-category-defaults nil
-          completion-category-overrides nil))
-
 (use-package embark
-  :disabled
   :straight t)
 
-;; Example configuration for Consult
+(use-package embark-consult
+  :straight t
+  :requires (embark consult)
+  :hook
+  (embark-collect-mode-hook . consult-preview-at-point-mode))
+
 (use-package consult
   :straight t
-  ;; Replace bindings. Lazily loaded by `use-package'.
-  :bind (;; C-c bindings in `mode-specific-map'
-         ("C-c M-x" . consult-mode-command)
+  :bind (("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
@@ -752,25 +690,16 @@
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-
-  ;; The :init configuration is always executed (Not lazy)
   :init
-
   ;; Tweak the register preview for `consult-register-load',
   ;; `consult-register-store' and the built-in commands.  This improves the
   ;; register formatting, adds thin separator lines, register sorting and hides
   ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
-  (setq register-preview-delay 0.5)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
+  (setopt register-preview-delay 0.5
+          xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
   :config
-
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
   ;; (setq consult-preview-key 'any)
@@ -796,18 +725,34 @@
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
 )
 
-
-(use-package embark-consult
+(use-package vertico
   :straight t
-  :requires (embark consult)
-  :hook
-  (embark-collect-mode-hook . consult-preview-at-point-mode))
+  :after (consult)
+  :init
+  (setopt vertico-cycle t
+          vertico-resize nil
+          vertico-count 10
+          vertico-multiform-commands '((consult-imenu buffer indexed))
+          vertico-multiform-categories '((file grid)
+                                         (consult-grep buffer)))
+  :config
+  (vertico-mode)
+  (vertico-multiform-mode))
 
-(use-package consult-flycheck
-  :disabled
-  :requires (consult flycheck)
-  :after (consult flycheck)
-  :straight t)
+(use-package marginalia
+  :straight t
+  :after (vertico)
+  :config
+  (marginalia-mode)
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
+
+(use-package orderless
+  :straight t
+  :init
+  (setopt completion-styles '(orderless partial-completion basic)
+          completion-category-defaults nil
+          completion-category-overrides nil))
 
 (use-package nerd-icons
   :straight t)
