@@ -57,7 +57,9 @@
   ("C-x k" . kill-current-buffer)
   ("C-c r" . recompile)
   :init
-  (setopt create-lockfiles nil
+  (setopt read-process-output-max (* 1024 1024)
+          load-prefer-newer t
+          create-lockfiles nil
           history-length 1000
           history-delete-duplicates t
           use-dialog-box nil
@@ -80,11 +82,11 @@
           user-full-name "Zakariya Oulhadj"
           user-mail-address "zakariyaoulhadj01@gmail.com"
 
-          ;; scroll-conservatively most-positive-fixnum
           sentence-end-double-space nil
-
-          scroll-preserve-screen-position t
-          fill-column 80)
+          fill-column 80
+          scroll-preserve-screen-position 1
+          scroll-margin 0
+          scroll-conservatively 10000)
   (setq-default mode-line-format
                 '("%e" mode-line-front-space
                   (:propertize
@@ -105,6 +107,7 @@
   (blink-cursor-mode -1)
   (menu-bar-mode -1)
   :config
+  (set-default-coding-systems 'utf-8)
   (put 'narrow-to-region 'disabled nil)
 
   (set-face-attribute 'font-lock-comment-face nil
@@ -418,6 +421,12 @@
           gnus-summary-display-arrow nil
           gnus-auto-select-first nil
           gnus-thread-hide-subtree t))
+
+
+(use-package ultra-scroll
+  :straight t
+  :config
+  (ultra-scroll-mode +1))
 
 (use-package treesit-auto
   :straight t
