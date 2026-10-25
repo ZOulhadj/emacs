@@ -791,23 +791,26 @@
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
-;; Allows for lines or regions to be moved.
-;;
-;; https://github.com/rejeep/drag-stuff.el
-;; (use-package drag-stuff
-;;   :straight t
-;;   :config
-;;   (drag-stuff-global-mode 1)
-;;   ;;(drag-stuff-define-keys)
-;;   :bind
-;;   ("M-P" . drag-stuff-up)
-;;   ("M-N" . drag-stuff-down)
-;;   :diminish)
+(use-package move-text
+  :straight t
+  :config
+  (move-text-default-bindings)
+
+  (defun indent-region-advice (&rest ignored)
+    (let ((deactivate deactivate-mark))
+      (if (region-active-p)
+          (indent-region (region-beginning) (region-end))
+        (indent-region (line-beginning-position) (line-end-position)))
+      (setq deactivate-mark deactivate)))
+
+  (advice-add 'move-text-up :after 'indent-region-advice)
+  (advice-add 'move-text-down :after 'indent-region-advice))
+
 
 (use-package elfeed
   :straight t
   :bind
-  ("C-c e" . elfee)
+  ("C-c e" . elfeed)
   :config
   (setopt elfeed-feeds '(("https://ziglang.org/devlog/index.xml" zig))))
 
