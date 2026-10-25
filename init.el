@@ -30,20 +30,9 @@
           use-package-hook-name-suffix nil
           use-package-always-demand t))
 
-;; The package `diminish' introduces the `:diminish' keyword which can be used
-;; together with `use-package' to hide minor modes from the modeline. This
-;; allows the modeline to be kept minimal and show only required modes.
-;;
-;; https://github.com/emacsmirror/diminish
 (use-package diminish
   :straight t)
 
-;; The package `no-littering' ensures that the `user-emacs-directory' location
-;; is kept "clean" by moving the various different files that get created into
-;; specific directories. It is important to note that this package must be
-;; installed and activated before other Emacs packages are initialised.
-;;
-;; https://github.com/emacscollective/no-littering
 (use-package no-littering
   :straight t
   :init
@@ -74,8 +63,6 @@
           initial-scratch-message nil
           inhibit-startup-echo-area-message user-login-name
           inhibit-startup-screen t
-          ;;inhibit-splash-screen t
-          ;;inhibit-startup-message t
 
           tab-always-indent 'complete
           delete-by-moving-to-trash t
@@ -116,13 +103,14 @@
   :custom
   (text-mode-ispell-word-completion nil))
 
-(setq custom-file (locate-user-emacs-file "custom.el"))
-(load custom-file :no-error-if-file-is-missing)
-
 (defun zo/config-load ()
   "Load my Emacs configuration."
   (interactive)
   (find-file (concat user-emacs-directory "init.el")))
+
+(use-package help
+  :config
+  (setopt help-window-select t))
 
 (use-package comp
   :init
@@ -130,7 +118,10 @@
 
 (use-package custom
   :init
-  (setopt custom-safe-themes t))
+  (setopt custom-safe-themes t)
+  :config
+  (setopt custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file :no-error-if-file-is-missing))
 
 (defun prev-window ()
   (interactive)
@@ -423,16 +414,6 @@
           gnus-thread-hide-subtree t))
 
 
-(use-package ultra-scroll
-  :straight t
-  :config
-  (ultra-scroll-mode +1))
-
-(use-package treesit-auto
-  :straight t
-  :config
-  (global-treesit-auto-mode))
-
 ;; (const :tag "Documentation on hover" :hoverProvider)
 ;; (const :tag "Code completion" :completionProvider)
 ;; (const :tag "Function signature help" :signatureHelpProvider)
@@ -505,6 +486,7 @@
 
 ;; /////////////////////////////////////////////////////////////////////////////
 
+
 (use-package keyfreq
   :disabled
   :straight t
@@ -532,17 +514,20 @@
   (setq trashed-sort-key '("Date deleted" . t))
   (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
 
+(use-package ultra-scroll
+  :straight t
+  :config
+  (ultra-scroll-mode +1))
+
+(use-package treesit-auto
+  :straight t
+  :config
+  (global-treesit-auto-mode))
 
 (use-package multiple-cursors
   :straight t
   :bind
   ("C-c l" . 'mc/edit-lines))
-
-;; (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
-;; (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory)))
-;;       auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t))
-;;       custom-file (no-littering-expand-etc-file-name "custom.el"))
 
 ;; Adds additional functionality to the default dired mode
 ;;
@@ -552,25 +537,26 @@
 
 ;; (defun my-god-mode-update-cursor-type ()
 ;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  
+;; :hook
+;; (god-mode-enabled . my-god-mode-update-cursor-type)
+;; (god-mode-disabled . my-god-mode-update-cursor-type)
 
-;; (use-package god-mode
-;;   :straight t
-;;   :init
-;;   (setq god-exempt-major-modes nil
-;;         god-exempt-predicates nil)
-;;   :config
-;;   (god-mode)
-;;   :bind
-;;   ("<escape>" . #'god-local-mode)
-;;   (:map god-local-mode-map
-;;         ("." . repeat)
-;;         ("i" . god-local-mode)
-;;         ("[" . backward-paragraph)
-;;         ("]" . forward-paragraph))
-;;   ;; :hook
-;;   ;; (god-mode-enabled . my-god-mode-update-cursor-type)
-;;   ;; (god-mode-disabled . my-god-mode-update-cursor-type)
-;;   )
+(use-package god-mode
+  :disabled
+  :straight t
+  :bind
+  ("<escape>" . #'god-local-mode)
+  (:map god-local-mode-map
+        ("." . repeat)
+        ("i" . god-local-mode)
+        ("[" . backward-paragraph)
+        ("]" . forward-paragraph))
+  :init
+  (setopt god-exempt-major-modes nil
+          god-exempt-predicates nil)
+  :config
+  (god-mode))
 
 (use-package evil
   :disabled

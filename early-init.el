@@ -6,7 +6,6 @@
         frame-inhibit-implied-resize t
         package-native-compile t)
 
-
 (add-hook 'emacs-startup-hook
           (lambda ()
             (setq gc-cons-threshold (* 50 1000 1000) ; 50MB
@@ -19,7 +18,9 @@
   (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.0))
 
 ;; Move all eln-cache into the no-littering directory.
-(when (fboundp 'startup-redirect-eln-cache)
+(when (and (fboundp 'startup-redirect-eln-cache)
+           (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
   (startup-redirect-eln-cache
    (convert-standard-filename
-    (expand-file-name  "data/var/" user-emacs-directory))))
+    (expand-file-name  "data/var/eln-cache/" user-emacs-directory))))

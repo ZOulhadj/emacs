@@ -1,8 +1,11 @@
-eln-cache/
+data/
 tmp/
+
 straight/*
-custom.el
 !straight/versions/
+
+custom.el
+
 elpa/
 tree-sitter/
-data/
+
