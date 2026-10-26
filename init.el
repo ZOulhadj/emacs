@@ -118,9 +118,9 @@
 
 (use-package custom
   :init
-  (setopt custom-safe-themes t)
+  (setopt custom-safe-themes t
+          custom-file (locate-user-emacs-file "custom.el"))
   :config
-  (setopt custom-file (locate-user-emacs-file "custom.el"))
   (load custom-file :no-error-if-file-is-missing))
 
 (defun prev-window ()
