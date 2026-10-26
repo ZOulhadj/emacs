@@ -483,8 +483,7 @@
           erc-auto-query 'bury))
 
 ;; /////////////////////////////////////////////////////////////////////////////
-
-
+   
 (use-package keyfreq
   :disabled
   :straight t
@@ -527,18 +526,12 @@
   :bind
   ("C-c l" . 'mc/edit-lines))
 
-;; Adds additional functionality to the default dired mode
-;;
-;; https://github.com/emacsmirror/dired-plus/tree/master
-;; (use-package dired+
-;;   :straight t)
-
-;; (defun my-god-mode-update-cursor-type ()
-;;   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
-  
-;; :hook
-;; (god-mode-enabled . my-god-mode-update-cursor-type)
-;; (god-mode-disabled . my-god-mode-update-cursor-type)
+(use-package xah-fly-keys
+  :disabled
+  :straight t
+  :config
+  (xah-fly-keys-set-layout "colemak-dh")
+  (xah-fly-keys nil))
 
 (use-package god-mode
   :disabled
