@@ -775,7 +775,8 @@
   (("C-c g" . magit-status)
    ("C-c f" . magit-file-dispatch))
   :config
-  (setopt magit-show-long-lines-warning nil)
+  (setopt magit-git-executable "git"
+          magit-show-long-lines-warning nil)
   (magit-auto-revert-mode 1))
 
 (use-package diff-hl
