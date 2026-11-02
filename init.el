@@ -253,11 +253,13 @@
   (desktop-save-mode 1))
 
 (use-package autorevert
-  :init
-  (setopt global-auto-revert-non-file-buffers t
-          auto-revert-verbose nil)
-  :config
-  (global-auto-revert-mode t))
+  :hook (after-init . global-auto-revert-mode)
+  :custom
+  (global-auto-revert-non-file-buffers t)
+  
+  (auto-revert-verbose nil)
+  (auto-revert-use-notify t)
+  (auto-revert-interval 5))
 
 (use-package simple
   :bind (:map global-map
