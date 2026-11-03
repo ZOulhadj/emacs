@@ -244,7 +244,6 @@
 
 (use-package desktop
   :init
-  ;; @TODO: For some reason dirname is not set?
   (setopt desktop-dirname (expand-file-name "data/var/desktop/" user-emacs-directory)
           desktop-load-locked-desktop t
           desktop-auto-save-timeout 30
@@ -252,14 +251,19 @@
   :config
   (desktop-save-mode 1))
 
+;; TODO(Zak): (auto-revert-use-notify t) does not seem to work under WSL and
+;; instead polling seems to correctly update a buffer. Need to find out why this
+;; is the case.
+
 (use-package autorevert
-  :hook (after-init . global-auto-revert-mode)
+  :init
+  (global-auto-revert-mode 1)
   :custom
   (global-auto-revert-non-file-buffers t)
-  
+  (auto-revert-remote-files nil)
   (auto-revert-verbose nil)
-  (auto-revert-use-notify t)
-  (auto-revert-interval 5))
+  (auto-revert-use-notify nil)
+  (auto-revert-interval 2))
 
 (use-package simple
   :bind (:map global-map
