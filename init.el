@@ -949,11 +949,37 @@
 
 (use-package doom-themes
   :config
-  (load-theme 'doom-badger)
+  (load-theme 'doom-pine)
   :straight t)
 
+(use-package standard-themes
+  :straight t
+  :init
+  ;; This makes the Modus commands listed below consider only the Ef
+  ;; themes.  For an alternative that includes Modus and all
+  ;; derivative themes (like Ef), enable the
+  ;; `modus-themes-include-derivatives-mode' instead.  The manual of
+  ;; the Ef themes has a section that explains all the possibilities:
+  ;;
+  ;; - Evaluate `(info "(standard-themes) Working with other Modus themes or taking over Modus")'
+  ;; - Visit <https://protesilaos.com/emacs/standard-themes#h:d8ebe175-cd61-4e0b-9b84-7a4f5c7e09cd>
+  (standard-themes-take-over-modus-themes-mode 1)
+  :bind
+  (("<f5>" . modus-themes-rotate)
+   ("C-<f5>" . modus-themes-select)
+   ("M-<f5>" . modus-themes-load-random))
+  :config
+  ;; All customisations here.
+  (setq modus-themes-mixed-fonts t)
+  (setq modus-themes-italic-constructs t)
+
+  ;; Finally, load your theme of choice (or a random one with
+  ;; `modus-themes-load-random', `modus-themes-load-random-dark',
+  ;; `modus-themes-load-random-light').
+  (modus-themes-load-theme 'standard-light-tinted))
+
 (provide 'init)
-;;; init.el ends here
+
 
 (defun zo/rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
@@ -973,22 +999,6 @@
           (message "File '%s' successfully renamed to '%s'"
                    name (file-name-nondirectory new-name)))))))
 
-;; Below fixes copy and pasting to/from emacs-wayland.
-
-;; (setq wl-copy-process nil)
-;; (defun wl-copy (text)
-;;   (setq wl-copy-process (make-process :name "wl-copy"
-;;                                       :buffer nil
-;;                                       :command '("wl-copy" "-f" "-n")
-;;                                       :connection-type 'pipe
-;;                                       :noquery t))
-;;   (process-send-string wl-copy-process text)
-;;   (process-send-eof wl-copy-process))
-;; (defun wl-paste ()
-;;   (if (and wl-copy-process (process-live-p wl-copy-process))
-;;       nil ; should return nil if we're the current paste owner
-;;       (shell-command-to-string "wl-paste -n | tr -d \r")))
-;; (setq interprogram-cut-function 'wl-copy)
-;; (setq interprogram-paste-function 'wl-paste)
-
 (load "work.el" :no-error-if-file-is-missing)
+
+;;; init.el ends here
