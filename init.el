@@ -206,7 +206,8 @@
           comint-process-echoes t))
 
 (use-package editorconfig
-  :config (editorconfig-mode 1))
+  :config (editorconfig-mode 1)
+  :diminish)
 
 (use-package calendar
   :custom
@@ -290,23 +291,29 @@
   :custom
   (display-time-default-load-average nil))
 
-;; (use-package display-line-numbers
-;;   :init
-;;   (setopt display-line-numbers-type 'visual)
-;;   :hook
-;;   (prog-mode-hook . display-line-numbers-mode))
+(use-package display-line-numbers
+  :custom
+  (display-line-numbers-type t)
+  :config
+  (global-display-line-numbers-mode t)
+  :hook
+  (prog-mode-hook . display-line-numbers-mode))
 
 (use-package which-func
   :hook
   (prog-mode-hook . which-function-mode))
 
 (use-package elec-pair
+  :custom
+  (electric-pair-inhibit-predicate #'electric-pair-default-inhibit)
+  (electric-pair-skip-self 'always)
   :config
   (electric-pair-mode 1))
 
 (use-package paren
   :init
-  (setopt show-paren-delay 0.125)
+  (setopt show-paren-delay 0.125
+          show-paren-when-point-inside-paren nil)
   :config
   (show-paren-mode 1))
 
@@ -369,7 +376,7 @@
 
 (use-package org
   :init
-                                        ;(setq-default org-display-custom-times t)
+  ;;(setq-default org-display-custom-times t)
   (setopt
    org-directory "~/notes"
    org-agenda-files '("~/notes/personal.org")
@@ -444,6 +451,7 @@
 (use-package eglot
   :custom
   (eglot-autoshutdown t)
+  (eglot-sync-connect 0)
   (eglot-events-buffer-size 0)
   (eglot-extend-to-xref t)
   (eglot-ignored-server-capabilities
@@ -947,10 +955,10 @@
 (use-package ghostel-comint
   :hook (after-init . ghostel-comint-global-mode))
 
-(use-package doom-themes
-  :config
-  (load-theme 'doom-pine)
-  :straight t)
+(use-package gptel
+  :straight t
+  ;;:config (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)
+  )
 
 (use-package standard-themes
   :straight t
