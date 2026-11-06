@@ -250,7 +250,7 @@
           desktop-auto-save-timeout 30
           desktop-save t)
   :config
-  (desktop-save-mode 1))
+  (desktop-save-mode 0))
 
 ;; TODO(Zak): (auto-revert-use-notify t) does not seem to work under WSL and
 ;; instead polling seems to correctly update a buffer. Need to find out why this
@@ -962,6 +962,10 @@
 
 (use-package standard-themes
   :straight t
+  :bind
+  (("<f12>" . modus-themes-rotate)
+   ("C-<f12>" . modus-themes-select)
+   ("M-<f12>" . modus-themes-load-random))
   :init
   ;; This makes the Modus commands listed below consider only the Ef
   ;; themes.  For an alternative that includes Modus and all
@@ -972,14 +976,10 @@
   ;; - Evaluate `(info "(standard-themes) Working with other Modus themes or taking over Modus")'
   ;; - Visit <https://protesilaos.com/emacs/standard-themes#h:d8ebe175-cd61-4e0b-9b84-7a4f5c7e09cd>
   (standard-themes-take-over-modus-themes-mode 1)
-  :bind
-  (("<f5>" . modus-themes-rotate)
-   ("C-<f5>" . modus-themes-select)
-   ("M-<f5>" . modus-themes-load-random))
   :config
   ;; All customisations here.
-  (setq modus-themes-mixed-fonts t)
-  (setq modus-themes-italic-constructs t)
+  (setopt modus-themes-mixed-fonts t
+          modus-themes-italic-constructs t)
 
   ;; Finally, load your theme of choice (or a random one with
   ;; `modus-themes-load-random', `modus-themes-load-random-dark',
