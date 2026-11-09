@@ -55,6 +55,8 @@
           ring-bell-function 'ignore
           frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
           echo-keystrokes 0.02
+          redisplay-skip-fontification-on-input t
+          
           use-short-answers t
           frame-title-format '("" (:eval (if (buffer-file-name)
                                              (abbreviate-file-name (buffer-file-name))
@@ -71,9 +73,15 @@
 
           sentence-end-double-space nil
           fill-column 80
-          scroll-preserve-screen-position 1
-          scroll-margin 0
-          scroll-conservatively 10000)
+          
+          ;; scroll-preserve-screen-position t
+          ;; scroll-margin 0
+          ;; hscroll-margin 2
+          ;; hscroll-step 1
+          ;; auto-window-vscroll nil
+          ;; scroll-conservatively 10000
+          )
+  
   (setq-default mode-line-format
                 '("%e" mode-line-front-space
                   (:propertize
@@ -505,6 +513,11 @@
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
 
+(use-package ultra-scroll
+  :straight t
+  :config
+  (ultra-scroll-mode t))
+
 (use-package dired-subtree
   :straight t
   :after dired
@@ -524,11 +537,6 @@
   (setq trashed-use-header-line t)
   (setq trashed-sort-key '("Date deleted" . t))
   (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
-
-(use-package ultra-scroll
-  :straight t
-  :config
-  (ultra-scroll-mode +1))
 
 (use-package treesit-auto
   :straight t
@@ -955,11 +963,6 @@
 (use-package ghostel-comint
   :hook (after-init . ghostel-comint-global-mode))
 
-(use-package gptel
-  :straight t
-  ;;:config (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)
-  )
-
 (use-package standard-themes
   :straight t
   :bind
@@ -986,8 +989,10 @@
   ;; `modus-themes-load-random-light').
   (modus-themes-load-theme 'standard-light-tinted))
 
-(provide 'init)
+; Extra stuff that I will need to clean up.
 
+(setopt safe-local-variable-directories
+        '("~/dev/engine"))
 
 (defun zo/rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
@@ -1009,4 +1014,5 @@
 
 (load "work.el" :no-error-if-file-is-missing)
 
+(provide 'init)
 ;;; init.el ends here
