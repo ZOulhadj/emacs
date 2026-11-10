@@ -17,6 +17,7 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
 (straight-use-package 'use-package)
 
 (use-package straight
@@ -835,6 +836,9 @@
   ("C-c e" . elfeed)
   :config
   (setopt elfeed-feeds '(("https://ziglang.org/devlog/index.xml" zig))))
+
+(use-package notmuch
+  :straight t)
 
 (use-package ace-window
   :straight t
