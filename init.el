@@ -789,6 +789,12 @@
   :hook
   (dired-mode . nerd-icons-dired-mode))
 
+(use-package show-font
+  :straight t
+  :bind
+  (("C-c s f" . show-font-select-preview)
+   ("C-c s t" . show-font-tabulated)))
+
 (use-package magit
   :straight t
   :bind
