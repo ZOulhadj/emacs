@@ -218,6 +218,10 @@
   :config (editorconfig-mode 1)
   :diminish)
 
+(use-package bookmark
+  :config
+  (setopt bookmark-default-file (no-littering-expand-var-file-name "bookmarks.el")))
+
 (use-package calendar
   :custom
   (calendar-week-start-day 1)
