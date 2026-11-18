@@ -892,7 +892,9 @@
 
 
 (use-package glsl-mode
-  :straight t)
+  :straight t
+  :mode ("\\.pssl\\'"
+         "\\.hlsl\\'"))
 
 (use-package markdown-mode
   :straight t
@@ -935,6 +937,8 @@
 
   )
 
+(use-package powershell
+    :straight t)
 
 (use-package ox-hugo
   :straight t
