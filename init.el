@@ -57,7 +57,7 @@
           frame-resize-pixelwise t             ; For seperate frames (C-x 5 2)
           echo-keystrokes 0.02
           redisplay-skip-fontification-on-input t
-          
+          recenter-redisplay nil ; Stops terminal emacs from flicking on recenter?
           use-short-answers t
           frame-title-format '("" (:eval (if (buffer-file-name)
                                              (abbreviate-file-name (buffer-file-name))
@@ -851,7 +851,7 @@
   :config
   (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
           aw-background nil
-          aw-scope 'frame))
+          aw-scope 'global))
 
 (use-package dtrt-indent
   :straight t
